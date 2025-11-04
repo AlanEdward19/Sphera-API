@@ -29,4 +29,9 @@ public class GetClientsQuery
     /// This property can accept partial or full values to match client records.
     /// </summary>
     public string? Search { get; set; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether partner-related data should be included in the results.
+    /// </summary>
+    public bool? IncludePartner { get; set; } = false;
 }
