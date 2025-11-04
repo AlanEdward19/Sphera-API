@@ -6,8 +6,21 @@ using Sphera.API.Services;
 
 namespace Sphera.API.External.Database.Maps;
 
+/// <summary>
+/// Configures the entity mapping for the Document type within the Entity Framework Core model.
+/// </summary>
+/// <remarks>This configuration defines table mappings, property constraints, indexes, owned types, and
+/// relationships for the Document entity. It is typically used within the OnModelCreating method of a DbContext to
+/// ensure the Document entity is correctly mapped to the underlying database schema.</remarks>
 public class DocumentMap : IEntityTypeConfiguration<Document>
 {
+    /// <summary>
+    /// Configures the entity type mapping for the Document entity.
+    /// </summary>
+    /// <remarks>This method defines the table mapping, keys, property configurations, indexes, owned types,
+    /// and relationships for the Document entity. It should be called within the Entity Framework Core model
+    /// configuration process.</remarks>
+    /// <param name="b">The builder used to configure the Document entity type.</param>
     public void Configure(EntityTypeBuilder<Document> b)
     {
         b.ToTable("Documents");

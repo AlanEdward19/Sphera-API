@@ -3,29 +3,98 @@ using Sphera.API.Shared;
 
 namespace Sphera.API.Services;
 
+/// <summary>
+/// Represents a business service with identifying information, status, and audit metadata.
+/// </summary>
+/// <remarks>The Service class encapsulates the core properties and state transitions for a business service
+/// entity, including creation, updates, activation, and deactivation. It maintains audit information such as creation
+/// and update timestamps and user identifiers. The class enforces validation on required fields and ensures that the
+/// service code is unique within the system. Instances of this class are typically created and managed through
+/// application logic that enforces business rules.</remarks>
 public class Service
 {
+    /// <summary>
+    /// Gets the unique identifier for the entity.
+    /// </summary>
     [Key]
     public Guid Id { get; private set; }
+
+    /// <summary>
+    /// Gets the name associated with this instance.
+    /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(120)]
     public string Name { get; private set; }
-    public string Code { get; private set; } // único
-    
-    [MinLength(0)]
+
+    /// <summary>
+    /// Gets the code associated with this instance.
+    /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(40)]
+    public string Code { get; private set; }
+
+    /// <summary>
+    /// Gets the default number of days until an item is due.
+    /// </summary>
+    [Required]
+    [MinLength(1)]
     public short DefaultDueInDays { get; private set; }
-    
+
+    /// <summary>
+    /// Gets a value indicating whether the entity is active.
+    /// </summary>
+    [Required]
     public bool IsActive { get; private set; }
+
+    /// <summary>
+    /// Gets the date and time when the entity was created.
+    /// </summary>
+    [Required]
     public DateTime CreatedAt { get; private set; }
+
+    /// <summary>
+    /// Gets the unique identifier of the user who created the entity.
+    /// </summary>
+    [Required]
     public Guid CreatedBy { get; private set; }
+
+    /// <summary>
+    /// Gets the date and time when the entity was last updated.
+    /// </summary>
     public DateTime? UpdatedAt { get; private set; }
+
+    /// <summary>
+    /// Gets the unique identifier of the user who last updated the entity.
+    /// </summary>
     public Guid? UpdatedBy { get; private set; }
+
+    /// <summary>
+    /// Gets the version of the row used for concurrency control.
+    /// </summary>
+    /// <remarks>The row version is typically used to detect conflicting updates in optimistic concurrency
+    /// scenarios. The value is updated automatically by the data store each time the row is modified.</remarks>
     public byte[] RowVersion { get; private set; }
 
+    /// <summary>
+    /// EF Core parameterless constructor.
+    /// </summary>
     private Service() { }
     
-
-    public Service(Guid id, string name, string code, short defaultDueInDays, Guid createdBy)
+    /// <summary>
+    /// Initializes a new instance of the Service class with the specified name, code, default due period, and creator
+    /// identifier.
+    /// </summary>
+    /// <param name="name">The name of the service. Cannot be null, empty, or consist only of white-space characters.</param>
+    /// <param name="code">The unique code that identifies the service. Cannot be null, empty, or consist only of white-space characters.</param>
+    /// <param name="defaultDueInDays">The default number of days until the service is due. Must be zero or a positive value.</param>
+    /// <param name="createdBy">The unique identifier of the user who created the service.</param>
+    /// <exception cref="DomainException">Thrown when the name or code is null, empty, or consists only of white-space characters, or when
+    /// defaultDueInDays is negative.</exception>
+    public Service(string name, string code, short defaultDueInDays, Guid createdBy)
     {
-        Id = id == Guid.Empty ? Guid.NewGuid() : id;
+        Id = Guid.NewGuid();
         if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Nome do serviço obrigatório.");
         if (string.IsNullOrWhiteSpace(code)) throw new DomainException("Código do serviço obrigatório.");
         if (defaultDueInDays < 0) throw new DomainException("DefaultDueInDays inválido.");
@@ -37,6 +106,14 @@ public class Service
         CreatedBy = createdBy;
     }
 
+    /// <summary>
+    /// Updates the name and default due-in days for the entity, and records the actor performing the update.
+    /// </summary>
+    /// <remarks>The method only updates the name and default due-in days if the provided values are valid.
+    /// The update timestamp and actor are always set.</remarks>
+    /// <param name="name">The new name to assign to the entity. If null, empty, or whitespace, the name is not changed.</param>
+    /// <param name="defaultDueInDays">The new default number of days until due. If negative, the value is not changed.</param>
+    /// <param name="actor">The unique identifier of the actor performing the update. This value is recorded as the updater.</param>
     public void Update(string name, short defaultDueInDays, Guid actor)
     {
         if (!string.IsNullOrWhiteSpace(name)) Name = name;
@@ -45,6 +122,17 @@ public class Service
         UpdatedBy = actor;
     }
 
+    /// <summary>
+    /// Activates the entity and records the actor responsible for the activation.
+    /// </summary>
+    /// <param name="actor">The unique identifier of the actor performing the activation. This value is used to update the audit information
+    /// for the entity.</param>
     public void Activate(Guid actor) { IsActive = true; UpdatedAt = DateTime.UtcNow; UpdatedBy = actor; }
+
+    /// <summary>
+    /// Deactivates the current entity and records the actor responsible for the change.
+    /// </summary>
+    /// <param name="actor">The unique identifier of the actor performing the deactivation. This value is used to update the audit
+    /// information.</param>
     public void Deactivate(Guid actor) { IsActive = false; UpdatedAt = DateTime.UtcNow; UpdatedBy = actor; }
 }

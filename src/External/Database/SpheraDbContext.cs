@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.Auditory;
 using Sphera.API.Clients;
+using Sphera.API.Contacts;
 using Sphera.API.Database.Maps;
 using Sphera.API.Documents;
 using Sphera.API.Partners;
 using Sphera.API.Services;
 using Sphera.API.Shared;
-using Sphera.API.Shared.Contacts;
 
 namespace Sphera.API.External.Database;
 

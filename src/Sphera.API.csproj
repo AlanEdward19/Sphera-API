@@ -16,9 +16,6 @@
     <ItemGroup>
       <Folder Include="Configurations\" />
       <Folder Include="External\Storage\" />
-      <Folder Include="Services\CreateService\" />
-      <Folder Include="Services\DeleteService\" />
-      <Folder Include="Services\UpdateService\" />
     </ItemGroup>
 
 </Project>

@@ -1,4 +1,5 @@
 ﻿using Sphera.API.Shared.ValueObjects;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sphera.API.Shared.DTOs;
 
@@ -13,26 +14,40 @@ public class AddressDTO
     /// <summary>
     /// Gets or sets the street address component of the location.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(160)]
     public string Street { get; set; }
-    
+
     /// <summary>
     /// Gets or sets the numeric value associated with this instance.
     /// </summary>
+    [Required]
+    [MinLength(1)]
     public int? Number { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the city associated with the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(80)]
     public string City { get; set; }
 
     /// <summary>
     /// Gets or sets the current state of the object.
     /// </summary>
+    [Required]
+    [MinLength(2)]
+    [MaxLength(2)]
     public string State { get; set; }
 
     /// <summary>
     /// Gets or sets the postal code for the associated address.
     /// </summary>
+    [Required]
+    [MinLength(10)]
+    [MaxLength(10)]
     public string ZipCode { get; set; }
 
     /// <summary>

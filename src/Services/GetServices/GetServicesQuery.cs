@@ -1,6 +1,22 @@
 ﻿namespace Sphera.API.Services.GetServices;
 
+/// <summary>
+/// Represents the parameters used to query for services based on code, name, or active status.
+/// </summary>
 public class GetServicesQuery
 {
-    publ
+    /// <summary>
+    /// Gets or sets the code associated with the current entity.
+    /// </summary>
+    public string? Code { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the name associated with the object.
+    /// </summary>
+    public string? Name { get; set; }
+    
+    /// <summary>
+    /// Gets or sets a value indicating whether the entity is active.
+    /// </summary>
+    public bool? IsActive { get; set; }
 }

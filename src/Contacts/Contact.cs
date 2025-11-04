@@ -1,11 +1,12 @@
 ﻿using Sphera.API.Clients;
+using Sphera.API.Contacts.Enums;
 using Sphera.API.Partners;
-using Sphera.API.Shared.Contacts.Enums;
+using Sphera.API.Shared;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
 
-namespace Sphera.API.Shared.Contacts;
+namespace Sphera.API.Contacts;
 
 /// <summary>
 /// Represents a contact entity with type, role, value, and audit information.

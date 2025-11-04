@@ -4,8 +4,21 @@ using Sphera.API.Services;
 
 namespace Sphera.API.External.Database.Maps;
 
+/// <summary>
+/// Configures the entity mapping for the Service type in the Entity Framework model.
+/// </summary>
+/// <remarks>This class defines how the Service entity is mapped to the database schema, including table name,
+/// primary key, property configurations, and indexes. It is typically used by Entity Framework Core during model
+/// creation to apply custom configuration for the Service entity.</remarks>
 public class ServiceMap : IEntityTypeConfiguration<Service>
 {
+    /// <summary>
+    /// Configures the entity type mapping for the Service entity.
+    /// </summary>
+    /// <remarks>This method defines the table mapping, primary key, property configurations, and indexes for
+    /// the Service entity. It should be called within the Entity Framework Core model configuration process, typically
+    /// in the OnModelCreating method of your DbContext.</remarks>
+    /// <param name="b">The builder used to configure the Service entity type.</param>
     public void Configure(EntityTypeBuilder<Service> b)
     {
         b.ToTable("Services");

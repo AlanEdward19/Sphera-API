@@ -1,12 +1,25 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Sphera.API.Contacts;
 using Sphera.API.Partners;
-using Sphera.API.Shared.Contacts;
 
 namespace Sphera.API.External.Database.Maps;
 
+/// <summary>
+/// Configures the entity mapping for the Partner type in the Entity Framework model.
+/// </summary>
+/// <remarks>This configuration defines how the Partner entity is mapped to the database, including table name,
+/// primary key, property constraints, owned types, indexes, and relationships. It should be used with Entity Framework
+/// Core's model builder to ensure the Partner entity is correctly represented in the database schema.</remarks>
 public class PartnerMap : IEntityTypeConfiguration<Partner>
 {
+    /// <summary>
+    /// Configures the entity type mapping for the Partner entity using the specified builder.
+    /// </summary>
+    /// <remarks>This method defines table mapping, property constraints, indexes, owned types, and
+    /// relationships for the Partner entity. It should be called within the Entity Framework Core model configuration
+    /// process to ensure the Partner entity is correctly mapped to the database schema.</remarks>
+    /// <param name="b">The builder used to configure the Partner entity type and its properties.</param>
     public void Configure(EntityTypeBuilder<Partner> b)
     {
         b.ToTable("Partners");

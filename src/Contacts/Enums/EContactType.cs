@@ -1,4 +1,4 @@
-﻿namespace Sphera.API.Shared.Contacts.Enums;
+﻿namespace Sphera.API.Contacts.Enums;
 
 public enum EContactType
 {

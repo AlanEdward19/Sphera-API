@@ -1,4 +1,5 @@
 ﻿using Sphera.API.Shared.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sphera.API.Clients.UpdateClient;
 
@@ -16,16 +17,22 @@ public class UpdateClientCommand
     /// <summary>
     /// Gets or sets the unique identifier for the entity.
     /// </summary>
-    public Guid Id { get; set; }
+    public Guid Id { get; private set; }
 
     /// <summary>
     /// Gets or sets the trade name associated with the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(160)]
     public string TradeName { get; set; }
 
     /// <summary>
     /// Gets or sets the registered legal name of the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(160)]
     public string LegalName { get; set; }
 
     /// <summary>
@@ -34,16 +41,25 @@ public class UpdateClientCommand
     /// <remarks>The CNPJ is a unique identifier assigned to legal entities in Brazil. The value should be a
     /// valid CNPJ format, typically consisting of 14 numeric digits. Callers are responsible for ensuring the value is
     /// correctly formatted and valid according to Brazilian regulations.</remarks>
+    [Required]
+    [MinLength(14)]
+    [MaxLength(14)]
     public string Cnpj { get; set; }
 
     /// <summary>
     /// Gets or sets the state registration identifier associated with the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(50)]
     public string StateRegistration { get; set; }
 
     /// <summary>
     /// Gets or sets the municipal registration number associated with the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(50)]
     public string MunicipalRegistration { get; set; }
 
     /// <summary>
@@ -54,21 +70,29 @@ public class UpdateClientCommand
     /// <summary>
     /// Gets or sets the email address used for financial communications.
     /// </summary>
+    [Required]
+    [EmailAddress]
     public string FinancialEmail { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number for financial inquiries.
     /// </summary>
+    [Required]
+    [Phone]
     public string FinancialPhone { get; set; }
 
     /// <summary>
     /// Gets or sets the email address associated with the user.
     /// </summary>
+    [Required]
+    [EmailAddress]
     public string Email { get; set; }
 
     /// <summary>
     /// Gets or sets the phone number associated with the entity.
     /// </summary>
+    [Required]
+    [Phone]
     public string Phone { get; set; }
 
     /// <summary>
@@ -76,10 +100,17 @@ public class UpdateClientCommand
     /// </summary>
     /// <remarks>A value between 1 and 31 represents the specific day of the month when payment is expected.
     /// If the value is null, no billing due day is set.</remarks>
+    [Range(1, 31)]
     public short? BillingDueDay { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the current entity is active.
     /// </summary>
     public bool Status { get; set; } = true;
+
+    /// <summary>
+    /// Sets the unique identifier for the current instance.
+    /// </summary>
+    /// <param name="id">The unique identifier to assign to the instance.</param>
+    public void SetId(Guid id) => Id = id;
 }

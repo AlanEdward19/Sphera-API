@@ -1,11 +1,24 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Sphera.API.Shared.Contacts;
+using Sphera.API.Contacts;
 
 namespace Sphera.API.External.Database.Maps;
 
+/// <summary>
+/// Configures the entity mapping for the Contact entity type in the Entity Framework model.
+/// </summary>
+/// <remarks>This configuration defines table mapping, property constraints, relationships, and indexes for the
+/// Contact entity. It is typically used within the Entity Framework Core model building process to ensure the Contact
+/// entity is correctly mapped to the database schema.</remarks>
 public class ContactMap : IEntityTypeConfiguration<Contact>
 {
+    /// <summary>
+    /// Configures the entity type mapping for the Contact entity.
+    /// </summary>
+    /// <remarks>This method defines the table mapping, property configurations, relationships, and indexes
+    /// for the Contact entity. It should be called within the Entity Framework Core model configuration
+    /// process.</remarks>
+    /// <param name="b">The builder used to configure the Contact entity type.</param>
     public void Configure(EntityTypeBuilder<Contact> b)
     {
         b.ToTable("Contacts");

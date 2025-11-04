@@ -2,28 +2,45 @@
 
 namespace Sphera.API.Shared.ValueObjects;
 
+/// <summary>
+/// Represents an immutable value object that encapsulates the components of a physical address, including street,
+/// number, city, state, and postal code.
+/// </summary>
+/// <remarks>This record is intended for use where address information must be treated as a single, atomic value
+/// for comparison or persistence purposes. All required fields are validated upon initialization. The state property
+/// must be a two-letter abbreviation, typically conforming to standard U.S. state codes. The object is immutable after
+/// creation.</remarks>
 public sealed record AddressValueObject
 {
     /// <summary>
     /// Gets the street component of the address.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(160)]
     public string Street { get; init; }
 
     /// <summary>
     /// Gets the number associated with this instance.
     /// </summary>
+    [Required]
+    [MinLength(1)]
     public int? Number { get; init; }
 
     /// <summary>
     /// Gets the name of the city associated with the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(80)]
     public string City { get; init; }
-    
+
     /// <summary>
     /// Gets the two-letter postal abbreviation for the state.
     /// </summary>
     /// <remarks>The value must be exactly two characters in length, typically conforming to standard U.S.
     /// state abbreviations (e.g., "NY" for New York).</remarks>
+    [Required]
     [MinLength(2)]
     [MaxLength(2)]
     public string State { get; init; }
@@ -31,6 +48,9 @@ public sealed record AddressValueObject
     /// <summary>
     /// Gets the postal code associated with the address.
     /// </summary>
+    [Required]
+    [MinLength(10)]
+    [MaxLength(10)]
     public string ZipCode { get; init; }
 
     /// <summary>
@@ -52,6 +72,8 @@ public sealed record AddressValueObject
         Number = number;
         City = city;
         State = state.ToUpperInvariant();
+
+        //TODO: Validação de CEP
         ZipCode = zipCode;
     }
 }

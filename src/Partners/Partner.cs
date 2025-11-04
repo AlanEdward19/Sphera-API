@@ -1,6 +1,6 @@
-﻿using Sphera.API.Shared;
-using Sphera.API.Shared.Contacts;
-using Sphera.API.Shared.Contacts.Enums;
+﻿using Sphera.API.Contacts;
+using Sphera.API.Contacts.Enums;
+using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 
@@ -26,11 +26,17 @@ public class Partner
     /// <summary>
     /// Gets the trade name associated with the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(160)]
     public string TradeName { get; private set; }
 
     /// <summary>
     /// Gets the registered legal name of the entity.
     /// </summary>
+    [Required]
+    [MinLength(1)]
+    [MaxLength(160)]
     public string LegalName { get; private set; }
 
     /// <summary>
@@ -38,41 +44,49 @@ public class Partner
     /// </summary>
     /// <remarks>The CNPJ is a unique identifier assigned to legal entities in Brazil. Use this property to
     /// access the validated CNPJ value for the entity.</remarks>
+    [Required]
     public CnpjValueObject Cnpj { get; private set; }
 
     /// <summary>
     /// Gets the state registration identifier associated with the entity.
     /// </summary>
+    [MaxLength(50)]
     public string? StateRegistration { get; private set; }
 
     /// <summary>
     /// Gets the municipal registration number associated with the entity.
     /// </summary>
+    [MaxLength(50)]
     public string? MunicipalRegistration { get; private set; }
 
     /// <summary>
     /// Gets the address associated with the current entity.
     /// </summary>
+    [Required]
     public AddressValueObject Address { get; private set; }
 
     /// <summary>
     /// Gets the day of the month on which billing is due, if specified.
     /// </summary>
+    [Range(1, 31)]
     public short? BillingDueDay { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether the current operation or entity is in an active or successful state.
     /// </summary>
+    [Required]
     public bool Status { get; private set; }
 
     /// <summary>
     /// Gets the date and time when the object was created.
     /// </summary>
+    [Required]
     public DateTime CreatedAt { get; private set; }
 
     /// <summary>
     /// Gets the unique identifier of the user who created the entity.
     /// </summary>
+    [Required]
     public Guid CreatedBy { get; private set; }
 
     /// <summary>
