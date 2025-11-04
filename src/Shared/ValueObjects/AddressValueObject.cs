@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Sphera.API.Shared.DTOs;
+using System.ComponentModel.DataAnnotations;
 
 namespace Sphera.API.Shared.ValueObjects;
 
@@ -75,5 +76,21 @@ public sealed record AddressValueObject
 
         //TODO: Validação de CEP
         ZipCode = zipCode;
+    }
+
+    /// <summary>
+    /// Converts the current address instance to an AddressDTO object.
+    /// </summary>
+    /// <returns>An AddressDTO containing the street, number, city, state, and zip code values from this address.</returns>
+    public AddressDTO ToDTO()
+    {
+        return new AddressDTO
+        {
+            Street = this.Street,
+            Number = this.Number,
+            City = this.City,
+            State = this.State,
+            ZipCode = this.ZipCode
+        };
     }
 }

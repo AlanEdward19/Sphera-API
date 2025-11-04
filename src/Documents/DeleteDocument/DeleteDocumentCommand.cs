@@ -1,3 +1,3 @@
 ﻿namespace Sphera.API.Documents.DeleteDocument;
 
-public class DeleteDocumentCommand(Guid id);
+public record DeleteDocumentCommand(Guid id);

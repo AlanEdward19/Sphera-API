@@ -4,4 +4,4 @@
 /// Represents a command to delete a client identified by a unique identifier.
 /// </summary>
 /// <param name="id">The unique identifier of the client to be deleted.</param>
-public class DeleteClientCommand(Guid id);
+public record DeleteClientCommand(Guid Id);

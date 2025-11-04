@@ -78,12 +78,27 @@ public class Contact
     /// </summary>
     public byte[] RowVersion { get; private set; }
 
+    /// <summary>
+    /// Gets the partner entity associated with this instance.
+    /// </summary>
+    /// <remarks>This property is populated based on the foreign key relationship defined by the PartnerId
+    /// property. The value may be null if no partner is associated.</remarks>
     [ForeignKey(nameof(PartnerId))]
     public virtual Partner? Partner { get; private set; }
 
+    /// <summary>
+    /// Gets the client associated with this entity.
+    /// </summary>
+    /// <remarks>This property is populated based on the foreign key relationship defined by the ClientId
+    /// property. The value may be null if no client is associated. This property is read-only and typically set by the
+    /// data access framework when loading related entities.</remarks>
     [ForeignKey(nameof(ClientId))]
     public virtual Client? Client { get; private set; }
 
+    /// <summary>
+    /// Initializes a new instance of the Contact class. This constructor is private and is intended to restrict
+    /// instantiation to within the class itself.
+    /// </summary>
     private Contact() { }
 
     /// <summary>

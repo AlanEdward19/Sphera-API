@@ -1,8 +1,11 @@
-﻿using Sphera.API.Contacts;
+﻿using Sphera.API.Clients.CreateClient;
+using Sphera.API.Clients.DTOs;
+using Sphera.API.Contacts;
 using Sphera.API.Contacts.Enums;
 using Sphera.API.Partners;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -114,7 +117,7 @@ public class Client
     /// </summary>
     [ForeignKey(nameof(PartnerId))]
     public virtual Partner Partner { get; private set; }
-    
+
     /// <summary>
     /// Gets the collection of contacts associated with this entity.
     /// </summary>
@@ -138,13 +141,29 @@ public class Client
     /// <param name="createdBy">The unique identifier of the user who created the client.</param>
     /// <param name="billingDueDay">The day of the month when billing is due, or null if not specified.</param>
     /// <exception cref="DomainException">Thrown if partnerId is Guid.Empty.</exception>
-    public Client(Guid id, Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj,
+    public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj,
         AddressValueObject? address, Guid createdBy, short? billingDueDay = null)
     {
-        Id = id == Guid.Empty ? Guid.NewGuid() : id;
+        Id = Guid.NewGuid();
         if (partnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = partnerId;
         SetBasicInfo(tradeName, legalName, cnpj, address, billingDueDay);
+        CreatedAt = DateTime.UtcNow;
+        CreatedBy = createdBy;
+        Status = true;
+    }
+
+    public Client(CreateClientCommand command, Guid createdBy)
+    {
+        Id = Guid.NewGuid();
+        if (command.PartnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
+        PartnerId = command.PartnerId;
+        SetBasicInfo(
+            command.TradeName,
+            command.LegalName,
+            new CnpjValueObject(command.Cnpj),
+            command.Address.ToValueObject(),
+            command.BillingDueDay);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -244,5 +263,42 @@ public class Client
         var contact = Contacts.FirstOrDefault(c => c.Id == contactId);
         if (contact is not null)
             Contacts.Remove(contact);
+    }
+
+    public ClientDTO ToDTO(bool includePartner)
+    {
+        return includePartner ? new ClientWithPartnerDTO
+        (
+            Id,
+            TradeName,
+            LegalName,
+            Cnpj.Value,
+            StateRegistration,
+            MunicipalRegistration,
+            Address.ToDTO(),
+            BillingDueDay,
+            Status,
+            CreatedAt,
+            CreatedBy,
+           UpdatedAt,
+            UpdatedBy,
+            new ReadOnlyCollection<ContactDTO>(Contacts.Select(c => c.ToDTO()).ToList()),
+            Partner.ToDTO()
+        ) : new ClientDTO(
+            Id,
+            TradeName,
+            LegalName,
+            Cnpj.Value,
+            StateRegistration,
+            MunicipalRegistration,
+            Address.ToDTO(),
+            BillingDueDay,
+            Status,
+            CreatedAt,
+            CreatedBy,
+           UpdatedAt,
+            UpdatedBy,
+             new ReadOnlyCollection<ContactDTO>(Contacts.Select(c => c.ToDTO()).ToList())
+        );
     }
 }
