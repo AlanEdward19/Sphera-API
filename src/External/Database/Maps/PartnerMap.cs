@@ -1,7 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.Contacts;
 using Sphera.API.Partners;
+using Sphera.API.Shared.ValueObjects;
 
 namespace Sphera.API.External.Database.Maps;
 
@@ -31,7 +34,27 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
 
         b.Property(x => x.TradeName).HasMaxLength(160).IsRequired();
         b.Property(x => x.LegalName).HasMaxLength(160).IsRequired();
-        b.Property(x => x.Cnpj).HasMaxLength(14).IsRequired().HasColumnName("Cnpj");
+
+        var cnpjConverter = new ValueConverter<CnpjValueObject, string>(
+            v => v.Value,
+            v => new CnpjValueObject(v)
+        );
+
+        var cnpjComparer = new ValueComparer<CnpjValueObject>(
+            (a, b) => a.Value == b.Value,
+            v => v == null ? 0 : v.Value.GetHashCode(),
+            v => new CnpjValueObject(v.Value)
+        );
+
+        var cnpjProp = b.Property(c => c.Cnpj);
+
+        cnpjProp.HasConversion(cnpjConverter)
+                .HasColumnName("Cnpj")
+                .HasMaxLength(14)
+                .IsRequired();
+
+        cnpjProp.Metadata.SetValueComparer(cnpjComparer);
+
         b.Property(x => x.StateRegistration).HasMaxLength(50);
         b.Property(x => x.MunicipalRegistration).HasMaxLength(50);
         b.Property(x => x.BillingDueDay).HasColumnType("smallint");
@@ -60,6 +83,6 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
             .HasForeignKey(c => c.OwnerId)
             .HasPrincipalKey(p => p.Id)
             .HasConstraintName("FK_Contacts_PartnerId")
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

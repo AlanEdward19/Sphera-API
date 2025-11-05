@@ -23,7 +23,6 @@ public class AddressDTO
     /// Gets or sets the numeric value associated with this instance.
     /// </summary>
     [Required]
-    [MinLength(1)]
     public int? Number { get; set; }
 
     /// <summary>

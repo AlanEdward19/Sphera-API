@@ -1,4 +1,5 @@
-﻿using Sphera.API.Contacts;
+﻿using Sphera.API.Clients;
+using Sphera.API.Contacts;
 using Sphera.API.Contacts.Enums;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
@@ -105,6 +106,14 @@ public class Partner
     /// <remarks>The row version is typically used to detect conflicting updates in optimistic concurrency
     /// scenarios. The value is updated automatically by the data store when the row is modified.</remarks>
     public byte[] RowVersion { get; private set; }
+
+    /// <summary>
+    /// Gets the collection of clients associated with this entity.
+    /// </summary>
+    /// <remarks>The returned collection is read-only and cannot be replaced, but clients can be added to or
+    /// removed from the collection. Changes to the collection are reflected in the entity's client
+    /// relationships.</remarks>
+    public virtual ICollection<Client> Clients { get; private set; } = new List<Client>();
 
     /// <summary>
     /// Gets the collection of contacts associated with this entity.

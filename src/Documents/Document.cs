@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sphera.API.Clients;
 using Sphera.API.Documents.Common.Enums;
 using Sphera.API.Services;
 using Sphera.API.Shared;
@@ -96,6 +97,14 @@ public class Document
     /// entities.</remarks>
     [ForeignKey(nameof(ServiceId))] 
     public virtual Service Service { get; private set; }
+
+    /// <summary>
+    /// Gets the client associated with this entity.
+    /// </summary>
+    /// <remarks>This property represents a navigation to the related client in the data model. The value is
+    /// populated by the Entity Framework when the entity is loaded from the database.</remarks>
+    [ForeignKey(nameof(ClientId))]
+    public virtual Client Client { get; private set; }
 
     /// <summary>
     /// EF Core parameterless constructor.

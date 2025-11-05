@@ -25,7 +25,6 @@ public sealed record AddressValueObject
     /// Gets the number associated with this instance.
     /// </summary>
     [Required]
-    [MinLength(1)]
     public int? Number { get; init; }
 
     /// <summary>

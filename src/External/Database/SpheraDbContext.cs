@@ -20,8 +20,8 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options) : DbCont
     public DbSet<Document> Documents { get; set; }
     public DbSet<AuditEntry> AuditEntries { get; set; }
     public DbSet<Contact> Contacts { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<User> Users { get; set; }
+    //public DbSet<Role> Roles { get; set; }
+    //public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -33,8 +33,8 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options) : DbCont
         modelBuilder.ApplyConfiguration(new DocumentMap());
         modelBuilder.ApplyConfiguration(new AuditEntryMap());
         modelBuilder.ApplyConfiguration(new ContactMap());
-        modelBuilder.ApplyConfiguration(new RoleMap());
-        modelBuilder.ApplyConfiguration(new UserMap());
+        //modelBuilder.ApplyConfiguration(new RoleMap());
+        //modelBuilder.ApplyConfiguration(new UserMap());
         
         base.OnModelCreating(modelBuilder);
     }
