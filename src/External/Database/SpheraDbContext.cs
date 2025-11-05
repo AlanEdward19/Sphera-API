@@ -2,8 +2,8 @@
 using Sphera.API.Auditory;
 using Sphera.API.Clients;
 using Sphera.API.Contacts;
-using Sphera.API.Database.Maps;
 using Sphera.API.Documents;
+using Sphera.API.External.Database.Maps;
 using Sphera.API.Partners;
 using Sphera.API.Services;
 using Sphera.API.Shared;
@@ -29,6 +29,8 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options) : DbCont
         modelBuilder.ApplyConfiguration(new DocumentMap());
         modelBuilder.ApplyConfiguration(new AuditEntryMap());
         modelBuilder.ApplyConfiguration(new ContactMap());
+        
+        base.OnModelCreating(modelBuilder);
     }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
