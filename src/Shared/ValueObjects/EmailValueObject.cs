@@ -4,7 +4,6 @@ namespace Sphera.API.Shared.ValueObjects;
 
 public sealed record EmailValueObject
 {
-    [Required]
     [EmailAddress] 
     [MinLength(1)]
     [MaxLength(160)]

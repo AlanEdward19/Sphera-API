@@ -9,8 +9,29 @@ namespace Sphera.API.Users.CreateUser;
 
 public class CreateUserCommandHandler(SpheraDbContext dbContext, ILogger<CreateUserCommandHandler> logger) : IHandler<CreateUserCommand, UserDTO>
 {
-    public Task<ResultDTO<UserDTO>> HandleAsync(CreateUserCommand request, CancellationToken cancellationToken)
+    public async Task<ResultDTO<UserDTO>> HandleAsync(CreateUserCommand request, CancellationToken cancellationToken)
     {
-        throw new NotImplementedException();
+        logger.LogInformation("Iniciando criação de usuário {Email}", request.Email);
+        
+        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            if(await dbContext.Roles.FindAsync( [request.RoleId], cancellationToken) is null)
+                return ResultDTO<UserDTO>.AsFailure(new FailureDTO(400, "Função não encontrada."));
+            
+            User user = new(request);
+            
+            await dbContext.Users.AddAsync(user, cancellationToken);
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+            
+            return ResultDTO<UserDTO>.AsSuccess(user.ToDTO());
+        }
+        catch (Exception)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<UserDTO>.AsFailure(new FailureDTO(500, "Erro ao criar usuário."));
+        }
     }
 }
