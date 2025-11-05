@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Sphera.API.Shared.ValueObjects;
 using Sphera.API.Users;
 
 namespace Sphera.API.External.Database.Maps;
@@ -23,26 +26,47 @@ public class UserMap : IEntityTypeConfiguration<User>
         b.Property(u => u.Name)
             .IsRequired()
             .HasMaxLength(100);
+        
+        var emailConverter = new ValueConverter<EmailValueObject, string>(
+            v => v.Address,
+            v => new EmailValueObject(v)
+        );
+        
+        var emailComparer = new ValueComparer<EmailValueObject>(
+            (a, b) => a.Address == b.Address,
+            v => v == null ? 0 : v.Address.GetHashCode(),
+            v => new EmailValueObject(v.Address)
+        );
 
-        b.OwnsOne(u => u.Email, email =>
-        {
-            email.Property(e => e.Address)
-                .HasColumnName("Email")
-                .IsRequired()
-                .HasMaxLength(160);
+        var emailProp = b.Property(u => u.Email);
 
-            email.HasIndex(u => u.Address)
-                .HasDatabaseName("IX_User_Email")
-                .IsUnique();
-        });
-
-        b.OwnsOne(u => u.Password, password =>
-        {
-            password.Property(p => p.Value)
-                .HasColumnName("Password")
-                .IsRequired()
-                .HasMaxLength(200);
-        });
+        emailProp
+            .HasConversion(emailConverter)
+            .HasColumnName("Email")
+            .IsRequired()
+            .HasMaxLength(160);
+        
+        emailProp.Metadata.SetValueComparer(emailComparer);
+        
+        var passwordConverter = new ValueConverter<PasswordValueObject, string>(
+            v => v.Value,
+            v => new PasswordValueObject(v)
+        );
+        
+        var passwordComparer = new ValueComparer<PasswordValueObject>(
+            (a, b) => a.Value == b.Value,
+            v => v == null ? 0 : v.Value.GetHashCode(),
+            v => new PasswordValueObject(v.Value)
+        );
+        
+        var passwordProp = b.Property(u => u.Password);
+        
+        passwordProp.HasConversion(passwordConverter)
+            .HasColumnName("Password")
+            .IsRequired()
+            .HasMaxLength(200);
+        
+        passwordProp.Metadata.SetValueComparer(passwordComparer);
 
         b.Property(u => u.Active)
             .IsRequired();

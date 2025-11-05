@@ -1,18 +1,17 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Sphera.API.Clients.CreateClient;
-using Sphera.API.Clients.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Users.CreateUser;
+using Sphera.API.Users.DTOs;
 
 namespace Sphera.API.Users
 {
     [ApiController]
     [Route("api/v1/[controller]")]
-    public class UserController : ControllerBase
+    public class UsersController : ControllerBase
     {
         [HttpPost(Name = "CreateUser")]
-        public async Task<IActionResult> CreateClient([FromServices] IHandler<CreateClientCommand, ClientDTO> handler, [FromBody] CreateClientCommand command,
+        public async Task<IActionResult> CreateClient([FromServices] IHandler<CreateUserCommand, UserDTO> handler, [FromBody] CreateUserCommand command,
             CancellationToken cancellationToken)
         {
             var response = await handler.HandleAsync(command, cancellationToken);

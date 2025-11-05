@@ -334,6 +334,30 @@ namespace Sphera.API.Migrations
                     b.ToTable("Partners", "dbo");
                 });
 
+            modelBuilder.Entity("Sphera.API.Roles.Role", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<short>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Roles", "dbo");
+                });
+
             modelBuilder.Entity("Sphera.API.Services.Service", b =>
                 {
                     b.Property<Guid>("Id")
@@ -382,6 +406,52 @@ namespace Sphera.API.Migrations
                         .HasDatabaseName("IX_Services_Code");
 
                     b.ToTable("Services", "dbo");
+                });
+
+            modelBuilder.Entity("Sphera.API.Users.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<bool>("Active")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)")
+                        .HasColumnName("Email");
+
+                    b.Property<bool>("IsFirstAccess")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Password")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("Password");
+
+                    b.Property<short>("RoleId")
+                        .HasColumnType("smallint");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("RoleId");
+
+                    b.ToTable("Users", "dbo");
                 });
 
             modelBuilder.Entity("Sphera.API.Clients.Client", b =>
@@ -572,6 +642,18 @@ namespace Sphera.API.Migrations
 
                     b.Navigation("Address")
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Sphera.API.Users.User", b =>
+                {
+                    b.HasOne("Sphera.API.Roles.Role", "Role")
+                        .WithMany()
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_User_Role");
+
+                    b.Navigation("Role");
                 });
 
             modelBuilder.Entity("Sphera.API.Clients.Client", b =>

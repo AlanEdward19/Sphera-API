@@ -13,7 +13,7 @@ public class RoleMap : IEntityTypeConfiguration<Role>
         b.HasKey(r => r.Id);
 
         b.Property(r => r.Id)
-            .HasColumnType("int")
+            .HasColumnType("smallint")
             .ValueGeneratedOnAdd();
 
         b.Property(r => r.Name)

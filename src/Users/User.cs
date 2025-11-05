@@ -1,7 +1,10 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Sphera.API.Roles;
+using Sphera.API.Shared.Services;
 using Sphera.API.Shared.ValueObjects;
+using Sphera.API.Users.CreateUser;
+using Sphera.API.Users.DTOs;
 
 namespace Sphera.API.Users;
 
@@ -53,6 +56,18 @@ public class User
         IsFirstAccess = true;
         CreatedAt = DateTime.UtcNow;
     }
+    
+    public User(CreateUserCommand command){
+    {
+        Id = Guid.NewGuid();
+        RoleId = command.RoleId;
+        Name = command.Name;
+        Email = new EmailValueObject(command.Email);
+        Password = new PasswordValueObject(PasswordGenerator.Generate());
+        Active = true;
+        IsFirstAccess = true;
+        CreatedAt = DateTime.UtcNow;
+    }}
 
     public void UpdateName(string name)
     {
@@ -60,22 +75,22 @@ public class User
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateEmail(EmailValueObject email)
+    public void UpdateEmail(string email)
     {
-        Email = email;
+        Email = new EmailValueObject(email);
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void ChangePassword(PasswordValueObject newPassword)
+    public void ChangePassword(string newPassword)
     {
-        Password = newPassword;
+        Password = new PasswordValueObject(newPassword);
         IsFirstAccess = false;
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdatePassword(PasswordValueObject password)
+    public void UpdatePassword(string password)
     {
-        Password = password;
+        Password = new PasswordValueObject(password);
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -89,5 +104,16 @@ public class User
     {
         Active = true;
         UpdatedAt = DateTime.UtcNow;
+    }
+
+    public UserDTO ToDTO()
+    {
+        return new UserDTO(
+            Id,
+            RoleId,
+            Name,
+            Email.Address,
+            IsFirstAccess
+        );
     }
 }
