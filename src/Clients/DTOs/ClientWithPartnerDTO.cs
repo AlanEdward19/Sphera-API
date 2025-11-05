@@ -1,7 +1,7 @@
 ﻿using Sphera.API.Contacts;
 using Sphera.API.Shared.DTOs;
 using System.Collections.ObjectModel;
-using Sphera.API.Partners;
+using Sphera.API.Partners.DTOs;
 
 namespace Sphera.API.Clients.DTOs;
 

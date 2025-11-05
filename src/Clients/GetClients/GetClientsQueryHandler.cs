@@ -31,7 +31,6 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
         //TODO: Colocar Logs
         IQueryable<Client> query = dbContext
             .Clients
-            .AsQueryable()
             .Include(x => x.Contacts);
 
         if (request.PartnerId.HasValue)
@@ -56,9 +55,11 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
 
         List<Client> clients = await query
             .AsNoTracking()
+            .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
+            .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        IEnumerable<ClientDTO> clientDTOs = clients.Select(c => c.ToDTO(request.IncludePartner.HasValue && request.IncludePartner.Value));
+        IEnumerable<ClientDTO> clientDTOs = clients.Select(c => c.ToDTO(includePartner));
 
         return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clientDTOs);
     }

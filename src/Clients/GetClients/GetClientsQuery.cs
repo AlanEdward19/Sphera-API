@@ -31,6 +31,16 @@ public class GetClientsQuery
     public string? Search { get; set; }
 
     /// <summary>
+    /// Specifies the current page number for paginated document queries.
+    /// </summary>
+    public int Page { get; set; } = 1;
+
+    /// <summary>
+    /// Specifies the maximum number of documents to be retrieved per page in a paginated query.
+    /// </summary>
+    public int PageSize { get; set; } = 10;
+
+    /// <summary>
     /// Gets or sets a value indicating whether partner-related data should be included in the results.
     /// </summary>
     public bool? IncludePartner { get; set; } = false;

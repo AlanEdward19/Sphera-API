@@ -1,5 +1,6 @@
 ﻿using Sphera.API.Clients;
 using Sphera.API.External;
+using Sphera.API.Partners;
 
 namespace Sphera.API.Configurations;
 
@@ -26,7 +27,8 @@ public static class IoC
     {
         services
             .AddExernal(configuration)
-            .ConfigureClientsRelatedDependencies();
+            .ConfigureClientsRelatedDependencies()
+            .ConfigurePartnersRelatedDependencies();
 
         return services;
     }

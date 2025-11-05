@@ -19,7 +19,7 @@ public class GetPartnersQuery
     /// Represents the CNPJ value for filtering partners in the query.
     /// </summary>
     public string? Cnpj { get; set; }
-    
+
     /// <summary>
     /// Specifies the current page number for paginated document queries.
     /// </summary>
@@ -29,4 +29,9 @@ public class GetPartnersQuery
     /// Specifies the maximum number of documents to be retrieved per page in a paginated query.
     /// </summary>
     public int PageSize { get; set; } = 10;
+
+    /// <summary>
+    /// Gets or sets a value indicating whether client information should be included in the results.
+    /// </summary>
+    public bool? IncludeClients { get; set; } = false;
 }

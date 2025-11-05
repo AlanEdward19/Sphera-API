@@ -1,4 +1,6 @@
 ﻿using Sphera.API.External.Database;
+using Sphera.API.Partners.DTOs;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -30,8 +32,8 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
 
         await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-		try
-		{
+        try
+        {
             //TODO: Pegar o actor do contexto de autenticação
             Partner partner = new(request, Guid.Empty);
 
@@ -40,10 +42,15 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO());
+            return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false));
         }
-		catch (Exception)
-		{
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, ex.Message));
+        }
+        catch (Exception)
+        {
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
             return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(500, "Erro ao criar parceiro."));
         }

@@ -282,8 +282,8 @@ public class Client
             CreatedBy,
            UpdatedAt,
             UpdatedBy,
-            new ReadOnlyCollection<ContactDTO>(Contacts.Select(c => c.ToDTO()).ToList()),
-            Partner.ToDTO()
+            Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+            Partner.ToDTO(false)
         ) : new ClientDTO(
             Id,
             TradeName,
@@ -298,7 +298,7 @@ public class Client
             CreatedBy,
            UpdatedAt,
             UpdatedBy,
-             new ReadOnlyCollection<ContactDTO>(Contacts.Select(c => c.ToDTO()).ToList())
+             Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly()
         );
     }
 }

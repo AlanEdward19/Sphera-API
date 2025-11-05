@@ -2,6 +2,7 @@
 using Sphera.API.Contacts;
 using Sphera.API.Contacts.Enums;
 using Sphera.API.Partners.CreatePartner;
+using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
 using System.ComponentModel.DataAnnotations;
@@ -168,6 +169,25 @@ public class Partner
     }
 
     /// <summary>
+    /// Updates the legal name, CNPJ, and address information for the entity, and records the actor responsible for the
+    /// update.
+    /// </summary>
+    /// <param name="legalName">The new legal name to assign to the entity. Cannot be null or empty.</param>
+    /// <param name="cnpj">The CNPJ value to associate with the entity, or null to clear the existing CNPJ.</param>
+    /// <param name="address">The address information to assign to the entity, or null to clear the existing address.</param>
+    /// <param name="actorId">The unique identifier of the actor performing the update. Used to track who made the change.</param>
+    public void UpdateBasicInfo(
+        string legalName,
+        CnpjValueObject? cnpj,
+        AddressValueObject? address,
+        Guid actorId)
+    {
+        SetBasicInfo(legalName, cnpj, address);
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actorId;
+    }
+
+    /// <summary>
     /// Sets the entity's status to active.
     /// </summary>
     /// <param name="actorId"></param>
@@ -221,8 +241,20 @@ public class Partner
             Contacts.Remove(contact);
     }
 
-    public PartnerDTO ToDTO()
+    /// <summary>
+    /// Converts the current partner entity to a data transfer object (DTO) representation.
+    /// </summary>
+    /// <param name="includeClients">Indicates whether to include associated client information in the returned DTO. Specify <see langword="true"/>
+    /// to include clients; otherwise, only partner details are included.</param>
+    /// <returns>A <see cref="PartnerDTO"/> instance representing the partner. If <paramref name="includeClients"/> is <see
+    /// langword="true"/>, the returned object includes client data; otherwise, it does not.</returns>
+    public PartnerDTO ToDTO(bool includeClients)
     {
-        return new PartnerDTO();
+        return includeClients
+            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj.Value, Address.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                Clients.Select(c => c.ToDTO(includePartner: false)).ToList().AsReadOnly())
+            : new PartnerDTO(Id, LegalName, Cnpj.Value, Address.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly());
     }
 }
