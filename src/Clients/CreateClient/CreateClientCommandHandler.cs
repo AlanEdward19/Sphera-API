@@ -41,7 +41,7 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
             //TODO: Pegar o actor do contexto de autenticação
             Client client = new(request, Guid.Empty);
 
-            await dbContext.AddAsync<Client>(client, cancellationToken);
+            await dbContext.AddAsync(client, cancellationToken);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);

@@ -1,0 +1,51 @@
+﻿using Sphera.API.External.Database;
+using Sphera.API.Shared.DTOs;
+using Sphera.API.Shared.Interfaces;
+
+namespace Sphera.API.Partners.CreatePartner;
+
+/// <summary>
+/// Handles the creation of a new partner entity in the database using the specified command.
+/// </summary>
+/// <remarks>This handler ensures that partner creation is performed within a transactional scope for data
+/// consistency. Logging is performed for auditing and troubleshooting purposes. The handler is typically invoked by
+/// application infrastructure to process partner creation requests.</remarks>
+/// <param name="dbContext">The database context used to access and persist partner data.</param>
+/// <param name="logger">The logger used to record informational and error messages during partner creation.</param>
+public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<CreatePartnerCommandHandler> logger) : IHandler<CreatePartnerCommand, PartnerDTO>
+{
+    /// <summary>
+    /// Asynchronously creates a new partner entity based on the specified command and returns the result.
+    /// </summary>
+    /// <remarks>This method initiates a database transaction to ensure atomicity of the partner creation
+    /// process. If an error occurs, the transaction is rolled back and a failure result is returned. The operation is
+    /// logged for auditing purposes.</remarks>
+    /// <param name="request">The command containing the data required to create a new partner.</param>
+    /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
+    /// <returns>A result object containing the created partner data if successful; otherwise, a failure result with error
+    /// details.</returns>
+    public async Task<ResultDTO<PartnerDTO>> HandleAsync(CreatePartnerCommand request, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Iniciando criação de parceiro");
+
+        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+		try
+		{
+            //TODO: Pegar o actor do contexto de autenticação
+            Partner partner = new(request, Guid.Empty);
+
+            await dbContext.AddAsync(partner, cancellationToken);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+            return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO());
+        }
+		catch (Exception)
+		{
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(500, "Erro ao criar parceiro."));
+        }
+    }
+}
