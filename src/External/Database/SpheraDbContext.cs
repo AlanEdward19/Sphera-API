@@ -5,8 +5,10 @@ using Sphera.API.Contacts;
 using Sphera.API.Documents;
 using Sphera.API.External.Database.Maps;
 using Sphera.API.Partners;
+using Sphera.API.Roles;
 using Sphera.API.Services;
 using Sphera.API.Shared;
+using Sphera.API.Users;
 
 namespace Sphera.API.External.Database;
 
@@ -18,6 +20,8 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options) : DbCont
     public DbSet<Document> Documents { get; set; }
     public DbSet<AuditEntry> AuditEntries { get; set; }
     public DbSet<Contact> Contacts { get; set; }
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<User> Users { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,6 +33,8 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options) : DbCont
         modelBuilder.ApplyConfiguration(new DocumentMap());
         modelBuilder.ApplyConfiguration(new AuditEntryMap());
         modelBuilder.ApplyConfiguration(new ContactMap());
+        modelBuilder.ApplyConfiguration(new RoleMap());
+        modelBuilder.ApplyConfiguration(new UserMap());
         
         base.OnModelCreating(modelBuilder);
     }
