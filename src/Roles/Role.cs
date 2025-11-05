@@ -5,11 +5,12 @@ namespace Sphera.API.Roles;
 public class Role
 {
     [Key]
-    public int Id { get; private set; }
+    public short Id { get; private set; }
 
     [Required]
     public string Name { get; private set; }
     
+    [Required]
     public DateTime CreatedAt { get; private set; }
     
     public DateTime? UpdatedAt { get; private set; }

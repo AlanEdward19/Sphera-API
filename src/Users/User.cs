@@ -11,21 +11,28 @@ public class User
     public Guid Id { get; private set; }
 
     [Required] 
-    public int RoleId { get; private set; }
+    public short RoleId { get; private set; }
 
-    [Required] 
+    [Required]
+    [MinLength(1)]
+    [MaxLength(100)]
     public string Name { get; private set; }
 
     [Required]
     public EmailValueObject Email { get; private set; }
 
-    [Required] 
-    public string Password { get; private set; }
+    [Required]
+    public PasswordValueObject Password { get; private set; }
 
+    [Required]
     public bool Active { get; private set; }
+    
+    [Required]
     public bool IsFirstAccess { get; private set; }
 
+    [Required] 
     public DateTime CreatedAt { get; private set; }
+    
     public DateTime? UpdatedAt { get; private set; }
 
     [ForeignKey(nameof(RoleId))] 
@@ -35,7 +42,7 @@ public class User
     {
     }
 
-    public User(int roleId, string name, EmailValueObject email, string password)
+    public User(short roleId, string name, EmailValueObject email, PasswordValueObject password)
     {
         Id = Guid.NewGuid();
         RoleId = roleId;
@@ -59,14 +66,14 @@ public class User
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void ChangePassword(string newPassword)
+    public void ChangePassword(PasswordValueObject newPassword)
     {
         Password = newPassword;
         IsFirstAccess = false;
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdatePassword(string password)
+    public void UpdatePassword(PasswordValueObject password)
     {
         Password = password;
         UpdatedAt = DateTime.UtcNow;
