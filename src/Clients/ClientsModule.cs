@@ -30,7 +30,6 @@ public static class ClientsModule
         services
             .ConfigureHandlers();
 
-
         return services;
     }
 

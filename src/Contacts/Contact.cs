@@ -99,7 +99,9 @@ public class Contact
     /// Initializes a new instance of the Contact class. This constructor is private and is intended to restrict
     /// instantiation to within the class itself.
     /// </summary>
-    private Contact() { }
+    private Contact()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the Contact class with the specified contact type, role, value, and creator
@@ -117,7 +119,8 @@ public class Contact
         if (type == null) throw new DomainException("Type é obrigatório");
         if (role == null) throw new DomainException("Role é obrigatório");
         if (string.IsNullOrWhiteSpace(@value)) throw new DomainException("Value é obrigatório");
-        if (partnerId is null && clientId is null) throw new DomainException("O contato deve pertencer a um parceiro ou cliente.");
+        if (partnerId is null && clientId is null)
+            throw new DomainException("O contato deve pertencer a um parceiro ou cliente.");
 
         @value = @value.Trim();
 
@@ -185,5 +188,10 @@ public class Contact
         Type = newType.Value;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
+    }
+
+    public ContactDTO ToDTO()
+    {
+        return new ContactDTO();
     }
 }

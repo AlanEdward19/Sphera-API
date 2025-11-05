@@ -225,4 +225,9 @@ public class Partner
         if (contact is not null)
             Contacts.Remove(contact);
     }
+    
+    public PartnerDTO ToDTO()
+    {
+        return new PartnerDTO();
+    }
 }
