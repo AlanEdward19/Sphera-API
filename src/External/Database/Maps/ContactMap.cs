@@ -60,13 +60,13 @@ public class ContactMap : IEntityTypeConfiguration<Contact>
             .WithMany(p => p.Contacts)
             .HasForeignKey(x => x.PartnerId)
             .HasConstraintName("FK_Contacts_Partner")
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         b.HasOne(x => x.Client)
             .WithMany(c => c.Contacts)
             .HasForeignKey(x => x.ClientId)
             .HasConstraintName("FK_Contacts_Client")
-            .OnDelete(DeleteBehavior.Cascade);
+            .OnDelete(DeleteBehavior.NoAction);
 
         b.HasIndex(x => x.PartnerId).HasDatabaseName("IX_Contacts_PartnerId");
         b.HasIndex(x => x.ClientId).HasDatabaseName("IX_Contacts_ClientId");

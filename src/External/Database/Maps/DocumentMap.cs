@@ -49,13 +49,15 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
             fm.Property(f => f.ContentType).HasColumnName("ContentType").HasMaxLength(100);
             fm.Property(f => f.BlobUri).HasColumnName("BlobUri").HasMaxLength(500);
         });
-        
-        b.HasOne<Client>().WithMany()
+
+        b.HasOne(x => x.Client)
+         .WithMany()
          .HasForeignKey(x => x.ClientId)
          .OnDelete(DeleteBehavior.Restrict)
          .HasConstraintName("FK_Documents_Client");
 
-        b.HasOne<Service>().WithMany()
+        b.HasOne(x => x.Service)
+         .WithMany()
          .HasForeignKey(x => x.ServiceId)
          .OnDelete(DeleteBehavior.Restrict)
          .HasConstraintName("FK_Documents_Service");

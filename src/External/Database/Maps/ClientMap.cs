@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.Clients;
 using Sphera.API.Contacts;
 using Sphera.API.Partners;
+using Sphera.API.Shared.ValueObjects;
 
 namespace Sphera.API.External.Database.Maps;
 
@@ -33,7 +36,27 @@ public class ClientMap : IEntityTypeConfiguration<Client>
         b.Property(x => x.PartnerId).HasColumnType("uniqueidentifier").IsRequired();
         b.Property(x => x.TradeName).HasMaxLength(160).IsRequired();
         b.Property(x => x.LegalName).HasMaxLength(160).IsRequired();
-        b.Property(x => x.Cnpj).HasMaxLength(14).IsRequired();
+
+        var cnpjConverter =  new ValueConverter<CnpjValueObject, string>(
+            v => v.Value,
+            v => new CnpjValueObject(v)
+        );
+
+        var cnpjComparer = new ValueComparer<CnpjValueObject>(
+            (a, b) => a.Value == b.Value,
+            v => v == null ? 0 : v.Value.GetHashCode(),
+            v => new CnpjValueObject(v.Value)
+        );
+
+        var cnpjProp = b.Property(c => c.Cnpj);
+
+        cnpjProp.HasConversion(cnpjConverter)
+                .HasColumnName("Cnpj")
+                .HasMaxLength(14)
+                .IsRequired();
+
+        cnpjProp.Metadata.SetValueComparer(cnpjComparer);
+
         b.Property(x => x.StateRegistration).HasMaxLength(50);
         b.Property(x => x.MunicipalRegistration).HasMaxLength(50);
         b.Property(x => x.BillingDueDay).HasColumnType("smallint");
@@ -57,16 +80,16 @@ public class ClientMap : IEntityTypeConfiguration<Client>
             a.Property(p => p.ZipCode).HasColumnName("ZipCode").HasMaxLength(10).IsRequired();
         });
 
-        b.HasOne<Partner>().WithMany()
+        b.HasOne(x => x.Partner)
+         .WithMany(x => x.Clients)
          .HasForeignKey(x => x.PartnerId)
-         .OnDelete(DeleteBehavior.Restrict)
-         .HasConstraintName("FK_Clients_Partner");
+         .HasConstraintName("FK_Partners_Clients")
+         .OnDelete(DeleteBehavior.Restrict);
 
-        b.HasMany<Contact>()
-           .WithOne()
-           .HasForeignKey(c => c.OwnerId)
-           .HasPrincipalKey(p => p.Id)
-           .HasConstraintName("FK_Contacts_ClientId")
-           .OnDelete(DeleteBehavior.Cascade);
+        b.HasMany(c => c.Contacts)
+           .WithOne(ct => ct.Client)
+           .HasForeignKey(ct => ct.ClientId)
+           .HasConstraintName("FK_Contacts_Client")
+           .OnDelete(DeleteBehavior.NoAction);
     }
 }
