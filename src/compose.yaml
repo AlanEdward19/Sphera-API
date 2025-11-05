@@ -1,0 +1,7 @@
+﻿services:
+  sphera.api:
+    image: sphera.api
+    build:
+      context: .
+      dockerfile: Dockerfile
+
