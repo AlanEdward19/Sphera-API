@@ -29,7 +29,7 @@ public static class IoC
         services
             .AddExernal(configuration)
             .ConfigureClientsRelatedDependencies()
-            .ConfigurePartnersRelatedDependencies();
+            .ConfigurePartnersRelatedDependencies()
             .ConfigureUsersRelatedDependencies();
 
         return services;
