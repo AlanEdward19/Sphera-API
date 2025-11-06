@@ -273,3 +273,17 @@ Accept: {{json}}
 # DeactivateClient
 PATCH {{Sphera_API_HostAddress}}/api/v1/Clients/{{uuid}}/deactivate
 Accept: {{json}}
+
+###
+# User
+# --------------------------------------------
+# CreateUser
+POST {{Sphera_API_HostAddress}}/api/v1/Users
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+    "name": "Abner Oliveira",
+    "email": "abnersanto2014@gmail.com",
+    "roleId": 1
+}
