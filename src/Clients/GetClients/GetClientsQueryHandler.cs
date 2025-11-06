@@ -1,8 +1,8 @@
-﻿using Sphera.API.Clients.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
-using System.Data.Entity;
 
 namespace Sphera.API.Clients.GetClients;
 
@@ -26,12 +26,11 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing a collection of client data transfer objects that match the query criteria. The
     /// collection will be empty if no clients are found.</returns>
-    public async Task<ResultDTO<IEnumerable<ClientDTO>>> HandleAsync(GetClientsQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<ClientDTO>>> HandleAsync(GetClientsQuery request, CancellationToken cancellationToken)
     {
         //TODO: Colocar Logs
         IQueryable<Client> query = dbContext
             .Clients
-            .AsQueryable()
             .Include(x => x.Contacts);
 
         if (request.PartnerId.HasValue)
@@ -44,22 +43,29 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
             query = query.Where(c => c.Cnpj.Value == request.Cnpj);
 
         if (!string.IsNullOrWhiteSpace(request.Search))
-            query = query
-                .Where(c =>
-                c.TradeName.Contains(request.Search!, StringComparison.OrdinalIgnoreCase) ||
-                c.LegalName.Contains(request.Search!, StringComparison.OrdinalIgnoreCase));
+        {
+            string searchLower = request.Search!.ToLower();
+            query = query.Where(c => EF.Functions.Like((c.LegalName ?? string.Empty).ToLower(), $"%{searchLower}%")
+            || EF.Functions.Like((c.TradeName ?? string.Empty).ToLower(), $"%{searchLower}%"));
+        }
 
         bool includePartner = request.IncludePartner.HasValue && request.IncludePartner.Value;
 
         if (includePartner)
-            query = query.Include(x => x.Partner);
+            query = query
+                .Include(x => x.Partner)
+                .ThenInclude(x => x.Contacts);
 
         List<Client> clients = await query
             .AsNoTracking()
+            .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
+            .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        IEnumerable<ClientDTO> clientDTOs = clients.Select(c => c.ToDTO(request.IncludePartner.HasValue && request.IncludePartner.Value));
+        if (includePartner)
+            return ResultDTO<IEnumerable<ClientWithPartnerDTO>>.AsSuccess(clients.Select(c =>
+                (ClientWithPartnerDTO)c.ToDTO(includePartner)));
 
-        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clientDTOs);
+        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clients.Select(c => c.ToDTO(includePartner)));
     }
 }

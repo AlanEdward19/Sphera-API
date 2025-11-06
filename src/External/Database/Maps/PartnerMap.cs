@@ -32,7 +32,6 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
             .HasColumnType("uniqueidentifier")
             .HasDefaultValueSql("NEWID()");
 
-        b.Property(x => x.TradeName).HasMaxLength(160).IsRequired();
         b.Property(x => x.LegalName).HasMaxLength(160).IsRequired();
 
         var cnpjConverter = new ValueConverter<CnpjValueObject, string>(
@@ -50,14 +49,10 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
 
         cnpjProp.HasConversion(cnpjConverter)
                 .HasColumnName("Cnpj")
-                .HasMaxLength(14)
-                .IsRequired();
+                .HasMaxLength(14);
 
         cnpjProp.Metadata.SetValueComparer(cnpjComparer);
 
-        b.Property(x => x.StateRegistration).HasMaxLength(50);
-        b.Property(x => x.MunicipalRegistration).HasMaxLength(50);
-        b.Property(x => x.BillingDueDay).HasColumnType("smallint");
         b.Property(x => x.Status).IsRequired();
         b.Property(x => x.CreatedAt).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.CreatedBy).HasColumnType("uniqueidentifier").IsRequired();

@@ -1,9 +1,12 @@
 ﻿using Sphera.API.Clients;
 using Sphera.API.Contacts;
 using Sphera.API.Contacts.Enums;
+using Sphera.API.Partners.CreatePartner;
+using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
 using System.ComponentModel.DataAnnotations;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Sphera.API.Partners;
 
@@ -25,14 +28,6 @@ public class Partner
     public Guid Id { get; private set; }
 
     /// <summary>
-    /// Gets the trade name associated with the entity.
-    /// </summary>
-    [Required]
-    [MinLength(1)]
-    [MaxLength(160)]
-    public string TradeName { get; private set; }
-
-    /// <summary>
     /// Gets the registered legal name of the entity.
     /// </summary>
     [Required]
@@ -46,31 +41,13 @@ public class Partner
     /// <remarks>The CNPJ is a unique identifier assigned to legal entities in Brazil. Use this property to
     /// access the validated CNPJ value for the entity.</remarks>
     [Required]
-    public CnpjValueObject Cnpj { get; private set; }
-
-    /// <summary>
-    /// Gets the state registration identifier associated with the entity.
-    /// </summary>
-    [MaxLength(50)]
-    public string? StateRegistration { get; private set; }
-
-    /// <summary>
-    /// Gets the municipal registration number associated with the entity.
-    /// </summary>
-    [MaxLength(50)]
-    public string? MunicipalRegistration { get; private set; }
+    public CnpjValueObject? Cnpj { get; private set; }
 
     /// <summary>
     /// Gets the address associated with the current entity.
     /// </summary>
     [Required]
-    public AddressValueObject Address { get; private set; }
-
-    /// <summary>
-    /// Gets the day of the month on which billing is due, if specified.
-    /// </summary>
-    [Range(1, 31)]
-    public short? BillingDueDay { get; private set; }
+    public AddressValueObject? Address { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether the current operation or entity is in an active or successful state.
@@ -126,27 +103,43 @@ public class Partner
     private Partner() { }
 
     /// <summary>
-    /// Initializes a new instance of the Partner class with the specified identification, business information, CNPJ,
-    /// address, creator, and optional billing due day.
+    /// Initializes a new instance of the Partner class with the specified legal name, CNPJ, address, and creator
+    /// identifier.
     /// </summary>
-    /// <param name="id">The unique identifier for the partner. If Guid.Empty is provided, a new identifier is generated.</param>
-    /// <param name="tradeName">The trade name of the partner. This represents the commonly used business name.</param>
-    /// <param name="legalName">The legal name of the partner as registered with authorities.</param>
-    /// <param name="cnpj">The CNPJ value object representing the partner's Brazilian company registration number.</param>
-    /// <param name="address">The address value object containing the partner's location details.</param>
-    /// <param name="createdBy">The unique identifier of the user or entity that created the partner record.</param>
-    /// <param name="billingDueDay">The day of the month when billing is due for the partner. If null, no specific billing due day is set.</param>
+    /// <param name="legalName">The legal name of the partner. Cannot be null or empty.</param>
+    /// <param name="cnpj">The CNPJ (Cadastro Nacional da Pessoa Jurídica) identifier for the partner, or null if not applicable. Must be a
+    /// valid CNPJ format if provided.</param>
+    /// <param name="address">The address information for the partner, or null if not specified.</param>
+    /// <param name="createdBy">The unique identifier of the user who created the partner record.</param>
     public Partner(
-        Guid id,
-        string tradeName,
         string legalName,
-        CnpjValueObject cnpj,
-        AddressValueObject address,
-        Guid createdBy,
-        short? billingDueDay = null)
+        string? cnpj,
+        AddressValueObject? address,
+        Guid createdBy)
     {
-        Id = id == Guid.Empty ? Guid.NewGuid() : id;
-        SetBasicInfo(tradeName, legalName, cnpj, address, billingDueDay);
+        Id = Guid.NewGuid();
+        CnpjValueObject? cnpjVo = string.IsNullOrWhiteSpace(cnpj) ? null : new(cnpj);
+
+        SetBasicInfo(legalName, cnpjVo, address);
+        CreatedAt = DateTime.UtcNow;
+        CreatedBy = createdBy;
+        Status = true;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the Partner class using the specified partner creation command and creator
+    /// identifier.
+    /// </summary>
+    /// <param name="command">The command containing the legal name, CNPJ, and address information required to create the partner. Cannot be
+    /// null.</param>
+    /// <param name="createdBy">The unique identifier of the user or process that created the partner.</param>
+    public Partner(CreatePartnerCommand command, Guid createdBy)
+    {
+        Id = Guid.NewGuid();
+
+        CnpjValueObject? cnpj = string.IsNullOrWhiteSpace(command.Cnpj) ? null : new(command.Cnpj);
+
+        SetBasicInfo(command.LegalName, cnpj, command.Address?.ToValueObject());
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -163,22 +156,35 @@ public class Partner
     /// <param name="billingDueDay">The day of the month on which billing is due. Optional; may be null if not applicable.</param>
     /// <exception cref="DomainException">Thrown if any required parameter is null, empty, or invalid.</exception>
     public void SetBasicInfo(
-        string tradeName,
         string legalName,
-        CnpjValueObject cnpj,
-        AddressValueObject address,
-        short? billingDueDay)
+        CnpjValueObject? cnpj,
+        AddressValueObject? address)
     {
-        if (string.IsNullOrWhiteSpace(tradeName))
-            throw new DomainException("Nome fantasia obrigatório.");
         if (string.IsNullOrWhiteSpace(legalName))
             throw new DomainException("Razão social obrigatória.");
 
-        TradeName = tradeName;
         LegalName = legalName;
-        Cnpj = cnpj ?? throw new DomainException("CNPJ obrigatório.");
-        Address = address ?? throw new DomainException("Endereço obrigatório.");
-        BillingDueDay = billingDueDay;
+        Cnpj = cnpj;
+        Address = address;
+    }
+
+    /// <summary>
+    /// Updates the legal name, CNPJ, and address information for the entity, and records the actor responsible for the
+    /// update.
+    /// </summary>
+    /// <param name="legalName">The new legal name to assign to the entity. Cannot be null or empty.</param>
+    /// <param name="cnpj">The CNPJ value to associate with the entity, or null to clear the existing CNPJ.</param>
+    /// <param name="address">The address information to assign to the entity, or null to clear the existing address.</param>
+    /// <param name="actorId">The unique identifier of the actor performing the update. Used to track who made the change.</param>
+    public void UpdateBasicInfo(
+        string legalName,
+        CnpjValueObject? cnpj,
+        AddressValueObject? address,
+        Guid actorId)
+    {
+        SetBasicInfo(legalName, cnpj, address);
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actorId;
     }
 
     /// <summary>
@@ -234,9 +240,21 @@ public class Partner
         if (contact is not null)
             Contacts.Remove(contact);
     }
-    
-    public PartnerDTO ToDTO()
+
+    /// <summary>
+    /// Converts the current partner entity to a data transfer object (DTO) representation.
+    /// </summary>
+    /// <param name="includeClients">Indicates whether to include associated client information in the returned DTO. Specify <see langword="true"/>
+    /// to include clients; otherwise, only partner details are included.</param>
+    /// <returns>A <see cref="PartnerDTO"/> instance representing the partner. If <paramref name="includeClients"/> is <see
+    /// langword="true"/>, the returned object includes client data; otherwise, it does not.</returns>
+    public PartnerDTO ToDTO(bool includeClients)
     {
-        return new PartnerDTO();
+        return includeClients
+            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj.Value, Address.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                Clients.Select(c => c.ToDTO(includePartner: false)).ToList().AsReadOnly())
+            : new PartnerDTO(Id, LegalName, Cnpj.Value, Address.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly());
     }
 }

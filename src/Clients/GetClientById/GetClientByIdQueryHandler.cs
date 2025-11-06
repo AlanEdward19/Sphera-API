@@ -1,8 +1,8 @@
-﻿using Sphera.API.Clients.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
-using System.Data.Entity;
 
 namespace Sphera.API.Clients.GetClientById;
 
@@ -24,7 +24,7 @@ public class GetClientByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetCli
     /// <param name="request">The query containing the client identifier and options for including related partner information.</param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the client DTO if found; otherwise, a failure result with a 404 error code.</returns>
-    public async Task<ResultDTO<ClientDTO>> HandleAsync(GetClientByIdQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ClientDTO>> HandleAsync(GetClientByIdQuery request, CancellationToken cancellationToken)
     {
         IQueryable<Client> query = dbContext.Clients
             .AsNoTracking()
@@ -33,12 +33,17 @@ public class GetClientByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetCli
         bool includePartner = request.includePartner.HasValue && request.includePartner.Value;
 
         if (includePartner)
-            query = query.Include(c => c.Partner);
+            query = query
+                .Include(c => c.Partner)
+                .ThenInclude(x => x.Contacts);
 
         Client? client = await query.FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
 
         if (client is null)
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
+
+        if (includePartner)
+            return ResultDTO<ClientWithPartnerDTO>.AsSuccess((ClientWithPartnerDTO)client.ToDTO(includePartner));
 
         return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner));
     }

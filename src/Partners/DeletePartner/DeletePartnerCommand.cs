@@ -1,3 +1,3 @@
 ﻿namespace Sphera.API.Partners.DeletePartner;
 
-public record DeletePartnerCommand(Guid id);
+public record DeletePartnerCommand(Guid Id);
