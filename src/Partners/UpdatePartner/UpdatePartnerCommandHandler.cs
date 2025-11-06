@@ -3,6 +3,7 @@ using Sphera.API.Clients.DTOs;
 using Sphera.API.Clients.UpdateClient;
 using Sphera.API.External.Database;
 using Sphera.API.Partners.DTOs;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.ValueObjects;
@@ -12,7 +13,7 @@ namespace Sphera.API.Partners.UpdatePartner;
 
 public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<UpdateClientCommandHandler> logger) : IHandler<UpdatePartnerCommand, PartnerDTO>
 {
-    public async Task<ResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, CancellationToken cancellationToken)
     {
         await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
@@ -32,6 +33,11 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
             return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients:false));
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception)
         {

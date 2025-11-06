@@ -9,7 +9,7 @@ namespace Sphera.API.Users.CreateUser;
 
 public class CreateUserCommandHandler(SpheraDbContext dbContext, ILogger<CreateUserCommandHandler> logger) : IHandler<CreateUserCommand, UserDTO>
 {
-    public Task<ResultDTO<UserDTO>> HandleAsync(CreateUserCommand request, CancellationToken cancellationToken)
+    public Task<IResultDTO<UserDTO>> HandleAsync(CreateUserCommand request, CancellationToken cancellationToken)
     {
         throw new NotImplementedException();
     }

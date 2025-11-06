@@ -1,14 +1,19 @@
-﻿namespace Sphera.API.Shared.DTOs;
+﻿using Sphera.API.Shared.Interfaces;
 
-public sealed class ResultDTO<T>
+namespace Sphera.API.Shared.DTOs;
+
+public sealed class ResultDTO<T> : IResultDTO<T>
 {
     public T? Success { get; private set; }
     public FailureDTO? Failure { get; private set; }
-    public bool IsSuccess => Failure == null;
-    public bool IsFailure => !IsSuccess;
+    public bool IsSuccess { get; private set; }
+    public bool IsFailure { get; private set; }
 
-    private ResultDTO(T success) { Success = success; }
-    private ResultDTO(FailureDTO failure) { Failure = failure; }
-    public static ResultDTO<T> AsSuccess(T success) => new(success);
-    public static ResultDTO<T> AsFailure(FailureDTO failure) => new(failure);
+    private ResultDTO() { }
+
+    public static ResultDTO<T> AsSuccess(T success) =>
+        new ResultDTO<T> { Success = success, IsSuccess = true, IsFailure = false };
+
+    public static ResultDTO<T> AsFailure(FailureDTO failure) =>
+        new ResultDTO<T> { Failure = failure, IsSuccess = false, IsFailure = true };
 }

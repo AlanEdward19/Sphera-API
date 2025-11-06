@@ -141,13 +141,13 @@ public class Client
     /// <param name="createdBy">The unique identifier of the user who created the client.</param>
     /// <param name="billingDueDay">The day of the month when billing is due, or null if not specified.</param>
     /// <exception cref="DomainException">Thrown if partnerId is Guid.Empty.</exception>
-    public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj,
-        AddressValueObject? address, Guid createdBy, short? billingDueDay = null)
+    public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
+        string municipalRegistration, AddressValueObject? address, Guid createdBy, short? billingDueDay = null)
     {
         Id = Guid.NewGuid();
         if (partnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = partnerId;
-        SetBasicInfo(tradeName, legalName, cnpj, address, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, billingDueDay);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -162,6 +162,8 @@ public class Client
             command.TradeName,
             command.LegalName,
             new CnpjValueObject(command.Cnpj),
+            command.StateRegistration,
+            command.MunicipalRegistration,
             command.Address.ToValueObject(),
             command.BillingDueDay);
         CreatedAt = DateTime.UtcNow;
@@ -180,7 +182,8 @@ public class Client
     /// <param name="billingDueDay">The day of the month on which billing is due. May be null if not applicable.</param>
     /// <exception cref="DomainException">Thrown if <paramref name="tradeName"/> is null, empty, or white space; or if <paramref name="cnpj"/> or
     /// <paramref name="address"/> is null.</exception>
-    private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, AddressValueObject? address,
+    private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
+        string municipalRegistration, AddressValueObject? address,
        short? billingDueDay)
     {
         if (string.IsNullOrWhiteSpace(tradeName)) throw new DomainException("Nome fantasia obrigatório.");
@@ -189,6 +192,8 @@ public class Client
         TradeName = tradeName;
         LegalName = legalName;
         Cnpj = cnpj ?? throw new DomainException("CNPJ obrigatório.");
+        StateRegistration = stateRegistration;
+        MunicipalRegistration = municipalRegistration;
         Address = address ?? throw new DomainException("Endereço obrigatório.");
         BillingDueDay = billingDueDay;
     }
@@ -203,10 +208,10 @@ public class Client
     /// <param name="address">The address value object representing the company's location. Can be null if not applicable.</param>
     /// <param name="billingDueDay">The day of the month when billing is due. Must be between 1 and 31, or null if not set.</param>
     /// <param name="actor">The unique identifier of the user or process performing the update.</param>
-    public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj,
-        AddressValueObject? address, short? billingDueDay, Guid actor)
+    public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
+        string municipalRegistration, AddressValueObject? address, short? billingDueDay, Guid actor)
     {
-        SetBasicInfo(tradeName, legalName, cnpj, address, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, billingDueDay);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }

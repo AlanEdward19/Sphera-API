@@ -2,7 +2,7 @@
 
 namespace Sphera.API.Shared.Interfaces;
 
-public interface IHandler<TRequest, TResponse>
+public interface IHandler<in TRequest, TResponse>
 {
-    Task<ResultDTO<TResponse>> HandleAsync(TRequest request, CancellationToken cancellationToken);
+    Task<IResultDTO<TResponse>> HandleAsync(TRequest request, CancellationToken cancellationToken);
 }

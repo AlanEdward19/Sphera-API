@@ -1,5 +1,6 @@
 ﻿using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.ValueObjects;
@@ -27,7 +28,7 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the updated client data if the operation succeeds; otherwise, a failure result with
     /// error details.</returns>
-    public async Task<ResultDTO<ClientDTO>> HandleAsync(UpdateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ClientDTO>> HandleAsync(UpdateClientCommand request, CancellationToken cancellationToken)
     {
         await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
@@ -41,12 +42,18 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
             CnpjValueObject cnpj = new(request.Cnpj);
             AddressValueObject address = request.Address.ToValueObject();
 
-            client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, address, request.BillingDueDay, Guid.Empty);
+            client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration, request.MunicipalRegistration, 
+                address, request.BillingDueDay, Guid.Empty);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
             return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception)
         {

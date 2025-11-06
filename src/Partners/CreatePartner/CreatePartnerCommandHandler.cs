@@ -26,7 +26,7 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A result object containing the created partner data if successful; otherwise, a failure result with error
     /// details.</returns>
-    public async Task<ResultDTO<PartnerDTO>> HandleAsync(CreatePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<PartnerDTO>> HandleAsync(CreatePartnerCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação de parceiro");
 

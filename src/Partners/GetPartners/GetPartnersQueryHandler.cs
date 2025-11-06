@@ -26,7 +26,7 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a successful result with an
     /// enumerable collection of partner data transfer objects matching the query.</returns>
-    public async Task<ResultDTO<IEnumerable<PartnerDTO>>> HandleAsync(GetPartnersQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<PartnerDTO>>> HandleAsync(GetPartnersQuery request, CancellationToken cancellationToken)
     {
         //TODO: Colocar Logs
         IQueryable<Partner> query = dbContext
@@ -48,7 +48,9 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
         bool includeClients = request.IncludeClients.HasValue && request.IncludeClients.Value;
 
         if (includeClients)
-            query = query.Include(x => x.Clients);
+            query = query
+                .Include(x => x.Clients)
+                .ThenInclude(x => x.Contacts);
 
         List<Partner> partners = await query
             .AsNoTracking()
@@ -56,8 +58,10 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        IEnumerable<PartnerDTO> partnerDTOs = partners.Select(p => p.ToDTO(includeClients));
+        if (includeClients)
+            return ResultDTO<IEnumerable<PartnerWithClientsDTO>>.AsSuccess(partners.Select(p =>
+                (PartnerWithClientsDTO)p.ToDTO(includeClients)));
 
-        return ResultDTO<IEnumerable<PartnerDTO>>.AsSuccess(partnerDTOs);
+        return ResultDTO<IEnumerable<PartnerDTO>>.AsSuccess(partners.Select(p => p.ToDTO(includeClients)));
     }
 }

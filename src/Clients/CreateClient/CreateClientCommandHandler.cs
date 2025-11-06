@@ -1,5 +1,7 @@
 ﻿using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
+using Sphera.API.Partners.DTOs;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -27,7 +29,7 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the created client data if successful; otherwise, a failure result with error
     /// details.</returns>
-    public async Task<ResultDTO<ClientDTO>> HandleAsync(CreateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ClientDTO>> HandleAsync(CreateClientCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação de cliente para o parceiro {PartnerId}", request.PartnerId);
 
@@ -47,6 +49,11 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
             return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception)
         {

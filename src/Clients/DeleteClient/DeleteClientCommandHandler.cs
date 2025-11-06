@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
+using Sphera.API.Partners.DTOs;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -27,7 +29,7 @@ public class DeleteClientCommandHandler(SpheraDbContext dbContext, ILogger<Delet
 	/// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
 	/// <returns>A ResultDTO<bool> indicating whether the client was successfully deleted. Returns a failure result if the client is
 	/// not found or if an error occurs during deletion.</returns>
-    public async Task<ResultDTO<bool>> HandleAsync(DeleteClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeleteClientCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando exclusão de cliente {ClientId}", request.Id);
 
@@ -46,7 +48,12 @@ public class DeleteClientCommandHandler(SpheraDbContext dbContext, ILogger<Delet
 
 			return ResultDTO<bool>.AsSuccess(true);
 		}
-		catch (Exception)
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+        }
+        catch (Exception)
 		{
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
             return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar cliente."));

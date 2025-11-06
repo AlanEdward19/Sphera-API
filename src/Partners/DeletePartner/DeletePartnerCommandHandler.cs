@@ -1,4 +1,6 @@
 ﻿using Sphera.API.External.Database;
+using Sphera.API.Partners.DTOs;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -26,7 +28,7 @@ public class DeletePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Dele
     /// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
     /// <returns>A ResultDTO<bool> indicating whether the partner was successfully deleted. Returns a failure result if the
     /// partner is not found or if an error occurs during deletion.</returns>
-    public async Task<ResultDTO<bool>> HandleAsync(DeletePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeletePartnerCommand request, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando exclusão de parceiro {PartnerId}", request.Id);
 
@@ -44,6 +46,11 @@ public class DeletePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Dele
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
             return ResultDTO<bool>.AsSuccess(true);
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception)
         {
