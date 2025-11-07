@@ -5,6 +5,9 @@ using Sphera.API.Users.CreateUser;
 using Sphera.API.Users.DTOs;
 using Sphera.API.Users.GetUsers;
 using Sphera.API.Users.UpdateUser;
+using Sphera.API.Users.ActivateUser;
+using Sphera.API.Users.DeactivateUser;
+using Sphera.API.Users.DeleteUser;
 
 namespace Sphera.API.Users
 {
@@ -42,6 +45,39 @@ namespace Sphera.API.Users
 
             return response.IsSuccess
                 ? Ok(response.Success)
+                : BadRequest(response.Failure);
+        }
+        
+        [HttpPatch("{id:guid}/activate", Name = "ActivateUser")]
+        public async Task<IActionResult> ActivateUser([FromServices] IHandler<ActivateUserCommand, bool> handler, Guid id, CancellationToken cancellationToken)
+        {
+            var command = new ActivateUserCommand(id);
+            var response = await handler.HandleAsync(command, cancellationToken);
+
+            return response.IsSuccess
+                ? NoContent()
+                : BadRequest(response.Failure);
+        }
+
+        [HttpPatch("{id:guid}/deactivate", Name = "DeactivateUser")]
+        public async Task<IActionResult> DeactivateUser([FromServices] IHandler<DeactivateUserCommand, bool> handler, Guid id, CancellationToken cancellationToken)
+        {
+            var command = new DeactivateUserCommand(id);
+            var response = await handler.HandleAsync(command, cancellationToken);
+
+            return response.IsSuccess
+                ? NoContent()
+                : BadRequest(response.Failure);
+        }
+
+        [HttpDelete("{id:guid}", Name = "DeleteUser")]
+        public async Task<IActionResult> DeleteUser([FromServices] IHandler<DeleteUserCommand, bool> handler, Guid id, CancellationToken cancellationToken)
+        {
+            var command = new DeleteUserCommand(id);
+            var response = await handler.HandleAsync(command, cancellationToken);
+
+            return response.IsSuccess
+                ? NoContent()
                 : BadRequest(response.Failure);
         }
     }

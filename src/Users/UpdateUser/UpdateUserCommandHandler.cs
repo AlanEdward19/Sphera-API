@@ -25,7 +25,8 @@ public class UpdateUserCommandHandler(SpheraDbContext dbContext, ILogger<UpdateU
             
             if (request.RoleId.HasValue && user.RoleId != request.RoleId.Value)
                 user.UpdateRole(request.RoleId.Value);
-
+            
+            dbContext.Users.Update(user);
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 

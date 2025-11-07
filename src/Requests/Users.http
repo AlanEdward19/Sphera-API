@@ -33,3 +33,18 @@ Content-Type: {{json}}
   "name": "Abner S. Oliveira",
   "roleId": 2
 }
+
+###
+# ActivateUser
+PATCH {{Sphera_API_HostAddress}}/api/v1/Users/{{uuid}}/activate
+Accept: {{json}}
+
+###
+# DeactivateUser
+PATCH {{Sphera_API_HostAddress}}/api/v1/Users/{{uuid}}/deactivate
+Accept: {{json}}
+
+###
+# DeleteUser
+DELETE {{Sphera_API_HostAddress}}/api/v1/Users/{{uuid}}
+Accept: {{json}}
