@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-
-namespace Sphera.API.Shared.ValueObjects;
+﻿namespace Sphera.API.Shared.ValueObjects;
 
 /// <summary>
 /// Represents a CNPJ (Cadastro Nacional da Pessoa Jurídica) value object containing a validated 14-digit CNPJ number.

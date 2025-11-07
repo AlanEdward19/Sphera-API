@@ -1,6 +1,4 @@
-﻿using Sphera.API.Shared.DTOs;
-
-namespace Sphera.API.Shared.Interfaces;
+﻿namespace Sphera.API.Shared.Interfaces;
 
 public interface IHandler<in TRequest, TResponse>
 {

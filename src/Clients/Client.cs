@@ -5,7 +5,6 @@ using Sphera.API.Contacts.Enums;
 using Sphera.API.Partners;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 

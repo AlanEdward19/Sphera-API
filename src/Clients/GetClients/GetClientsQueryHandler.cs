@@ -31,6 +31,7 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
         //TODO: Colocar Logs
         IQueryable<Client> query = dbContext
             .Clients
+            .AsNoTracking()
             .Include(x => x.Contacts);
 
         if (request.PartnerId.HasValue)
@@ -57,7 +58,6 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
                 .ThenInclude(x => x.Contacts);
 
         List<Client> clients = await query
-            .AsNoTracking()
             .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);

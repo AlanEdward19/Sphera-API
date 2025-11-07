@@ -1,6 +1,5 @@
 ﻿using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
-using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;

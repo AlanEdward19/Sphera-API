@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Sphera.API.Clients.ActivateClient;
 using Sphera.API.Clients.CreateClient;
+using Sphera.API.Clients.DeactivateClient;
 using Sphera.API.Clients.DeleteClient;
 using Sphera.API.Clients.DTOs;
 using Sphera.API.Clients.GetClientById;
@@ -62,15 +64,25 @@ public class ClientsController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/activate", Name = "ActivateClient")]
-    public async Task<IActionResult> ActivateClient(Guid id)
+    public async Task<IActionResult> ActivateClient([FromServices] IHandler<ActivateClientCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
-        return Ok();
+        var command = new ActivateClientCommand(id);
+        var response = await handler.HandleAsync(command, cancellationToken);
+
+        return response.IsSuccess
+            ? NoContent()
+            : BadRequest(response.Failure);
     }
 
     [HttpPatch("{id:guid}/deactivate", Name = "DeactivateClient")]
-    public async Task<IActionResult> DeactivateClient(Guid id)
+    public async Task<IActionResult> DeactivateClient([FromServices] IHandler<DeactivateClientCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
-        return Ok();
+        var command = new DeactivateClientCommand(id);
+        var response = await handler.HandleAsync(command, cancellationToken);
+
+        return response.IsSuccess
+            ? NoContent()
+            : BadRequest(response.Failure);
     }
 
     [HttpDelete("{id:guid}", Name = "DeleteClient")]
@@ -79,8 +91,8 @@ public class ClientsController : ControllerBase
         var command = new DeleteClientCommand(id);
         var response = await handler.HandleAsync(command, cancellationToken);
 
-        return response.IsSuccess 
-            ? NoContent() 
+        return response.IsSuccess
+            ? NoContent()
             : BadRequest(response.Failure);
     }
 }

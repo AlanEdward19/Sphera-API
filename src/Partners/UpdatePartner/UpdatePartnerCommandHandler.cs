@@ -1,6 +1,4 @@
-﻿using Sphera.API.Clients;
-using Sphera.API.Clients.DTOs;
-using Sphera.API.Clients.UpdateClient;
+﻿using Sphera.API.Clients.UpdateClient;
 using Sphera.API.External.Database;
 using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;

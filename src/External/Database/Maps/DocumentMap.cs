@@ -1,8 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Sphera.API.Clients;
 using Sphera.API.Documents;
-using Sphera.API.Services;
 
 namespace Sphera.API.External.Database.Maps;
 

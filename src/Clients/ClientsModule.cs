@@ -1,4 +1,6 @@
-﻿using Sphera.API.Clients.CreateClient;
+﻿using Sphera.API.Clients.ActivateClient;
+using Sphera.API.Clients.CreateClient;
+using Sphera.API.Clients.DeactivateClient;
 using Sphera.API.Clients.DeleteClient;
 using Sphera.API.Clients.DTOs;
 using Sphera.API.Clients.GetClientById;
@@ -49,6 +51,8 @@ public static class ClientsModule
         services.AddScoped<IHandler<DeleteClientCommand, bool>, DeleteClientCommandHandler>();
         services.AddScoped<IHandler<GetClientsQuery, IEnumerable<ClientDTO>>, GetClientsQueryHandler>();
         services.AddScoped<IHandler<GetClientByIdQuery, ClientDTO>, GetClientByIdQueryHandler>();
+        services.AddScoped<IHandler<ActivateClientCommand, bool>, ActivateClientCommandHandler>();
+        services.AddScoped<IHandler<DeactivateClientCommand, bool>, DeactivateClientCommandHandler>();
 
         return services;
     }
