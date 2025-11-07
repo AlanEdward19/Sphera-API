@@ -2,6 +2,7 @@ using Sphera.API.Shared.Interfaces;
 using Sphera.API.Users.CreateUser;
 using Sphera.API.Users.DTOs;
 using Sphera.API.Users.GetUsers;
+using Sphera.API.Users.UpdateUser;
 
 namespace Sphera.API.Users;
 
@@ -19,6 +20,7 @@ public static class UsersModule
     {
         services.AddScoped<IHandler<CreateUserCommand, UserDTO>, CreateUserCommandHandler>();
         services.AddScoped<IHandler<GetUsersQuery, IEnumerable<UserDTO>>, GetUsersQueryHandler>();
+        services.AddScoped<IHandler<UpdateUserCommand, UserDTO>, UpdateUserCommandHandler>();
 
         return services;
     }

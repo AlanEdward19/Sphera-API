@@ -75,22 +75,15 @@ public class User
         UpdatedAt = DateTime.UtcNow;
     }
 
-    public void UpdateEmail(string email)
-    {
-        Email = new EmailValueObject(email);
-        UpdatedAt = DateTime.UtcNow;
-    }
-
     public void ChangePassword(string newPassword)
     {
         Password = new PasswordValueObject(newPassword);
         IsFirstAccess = false;
         UpdatedAt = DateTime.UtcNow;
     }
-
-    public void UpdatePassword(string password)
+    public void UpdateRole(short roleId)
     {
-        Password = new PasswordValueObject(password);
+        RoleId = roleId;
         UpdatedAt = DateTime.UtcNow;
     }
 
