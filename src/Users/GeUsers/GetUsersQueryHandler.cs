@@ -10,6 +10,9 @@ public class GetUsersQueryHandler(SpheraDbContext dbContext, ILogger<GetUsersQue
 {
     public async Task<IResultDTO<IEnumerable<UserDTO>>> HandleAsync(GetUsersQuery request, CancellationToken cancellationToken)
     {
+        logger.LogInformation("Iniciando busca de usuários. Parâmetros: Email={Email}, IsActive={IsActive}, RoleId={RoleId}, Page={Page}, PageSize={PageSize}",
+            request.Email, request.IsActive, request.RoleId, request.Page, request.PageSize);
+        
         IQueryable<User> query = dbContext.
             Users
             .AsNoTracking()
@@ -28,6 +31,8 @@ public class GetUsersQueryHandler(SpheraDbContext dbContext, ILogger<GetUsersQue
             .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
+        
+        logger.LogInformation("Busca concluída. {Count} usuários encontrados.", users.Count);
         
         return ResultDTO<IEnumerable<UserDTO>>.AsSuccess(users.Select(u => u.ToDTO()));
     }
