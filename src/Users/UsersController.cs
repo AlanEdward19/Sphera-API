@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Users.CreateUser;
 using Sphera.API.Users.DTOs;
+using Sphera.API.Users.GeUsers;
 
 namespace Sphera.API.Users
 {
@@ -10,6 +11,16 @@ namespace Sphera.API.Users
     [Route("api/v1/[controller]")]
     public class UsersController : ControllerBase
     {
+        [HttpGet(Name = "GetUsers")]
+        public async Task<IActionResult> GetUsers([FromServices] IHandler<GetUsersQuery, UserDTO> handler, [FromQuery] GetUsersQuery query, CancellationToken cancellationToken)
+        {
+            var response = await handler.HandleAsync(query, cancellationToken);
+
+            return response.IsSuccess
+                ? Ok(response.Success)
+                : BadRequest(response.Failure);
+        }
+        
         [HttpPost(Name = "CreateUser")]
         public async Task<IActionResult> CreateClient([FromServices] IHandler<CreateUserCommand, UserDTO> handler, [FromBody] CreateUserCommand command,
             CancellationToken cancellationToken)
