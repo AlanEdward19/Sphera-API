@@ -1,4 +1,3 @@
-using Sphera.API.Configuration;
 using Sphera.API.Configurations;
 using Sphera.API.External;
 

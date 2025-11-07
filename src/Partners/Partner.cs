@@ -6,7 +6,6 @@ using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
 using System.ComponentModel.DataAnnotations;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Sphera.API.Partners;
 

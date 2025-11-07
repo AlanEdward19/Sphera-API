@@ -1,4 +1,6 @@
-﻿using Sphera.API.Partners.CreatePartner;
+﻿using Sphera.API.Partners.ActivatePartner;
+using Sphera.API.Partners.CreatePartner;
+using Sphera.API.Partners.DeactivatePartner;
 using Sphera.API.Partners.DeletePartner;
 using Sphera.API.Partners.DTOs;
 using Sphera.API.Partners.GetPartnerById;
@@ -38,6 +40,8 @@ public static class PartnerModule
         services.AddScoped<IHandler<DeletePartnerCommand, bool>, DeletePartnerCommandHandler>();
         services.AddScoped<IHandler<GetPartnersQuery, IEnumerable<PartnerDTO>>, GetPartnersQueryHandler>();
         services.AddScoped<IHandler<GetPartnerByIdQuery, PartnerDTO>, GetPartnerByIdQueryHandler>();
+        services.AddScoped<IHandler<ActivatePartnerCommand, bool>, ActivatePartnerCommandHandler>();
+        services.AddScoped<IHandler<DeactivatePartnerCommand, bool>, DeactivatePartnerCommandHandler>();
         
         return services;
     }

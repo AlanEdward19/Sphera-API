@@ -1,6 +1,6 @@
-﻿using Azure;
-using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Sphera.API.Partners.ActivatePartner;
 using Sphera.API.Partners.CreatePartner;
 using Sphera.API.Partners.DeletePartner;
 using Sphera.API.Partners.DTOs;
@@ -8,6 +8,7 @@ using Sphera.API.Partners.GetPartnerById;
 using Sphera.API.Partners.GetPartners;
 using Sphera.API.Partners.UpdatePartner;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Partners.DeactivatePartner;
 
 namespace Sphera.API.Partners;
 
@@ -62,15 +63,25 @@ public class PartnersController : ControllerBase
     }
 
     [HttpPatch("{id:guid}/activate", Name = "ActivatePartner")]
-    public async Task<IActionResult> ActivatePartner(Guid id)
+    public async Task<IActionResult> ActivatePartner([FromServices] IHandler<ActivatePartnerCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
-        return Ok();
+        var command = new ActivatePartnerCommand(id);
+        var response = await handler.HandleAsync(command, cancellationToken);
+
+        return response.IsSuccess
+            ? NoContent()
+            : BadRequest(response.Failure);
     }
 
     [HttpPatch("{id:guid}/deactivate", Name = "DeactivatePartner")]
-    public async Task<IActionResult> DeactivatePartner(Guid id)
+    public async Task<IActionResult> DeactivatePartner([FromServices] IHandler<DeactivatePartnerCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
-        return Ok();
+        var command = new DeactivatePartnerCommand(id);
+        var response = await handler.HandleAsync(command, cancellationToken);
+
+        return response.IsSuccess
+            ? NoContent()
+            : BadRequest(response.Failure);
     }
 
     [HttpDelete("{id:guid}", Name = "DeletePartner")]

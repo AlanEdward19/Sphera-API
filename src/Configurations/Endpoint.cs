@@ -3,7 +3,7 @@ using Sphera.API.Filters;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Sphera.API.Configuration;
+namespace Sphera.API.Configurations;
 
 /// <summary>
 /// Provides extension methods for configuring API endpoints and related services in an ASP.NET Core application.
