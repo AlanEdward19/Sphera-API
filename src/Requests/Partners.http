@@ -1,0 +1,57 @@
+@Sphera_API_HostAddress = http://localhost:5000
+@json = application/json
+@uuid = 11111111-1111-1111-1111-111111111111
+
+###
+# PARTNERS
+# --------------------------------------------
+
+# GetPartners
+GET {{Sphera_API_HostAddress}}/api/v1/Partners
+Accept: {{json}}
+
+###
+
+# CreatePartner
+POST {{Sphera_API_HostAddress}}/api/v1/Partners
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  // payload do parceiro
+}
+
+###
+
+# GetPartnerById
+GET {{Sphera_API_HostAddress}}/api/v1/Partners/{{uuid}}
+Accept: {{json}}
+
+###
+
+# UpdatePartner
+PUT {{Sphera_API_HostAddress}}/api/v1/Partners/{{uuid}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  // payload de atualização do parceiro
+}
+
+###
+
+# DeletePartner
+DELETE {{Sphera_API_HostAddress}}/api/v1/Partners/{{uuid}}
+Accept: {{json}}
+
+###
+
+# ActivatePartner
+PATCH {{Sphera_API_HostAddress}}/api/v1/Partners/{{uuid}}/activate
+Accept: {{json}}
+
+###
+
+# DeactivatePartner
+PATCH {{Sphera_API_HostAddress}}/api/v1/Partners/{{uuid}}/deactivate
+Accept: {{json}}

@@ -1,0 +1,98 @@
+@Sphera_API_HostAddress = http://localhost:5000
+@json = application/json
+@uuid = 11111111-1111-1111-1111-111111111111
+
+###
+# CLIENTS
+# --------------------------------------------
+
+# GetClients (todos)
+GET {{Sphera_API_HostAddress}}/api/v1/Clients
+Accept: {{json}}
+
+###
+
+# GetClients (com filtros na query)
+GET {{Sphera_API_HostAddress}}/api/v1/Clients?PartnerId={{uuid}}&Status=true&Cnpj=12345678901234&Search=texto&IncludePartner=true
+Accept: {{json}}
+
+###
+
+# CreateClient
+POST {{Sphera_API_HostAddress}}/api/v1/Clients
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "partnerId": "{{uuid}}",
+  "tradeName": "Acme LTDA",
+  "legalName": "Acme Indústria e Comércio LTDA",
+  "cnpj": "12345678000190",
+  "stateRegistration": "ISENTO",
+  "municipalRegistration": "123456",
+  "address": {
+    "street": "Rua Exemplo",
+    "number": 123,
+    "city": "São Paulo",
+    "state": "SP",
+    "zipCode": "01000-000"
+  },
+  "financialEmail": "financeiro@acme.com",
+  "financialPhone": "+55 11 99999-0000",
+  "email": "contato@acme.com",
+  "phone": "+55 11 98888-0000",
+  "billingDueDay": 15
+}
+
+###
+
+# GetClientById (includePartner opcional)
+GET {{Sphera_API_HostAddress}}/api/v1/Clients/{{uuid}}?includePartner=false
+Accept: {{json}}
+
+###
+
+# UpdateClient
+PUT {{Sphera_API_HostAddress}}/api/v1/Clients/{{uuid}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  "id": "{{uuid}}",
+  "tradeName": "Acme LTDA (Atualizada)",
+  "legalName": "Acme Indústria e Comércio LTDA",
+  "cnpj": "12345678000190",
+  "stateRegistration": "ISENTO",
+  "municipalRegistration": "123456",
+  "address": {
+    "street": "Rua Nova",
+    "number": 456,
+    "city": "São Paulo",
+    "state": "SP",
+    "zipCode": "01000-000"
+  },
+  "financialEmail": "financeiro@acme.com",
+  "financialPhone": "+55 11 99999-0000",
+  "email": "contato@acme.com",
+  "phone": "+55 11 98888-0000",
+  "billingDueDay": 20,
+  "status": true
+}
+
+###
+
+# DeleteClient
+DELETE {{Sphera_API_HostAddress}}/api/v1/Clients/{{uuid}}
+Accept: {{json}}
+
+###
+
+# ActivateClient
+PATCH {{Sphera_API_HostAddress}}/api/v1/Clients/{{uuid}}/activate
+Accept: {{json}}
+
+###
+
+# DeactivateClient
+PATCH {{Sphera_API_HostAddress}}/api/v1/Clients/{{uuid}}/deactivate
+Accept: {{json}}

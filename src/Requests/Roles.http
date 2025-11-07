@@ -1,0 +1,15 @@
+@Sphera_API_HostAddress = http://localhost:5000
+@json = application/json
+
+###
+# ROLES
+# --------------------------------------------
+
+# GetRoles
+GET {{Sphera_API_HostAddress}}/api/v1/Roles
+Accept: {{json}}
+
+###
+# GetRoles (com filtros)
+GET {{Sphera_API_HostAddress}}/api/v1/Roles?Page=1&PageSize=10
+Accept: {{json}}
