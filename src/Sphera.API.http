@@ -277,6 +277,11 @@ Accept: {{json}}
 ###
 # User
 # --------------------------------------------
+# GetUsers
+GET {{Sphera_API_HostAddress}}/api/v1/Users
+Accept: {{json}}
+###
+
 # CreateUser
 POST {{Sphera_API_HostAddress}}/api/v1/Users
 Accept: {{json}}

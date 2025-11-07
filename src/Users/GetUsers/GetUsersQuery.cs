@@ -1,4 +1,4 @@
-namespace Sphera.API.Users.GeUsers;
+namespace Sphera.API.Users.GetUsers;
 
 public class GetUsersQuery
 {

@@ -4,7 +4,7 @@ using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Users.DTOs;
 
-namespace Sphera.API.Users.GeUsers;
+namespace Sphera.API.Users.GetUsers;
 
 public class GetUsersQueryHandler(SpheraDbContext dbContext, ILogger<GetUsersQueryHandler> logger) : IHandler<GetUsersQuery, IEnumerable<UserDTO>>
 {
@@ -18,7 +18,7 @@ public class GetUsersQueryHandler(SpheraDbContext dbContext, ILogger<GetUsersQue
             .AsNoTracking()
             .Include(u => u.Role);
         
-        if(string.IsNullOrWhiteSpace(request.Email))
+        if(!string.IsNullOrWhiteSpace(request.Email))
             query = query.Where(u => u.Email.Address == request.Email);
         
         if(request.IsActive.HasValue)

@@ -1,7 +1,7 @@
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Users.CreateUser;
 using Sphera.API.Users.DTOs;
-using Sphera.API.Users.GeUsers;
+using Sphera.API.Users.GetUsers;
 
 namespace Sphera.API.Users;
 
