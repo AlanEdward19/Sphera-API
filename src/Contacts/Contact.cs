@@ -44,11 +44,6 @@ public class Contact
     public EContactRole Role { get; private set; }
 
     /// <summary>
-    /// Gets or sets the unique identifier of the owner associated with this entity.
-    /// </summary>
-    public Guid OwnerId { get; private set; }
-
-    /// <summary>
     /// Gets or sets the string value associated with this instance.
     /// </summary>
     public string Value { get; private set; }

@@ -73,11 +73,10 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
             a.Property(p => p.ZipCode).HasColumnName("ZipCode").HasMaxLength(10);
         });
 
-        b.HasMany<Contact>()
-            .WithOne()
-            .HasForeignKey(c => c.OwnerId)
-            .HasPrincipalKey(p => p.Id)
-            .HasConstraintName("FK_Contacts_PartnerId")
+        b.HasMany(p => p.Clients)
+            .WithOne(ct => ct.Partner)
+            .HasForeignKey(c => c.PartnerId)
+            .HasConstraintName("FK_Contacts_Partner")
             .OnDelete(DeleteBehavior.NoAction);
     }
 }
