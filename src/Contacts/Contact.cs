@@ -185,8 +185,12 @@ public class Contact
         UpdatedBy = actor;
     }
 
+    /// <summary>
+    /// Converts the current contact to a data transfer object (DTO) representation.
+    /// </summary>
+    /// <returns>A <see cref="ContactDTO"/> instance containing the data from this contact.</returns>
     public ContactDTO ToDTO()
     {
-        return new ContactDTO();
+        return new ContactDTO(Id, Type, Role, Value, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy);
     }
 }

@@ -22,7 +22,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Contacts\NovaPasta\" />
       <Folder Include="External\Storage\" />
     </ItemGroup>
 

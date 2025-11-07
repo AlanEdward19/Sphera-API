@@ -2,4 +2,4 @@
 
 namespace Sphera.API.Contacts.AddContactToClient;
 
-public class AddContactToClientCommand(Guid ClientId, EContactType type, EContactRole role, string value);
+public record AddContactToClientCommand(Guid ClientId, EContactType type, EContactRole role, string value);
