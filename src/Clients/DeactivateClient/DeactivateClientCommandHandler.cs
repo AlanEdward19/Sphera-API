@@ -1,4 +1,5 @@
 ﻿using Sphera.API.External.Database;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -29,14 +30,14 @@ public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<D
     {
         logger.LogInformation($"Definindo status do Cliente: '{request.Id}' para desativado.");
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        Client? client = await dbContext.Clients.FindAsync([request.Id], cancellationToken);
+
+        if (client is null)
+            return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
 
         try
         {
-            Client? client = await dbContext.Clients.FindAsync([request.Id], cancellationToken);
-
-            if (client is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             client.Deactivate(Guid.Empty); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
             dbContext.Clients.Update(client);
@@ -45,6 +46,11 @@ public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<D
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
             return ResultDTO<bool>.AsSuccess(true);
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception e)
         {

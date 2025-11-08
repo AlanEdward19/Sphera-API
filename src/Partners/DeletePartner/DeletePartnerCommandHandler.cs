@@ -31,14 +31,14 @@ public class DeletePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Dele
     {
         logger.LogInformation("Iniciando exclusão de parceiro {PartnerId}", request.Id);
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        Partner? partner = await dbContext.Partners.FindAsync(request.Id, cancellationToken);
+
+        if (partner is null)
+            return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
 
         try
         {
-            Partner? partner = await dbContext.Partners.FindAsync(request.Id, cancellationToken);
-
-            if (partner is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             dbContext.Partners.Remove(partner);
             await dbContext.SaveChangesAsync(cancellationToken);

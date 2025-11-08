@@ -13,14 +13,16 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
 {
     public async Task<IResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, CancellationToken cancellationToken)
     {
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        logger.LogInformation($"Iniciando a atualização do parceiro: '{request.Id}'.");
+
+        Partner? partner = await dbContext.Partners.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+
+        if (partner is null)
+            return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, $"Parceiro não encontrado"));
 
         try
         {
-            Partner? partner = await dbContext.Partners.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-            if (partner is null)
-                return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, $"Parceiro não encontrado"));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             CnpjValueObject? cnpj = string.IsNullOrWhiteSpace(request.Cnpj) ? null : new(request.Cnpj);
             AddressValueObject? address = request.Address?.ToValueObject();

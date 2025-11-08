@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.External.Database;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -31,16 +32,16 @@ public class RemoveContactFromClientCommandHandler(SpheraDbContext dbContext, IL
     {
         logger.LogInformation($"Removendo contato para o Cliente: '{request.ClientId}'.");
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        Contact? contact =
+            await dbContext.Contacts.FirstOrDefaultAsync(
+                x => x.Id == request.ContactId && x.ClientId == request.ClientId, cancellationToken);
+
+        if (contact is null)
+            return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Contato não encontrado"));
 
         try
         {
-            Contact? contact =
-                await dbContext.Contacts.FirstOrDefaultAsync(
-                    x => x.Id == request.ContactId && x.ClientId == request.ClientId, cancellationToken);
-
-            if (contact is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Contato não encontrado"));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             dbContext.Contacts.Remove(contact);
 
@@ -49,6 +50,11 @@ public class RemoveContactFromClientCommandHandler(SpheraDbContext dbContext, IL
 
             return ResultDTO<bool>.AsSuccess(true);
 
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception e)
         {

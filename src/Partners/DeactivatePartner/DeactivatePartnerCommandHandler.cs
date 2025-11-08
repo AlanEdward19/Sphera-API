@@ -1,4 +1,5 @@
 ﻿using Sphera.API.External.Database;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -28,14 +29,14 @@ public class DeactivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<
     {
         logger.LogInformation($"Definindo status do Parceiro: '{request.Id}' para desativado.");
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        Partner? partner = await dbContext.Partners.FindAsync([request.Id], cancellationToken);
+
+        if (partner is null)
+            return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
 
         try
         {
-            Partner? partner = await dbContext.Partners.FindAsync([request.Id], cancellationToken);
-
-            if (partner is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             partner.Deactivate(Guid.Empty); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
             dbContext.Partners.Update(partner);
@@ -44,6 +45,11 @@ public class DeactivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
             return ResultDTO<bool>.AsSuccess(true);
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception e)
         {

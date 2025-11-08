@@ -32,15 +32,14 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
     {
         logger.LogInformation("Iniciando criação de cliente para o parceiro {PartnerId}", request.PartnerId);
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
+        if (await dbContext.Partners.FindAsync([request.PartnerId], cancellationToken) is null)
+            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "Parceiro não encontrado."));
+        
         try
         {
-            if (dbContext.Partners.Find(request.PartnerId) is null)
-                return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "Parceiro não encontrado."));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            //TODO: Pegar o actor do contexto de autenticação
-            Client client = new(request, Guid.Empty);
+            Client client = new(request, Guid.Empty);  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
 
             await dbContext.AddAsync(client, cancellationToken);
 

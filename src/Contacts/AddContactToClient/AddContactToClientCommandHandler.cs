@@ -1,4 +1,5 @@
 ﻿using Sphera.API.External.Database;
+using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -24,12 +25,12 @@ public class AddContactToClientCommandHandler(SpheraDbContext dbContext, ILogger
     {
         logger.LogInformation($"Adicionando contato para o Cliente: '{request.ClientId}'.");
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
         try
         {
-            Contact contact = new Contact(request.type, request.role, request.value, Guid.Empty, null,
-                request.ClientId);
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+            Contact contact = new Contact(request.Type, request.Role, request.Value, Guid.Empty, null,
+                request.ClientId);  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
 
             await dbContext.Contacts.AddAsync(contact, cancellationToken);
 
@@ -38,6 +39,11 @@ public class AddContactToClientCommandHandler(SpheraDbContext dbContext, ILogger
 
             return ResultDTO<ContactDTO>.AsSuccess(contact.ToDTO());
 
+        }
+        catch (DomainException ex)
+        {
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(400, ex.Message));
         }
         catch (Exception e)
         {

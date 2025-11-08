@@ -30,10 +30,10 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
     {
         logger.LogInformation("Iniciando criação de parceiro");
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
         try
         {
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
             //TODO: Pegar o actor do contexto de autenticação
             Partner partner = new(request, Guid.Empty);
 
