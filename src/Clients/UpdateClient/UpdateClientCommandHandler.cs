@@ -30,9 +30,9 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
     /// error details.</returns>
     public async Task<IResultDTO<ClientDTO>> HandleAsync(UpdateClientCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Iniciando a atualização do cliente: '{request.Id}'.");
+        logger.LogInformation($"Iniciando a atualização do cliente: '{request.GetId()}'.");
 
-        Client? client = await dbContext.Clients.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        Client? client = await dbContext.Clients.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
 
         if (client is null)
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, $"Cliente não encontrado"));

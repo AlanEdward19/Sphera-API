@@ -10,10 +10,10 @@ public class EditContactCommandHandler(SpheraDbContext dbContext, ILogger<EditCo
 {
     public async Task<IResultDTO<ContactDTO>> HandleAsync(EditContactCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Iniciando atualização do contato: '{request.Id}'.");
+        logger.LogInformation($"Iniciando atualização do contato: '{request.GetId()}'.");
 
         Contact? contact = await dbContext.Contacts
-            .FirstOrDefaultAsync(c => c.Id == request.Id, cancellationToken);
+            .FirstOrDefaultAsync(c => c.Id == request.GetId(), cancellationToken);
 
         if (contact is null)
             return ResultDTO<ContactDTO>.AsFailure(

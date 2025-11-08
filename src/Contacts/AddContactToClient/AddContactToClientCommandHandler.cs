@@ -23,14 +23,14 @@ public class AddContactToClientCommandHandler(SpheraDbContext dbContext, ILogger
     /// added contact's data; on failure, it contains error information.</returns>
     public async Task<IResultDTO<ContactDTO>> HandleAsync(AddContactToClientCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Adicionando contato para o Cliente: '{request.ClientId}'.");
+        logger.LogInformation($"Adicionando contato para o Cliente: '{request.GetClientId()}'.");
 
         try
         {
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             Contact contact = new Contact(request.Type, request.Role, request.Value, Guid.Empty, null,
-                request.ClientId);  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+                request.GetClientId());  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
 
             await dbContext.Contacts.AddAsync(contact, cancellationToken);
 
@@ -47,7 +47,7 @@ public class AddContactToClientCommandHandler(SpheraDbContext dbContext, ILogger
         }
         catch (Exception e)
         {
-            logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Cliente: '{request.ClientId}'.", e);
+            logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Cliente: '{request.GetClientId()}'.", e);
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
             return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar adicionar o contato para o Cliente."));
         }

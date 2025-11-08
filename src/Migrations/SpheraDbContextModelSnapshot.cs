@@ -168,9 +168,6 @@ namespace Sphera.API.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("OwnerId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid?>("PartnerId")
                         .HasColumnType("uniqueidentifier");
 
@@ -201,8 +198,6 @@ namespace Sphera.API.Migrations
 
                     b.HasIndex("ClientId")
                         .HasDatabaseName("IX_Contacts_ClientId");
-
-                    b.HasIndex("OwnerId");
 
                     b.HasIndex("PartnerId")
                         .HasDatabaseName("IX_Contacts_PartnerId");
@@ -503,13 +498,6 @@ namespace Sphera.API.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_Contacts_Client");
 
-                    b.HasOne("Sphera.API.Partners.Partner", null)
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired()
-                        .HasConstraintName("FK_Contacts_PartnerId");
-
                     b.HasOne("Sphera.API.Partners.Partner", "Partner")
                         .WithMany("Contacts")
                         .HasForeignKey("PartnerId")
@@ -589,29 +577,25 @@ namespace Sphera.API.Migrations
                                 .HasColumnType("uniqueidentifier");
 
                             b1.Property<string>("City")
-                                .IsRequired()
                                 .HasMaxLength(100)
                                 .HasColumnType("nvarchar(100)")
                                 .HasColumnName("City");
 
-                            b1.Property<int>("Number")
+                            b1.Property<int?>("Number")
                                 .HasColumnType("int")
                                 .HasColumnName("Number");
 
                             b1.Property<string>("State")
-                                .IsRequired()
                                 .HasMaxLength(2)
                                 .HasColumnType("nvarchar(2)")
                                 .HasColumnName("State");
 
                             b1.Property<string>("Street")
-                                .IsRequired()
                                 .HasMaxLength(160)
                                 .HasColumnType("nvarchar(160)")
                                 .HasColumnName("Street");
 
                             b1.Property<string>("ZipCode")
-                                .IsRequired()
                                 .HasMaxLength(10)
                                 .HasColumnType("nvarchar(10)")
                                 .HasColumnName("ZipCode");

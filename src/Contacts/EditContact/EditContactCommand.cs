@@ -10,7 +10,7 @@ public class EditContactCommand
     /// <summary>
     /// Gets the unique identifier for the entity.
     /// </summary>
-    public Guid Id { get; private set; }
+    private Guid Id { get; set; }
     
     /// <summary>
     /// Gets or sets the string value associated with this instance.
@@ -26,6 +26,11 @@ public class EditContactCommand
     /// Gets or sets the role associated with the contact, such as manager, assistant, or primary contact.
     /// </summary>
     public EContactRole? Role { get; set; }
+
+    /// <summary>
+    /// Retrieves the current identifier value.
+    /// </summary>
+    public Guid GetId() => Id;
 
     /// <summary>
     /// Sets the unique identifier for the current instance.

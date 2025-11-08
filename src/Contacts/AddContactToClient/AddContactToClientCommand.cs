@@ -4,11 +4,18 @@ namespace Sphera.API.Contacts.AddContactToClient;
 
 public class AddContactToClientCommand
 {
-    public Guid ClientId { get; private set; }
+    private Guid ClientId { get; set; }
+
     public EContactType Type { get; set; }
     public EContactRole Role { get; set; }
     public string Value { get; set; }
 
+    /// <summary>
+    /// Gets the unique identifier associated with the client.
+    /// </summary>
+    /// <returns>A <see cref="Guid"/> representing the client's unique identifier.</returns>
+    public Guid GetClientId() => ClientId;
+    
     /// <summary>
     /// Sets the client identifier to the specified value.
     /// </summary>

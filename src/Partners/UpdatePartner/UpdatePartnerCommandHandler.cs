@@ -13,9 +13,9 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
 {
     public async Task<IResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Iniciando a atualização do parceiro: '{request.Id}'.");
+        logger.LogInformation($"Iniciando a atualização do parceiro: '{request.GetId()}'.");
 
-        Partner? partner = await dbContext.Partners.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
+        Partner? partner = await dbContext.Partners.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
 
         if (partner is null)
             return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, $"Parceiro não encontrado"));

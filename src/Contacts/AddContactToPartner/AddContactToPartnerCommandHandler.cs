@@ -24,13 +24,13 @@ public class AddContactToPartnerCommandHandler(SpheraDbContext dbContext, ILogge
     /// error information.</returns>
     public async Task<IResultDTO<ContactDTO>> HandleAsync(AddContactToPartnerCommand request, CancellationToken cancellationToken)
     {
-        logger.LogInformation($"Adicionando contato para o Parceiro: '{request.PartnerId}'.");
+        logger.LogInformation($"Adicionando contato para o Parceiro: '{request.GetPartnerId()}'.");
 
         try
         {
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            Contact contact = new Contact(request.Type, request.Role, request.Value, Guid.Empty, request.PartnerId); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            Contact contact = new Contact(request.Type, request.Role, request.Value, Guid.Empty, request.GetPartnerId()); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
 
             await dbContext.Contacts.AddAsync(contact, cancellationToken);
 
@@ -47,7 +47,7 @@ public class AddContactToPartnerCommandHandler(SpheraDbContext dbContext, ILogge
         }
         catch (Exception e)
         {
-            logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Parceiro: '{request.PartnerId}'.", e);
+            logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Parceiro: '{request.GetPartnerId()}'.", e);
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
             return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar adicionar o contato para o Parceiro."));
         }
