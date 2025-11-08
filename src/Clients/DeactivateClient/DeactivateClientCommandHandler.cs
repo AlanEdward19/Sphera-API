@@ -1,6 +1,7 @@
 ﻿using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.DeactivateClient;
 
@@ -33,12 +34,15 @@ public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<D
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             Client? client = await dbContext.Clients.FindAsync([request.Id], cancellationToken);
 
             if (client is null)
                 return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
 
-            client.Deactivate(Guid.Empty); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            client.Deactivate(actor);
             dbContext.Clients.Update(client);
 
             await dbContext.SaveChangesAsync(cancellationToken);

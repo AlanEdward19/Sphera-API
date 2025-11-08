@@ -1,6 +1,7 @@
 ﻿using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.ActivatePartner;
 
@@ -27,12 +28,15 @@ public class ActivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Ac
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             Partner? partner = await dbContext.Partners.FindAsync([request.Id], cancellationToken);
 
             if (partner is null)
                 return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
 
-            partner.Activate(Guid.Empty); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            partner.Activate(actor);
             dbContext.Partners.Update(partner);
 
             await dbContext.SaveChangesAsync(cancellationToken);

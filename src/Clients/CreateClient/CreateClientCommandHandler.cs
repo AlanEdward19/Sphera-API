@@ -3,6 +3,7 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.CreateClient;
 
@@ -25,6 +26,7 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
     /// The operation is performed within a database transaction to ensure consistency.</remarks>
     /// <param name="request">The command containing the details required to create the client, including the partner identifier and client
     /// information.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the created client data if successful; otherwise, a failure result with error
     /// details.</returns>
@@ -36,11 +38,13 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             if (dbContext.Partners.Find(request.PartnerId) is null)
                 return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "Parceiro não encontrado."));
-
-            //TODO: Pegar o actor do contexto de autenticação
-            Client client = new(request, Guid.Empty);
+            
+            Client client = new(request, actor);
 
             await dbContext.AddAsync(client, cancellationToken);
 

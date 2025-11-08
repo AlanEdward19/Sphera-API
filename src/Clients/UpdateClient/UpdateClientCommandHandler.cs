@@ -5,6 +5,7 @@ using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.ValueObjects;
 using System.Data.Entity;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.UpdateClient;
 
@@ -35,6 +36,9 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             Client? client = await dbContext.Clients.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (client is null)
@@ -44,7 +48,7 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
             AddressValueObject address = request.Address.ToValueObject();
 
             client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration, request.MunicipalRegistration, 
-                address, request.BillingDueDay, Guid.Empty);
+                address, request.BillingDueDay, actor);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);

@@ -6,6 +6,7 @@ using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.ValueObjects;
 using System.Data.Entity;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.UpdatePartner;
 
@@ -17,6 +18,9 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             Partner? partner = await dbContext.Partners.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
 
             if (partner is null)
@@ -25,7 +29,7 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
             CnpjValueObject? cnpj = string.IsNullOrWhiteSpace(request.Cnpj) ? null : new(request.Cnpj);
             AddressValueObject? address = request.Address?.ToValueObject();
 
-            partner.UpdateBasicInfo(request.LegalName, cnpj, address, Guid.Empty);
+            partner.UpdateBasicInfo(request.LegalName, cnpj, address, actor);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);

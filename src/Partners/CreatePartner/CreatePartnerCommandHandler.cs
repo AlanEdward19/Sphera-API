@@ -3,6 +3,7 @@ using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.CreatePartner;
 
@@ -35,8 +36,9 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
 
         try
         {
-            //TODO: Pegar o actor do contexto de autenticação
-            Partner partner = new(request, Guid.Empty);
+            var user = context.User;
+            var actor = user.GetUserId();
+            Partner partner = new(request, actor);
 
             await dbContext.AddAsync(partner, cancellationToken);
 

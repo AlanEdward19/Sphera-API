@@ -10,8 +10,11 @@ public static class ClaimsPrincipalUtils
         return emailClaim?.Value ?? string.Empty;
     }
 
-    public static string GetUserId(this ClaimsPrincipal user)
-        => user.FindFirst("oid")?.Value ?? string.Empty;
+    public static Guid GetUserId(this ClaimsPrincipal user)
+    {
+        var value = user.FindFirst("oid")?.Value;
+        return Guid.TryParse(value, out var guid) ? guid : Guid.Empty;
+    }
     
     public static string GetName(this ClaimsPrincipal user)
         => user.FindFirst("name")?.Value ?? string.Empty;

@@ -2,6 +2,7 @@
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.ActivateClient;
 
@@ -23,6 +24,7 @@ public class ActivateClientCommandHandler(SpheraDbContext dbContext, ILogger<Act
     /// code. If an error occurs during the activation process, the result will indicate failure with a 500 error code.
     /// The operation is performed within a database transaction to ensure data consistency.</remarks>
     /// <param name="request">The command containing the client identifier and any additional data required to activate the client.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token that can be used to request cancellation of the operation.</param>
     /// <returns>A result object containing a boolean value that indicates whether the client was successfully activated. Returns
     /// a failure result if the client is not found or if an error occurs during the operation.</returns>
@@ -34,12 +36,15 @@ public class ActivateClientCommandHandler(SpheraDbContext dbContext, ILogger<Act
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             Client? client = await dbContext.Clients.FindAsync([request.Id], cancellationToken);
 
             if (client is null)
                 return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
 
-            client.Activate(Guid.Empty); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            client.Activate(actor);
             dbContext.Clients.Update(client);
 
             await dbContext.SaveChangesAsync(cancellationToken);
