@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Sphera.API.Migrations
 {
     /// <inheritdoc />
-    public partial class Initial : Migration
+    public partial class initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -42,17 +42,13 @@ namespace Sphera.API.Migrations
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
-                    TradeName = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: false),
                     LegalName = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: false),
                     Cnpj = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
-                    StateRegistration = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    MunicipalRegistration = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Street = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: false),
-                    Number = table.Column<int>(type: "int", nullable: false),
-                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    State = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: false),
-                    ZipCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false),
-                    BillingDueDay = table.Column<short>(type: "smallint", nullable: true),
+                    Street = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: true),
+                    Number = table.Column<int>(type: "int", nullable: true),
+                    City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
+                    State = table.Column<string>(type: "nvarchar(2)", maxLength: 2, nullable: true),
+                    ZipCode = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     Status = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -63,6 +59,22 @@ namespace Sphera.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Partners", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Roles",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<short>(type: "smallint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Roles", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -124,6 +136,33 @@ namespace Sphera.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Users",
+                schema: "dbo",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
+                    RoleId = table.Column<short>(type: "smallint", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: false),
+                    Password = table.Column<string>(type: "nvarchar(200)", maxLength: 200, nullable: false),
+                    Active = table.Column<bool>(type: "bit", nullable: false),
+                    IsFirstAccess = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_User_Role",
+                        column: x => x.RoleId,
+                        principalSchema: "dbo",
+                        principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Contacts",
                 schema: "dbo",
                 columns: table => new
@@ -133,7 +172,6 @@ namespace Sphera.API.Migrations
                     ClientId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     Type = table.Column<int>(type: "int", nullable: false),
                     Role = table.Column<int>(type: "int", nullable: false),
-                    OwnerId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -153,12 +191,6 @@ namespace Sphera.API.Migrations
                     table.ForeignKey(
                         name: "FK_Contacts_Partner",
                         column: x => x.PartnerId,
-                        principalSchema: "dbo",
-                        principalTable: "Partners",
-                        principalColumn: "Id");
-                    table.ForeignKey(
-                        name: "FK_Contacts_PartnerId",
-                        column: x => x.OwnerId,
                         principalSchema: "dbo",
                         principalTable: "Partners",
                         principalColumn: "Id");
@@ -243,12 +275,6 @@ namespace Sphera.API.Migrations
                 column: "ClientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Contacts_OwnerId",
-                schema: "dbo",
-                table: "Contacts",
-                column: "OwnerId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Contacts_PartnerId",
                 schema: "dbo",
                 table: "Contacts",
@@ -291,6 +317,12 @@ namespace Sphera.API.Migrations
                 table: "Services",
                 column: "Code",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_RoleId",
+                schema: "dbo",
+                table: "Users",
+                column: "RoleId");
         }
 
         /// <inheritdoc />
@@ -309,11 +341,19 @@ namespace Sphera.API.Migrations
                 schema: "dbo");
 
             migrationBuilder.DropTable(
+                name: "Users",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
                 name: "Clients",
                 schema: "dbo");
 
             migrationBuilder.DropTable(
                 name: "Services",
+                schema: "dbo");
+
+            migrationBuilder.DropTable(
+                name: "Roles",
                 schema: "dbo");
 
             migrationBuilder.DropTable(

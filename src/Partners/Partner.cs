@@ -250,10 +250,10 @@ public class Partner
     public PartnerDTO ToDTO(bool includeClients)
     {
         return includeClients
-            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj.Value, Address.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
                 Clients.Select(c => c.ToDTO(includePartner: false)).ToList().AsReadOnly())
-            : new PartnerDTO(Id, LegalName, Cnpj.Value, Address.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+            : new PartnerDTO(Id, LegalName, Cnpj.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly());
     }
 }

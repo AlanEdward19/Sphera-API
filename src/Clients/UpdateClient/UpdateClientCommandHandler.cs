@@ -30,19 +30,21 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
     /// error details.</returns>
     public async Task<IResultDTO<ClientDTO>> HandleAsync(UpdateClientCommand request, CancellationToken cancellationToken)
     {
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        logger.LogInformation($"Iniciando a atualização do cliente: '{request.GetId()}'.");
+
+        Client? client = await dbContext.Clients.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
+
+        if (client is null)
+            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, $"Cliente não encontrado"));
 
         try
         {
-            Client? client = await dbContext.Clients.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-            if (client is null)
-                return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, $"Cliente não encontrado"));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             CnpjValueObject cnpj = new(request.Cnpj);
             AddressValueObject address = request.Address.ToValueObject();
 
-            client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration, request.MunicipalRegistration, 
+            client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration, request.MunicipalRegistration,
                 address, request.BillingDueDay, Guid.Empty);
 
             await dbContext.SaveChangesAsync(cancellationToken);
