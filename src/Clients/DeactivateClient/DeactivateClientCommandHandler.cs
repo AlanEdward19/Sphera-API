@@ -25,7 +25,7 @@ public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<D
     /// <param name="cancellationToken">A token that can be used to request cancellation of the asynchronous operation.</param>
     /// <returns>A result object indicating whether the client was successfully deactivated. Returns a failure result if the
     /// client is not found or if an error occurs during the operation.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(DeactivateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeactivateClientCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Definindo status do Cliente: '{request.Id}' para desativado.");
 

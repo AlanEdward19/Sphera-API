@@ -21,10 +21,11 @@ public class DeactivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<
     /// code. In case of an unexpected error, the result will indicate failure with a 500 error code. The operation is
     /// performed within a database transaction to ensure consistency.</remarks>
     /// <param name="request">The command containing the information required to identify and deactivate the partner.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token that can be used to request cancellation of the operation.</param>
     /// <returns>A result object indicating whether the partner was successfully deactivated. Returns a failure result if the
     /// partner is not found or if an error occurs during the operation.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(DeactivatePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeactivatePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Definindo status do Parceiro: '{request.Id}' para desativado.");
 

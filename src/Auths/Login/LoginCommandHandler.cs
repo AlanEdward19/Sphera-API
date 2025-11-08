@@ -11,7 +11,7 @@ namespace Sphera.API.Auths.Login;
 
 public class LoginCommandHandler(SpheraDbContext dbContext, ILogger<LoginCommandHandler> logger, IAuthUtilityService auth) : IHandler<LoginCommand, LoginDTO>
 {
-    public async Task<IResultDTO<LoginDTO>> HandleAsync(LoginCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<LoginDTO>> HandleAsync(LoginCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
             return ResultDTO<LoginDTO>.AsFailure(new FailureDTO(400, "E-mail e senha são obrigatórios."));

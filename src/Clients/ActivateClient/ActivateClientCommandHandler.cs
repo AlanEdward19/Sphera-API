@@ -1,4 +1,5 @@
-﻿using Sphera.API.External.Database;
+﻿using Microsoft.AspNetCore.Http;
+using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 
@@ -25,7 +26,7 @@ public class ActivateClientCommandHandler(SpheraDbContext dbContext, ILogger<Act
     /// <param name="cancellationToken">A token that can be used to request cancellation of the operation.</param>
     /// <returns>A result object containing a boolean value that indicates whether the client was successfully activated. Returns
     /// a failure result if the client is not found or if an error occurs during the operation.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(ActivateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(ActivateClientCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Definindo status do Cliente: '{request.Id}' para ativado.");
 

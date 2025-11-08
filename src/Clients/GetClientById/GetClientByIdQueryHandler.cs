@@ -22,9 +22,10 @@ public class GetClientByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetCli
     /// <remarks>If the client is not found, the result will indicate failure with a 404 status code. If the
     /// query requests partner information, the returned DTO will include partner details.</remarks>
     /// <param name="request">The query containing the client identifier and options for including related partner information.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the client DTO if found; otherwise, a failure result with a 404 error code.</returns>
-    public async Task<IResultDTO<ClientDTO>> HandleAsync(GetClientByIdQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ClientDTO>> HandleAsync(GetClientByIdQuery request, HttpContext context, CancellationToken cancellationToken)
     {
         IQueryable<Client> query = dbContext.Clients
             .AsNoTracking()

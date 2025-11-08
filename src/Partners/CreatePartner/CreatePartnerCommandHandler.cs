@@ -23,10 +23,11 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
     /// process. If an error occurs, the transaction is rolled back and a failure result is returned. The operation is
     /// logged for auditing purposes.</remarks>
     /// <param name="request">The command containing the data required to create a new partner.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A result object containing the created partner data if successful; otherwise, a failure result with error
     /// details.</returns>
-    public async Task<IResultDTO<PartnerDTO>> HandleAsync(CreatePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<PartnerDTO>> HandleAsync(CreatePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação de parceiro");
 

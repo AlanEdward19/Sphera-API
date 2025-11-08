@@ -28,7 +28,7 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the created client data if successful; otherwise, a failure result with error
     /// details.</returns>
-    public async Task<IResultDTO<ClientDTO>> HandleAsync(CreateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ClientDTO>> HandleAsync(CreateClientCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação de cliente para o parceiro {PartnerId}", request.PartnerId);
 

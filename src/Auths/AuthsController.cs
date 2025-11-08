@@ -13,14 +13,14 @@ public class AuthsController : ControllerBase
     [HttpPost("login", Name = "Login")]
     public async Task<IActionResult> Login([FromServices] IHandler<LoginCommand, LoginDTO> handler, [FromBody] LoginCommand command, CancellationToken cancellationToken)
     {
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess ? Ok(response.Success) : BadRequest(response.Failure);
     }
 
     [HttpPost("refresh", Name = "RefreshToken")]
     public async Task<IActionResult> Refresh([FromServices] IHandler<RefreshTokenCommand, RefreshTokenDTO> handler, [FromBody] RefreshTokenCommand command, CancellationToken cancellationToken)
     {
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess ? Ok(response.Success) : BadRequest(response.Failure);
     }
 }

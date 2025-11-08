@@ -7,7 +7,7 @@ namespace Sphera.API.Users.DeleteUser;
 
 public class DeleteUserCommandHandler(SpheraDbContext dbContext, ILogger<DeleteUserCommandHandler> logger) : IHandler<DeleteUserCommand, bool>
 {
-    public async Task<IResultDTO<bool>> HandleAsync(DeleteUserCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeleteUserCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando exclusão de usuário {UserId}", request.Id);
         await dbContext.Database.BeginTransactionAsync(cancellationToken);

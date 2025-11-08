@@ -25,10 +25,11 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
     /// <remarks>The operation is performed within a database transaction. If the client is not found or an
     /// error occurs during the update, the transaction is rolled back and a failure result is returned.</remarks>
     /// <param name="request">The update command containing the client identifier and new client information to be applied.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the updated client data if the operation succeeds; otherwise, a failure result with
     /// error details.</returns>
-    public async Task<IResultDTO<ClientDTO>> HandleAsync(UpdateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ClientDTO>> HandleAsync(UpdateClientCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         await dbContext.Database.BeginTransactionAsync(cancellationToken);
 

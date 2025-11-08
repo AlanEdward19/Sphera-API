@@ -39,9 +39,9 @@ public class AuthUtilityService(IConfiguration configuration) : IAuthUtilityServ
         
         var claims = new[]
         {
-            new Claim("userId", user.Id.ToString()),
-            new Claim("username", user.Name),
-            new Claim("email", user.Email.Address),
+            new Claim("emails", user.Email.Address),
+            new Claim("name", user.Name),
+            new Claim("oid", user.Id.ToString()),
             new Claim(ClaimTypes.Role, user.Role.Name)
         };
         

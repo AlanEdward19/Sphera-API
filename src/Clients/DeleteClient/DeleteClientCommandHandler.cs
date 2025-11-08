@@ -26,7 +26,7 @@ public class DeleteClientCommandHandler(SpheraDbContext dbContext, ILogger<Delet
 	/// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
 	/// <returns>A ResultDTO<bool> indicating whether the client was successfully deleted. Returns a failure result if the client is
 	/// not found or if an error occurs during deletion.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(DeleteClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeleteClientCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando exclusão de cliente {ClientId}", request.Id);
 

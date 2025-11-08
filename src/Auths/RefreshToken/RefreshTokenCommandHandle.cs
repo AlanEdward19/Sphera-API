@@ -10,7 +10,7 @@ namespace Sphera.API.Auths.RefreshToken;
 public class RefreshTokenCommandHandle(SpheraDbContext dbContext, ILogger<RefreshTokenCommandHandle> logger, IAuthUtilityService auth)
     : IHandler<RefreshTokenCommand, RefreshTokenDTO>
 {
-    public async Task<IResultDTO<RefreshTokenDTO>> HandleAsync(RefreshTokenCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<RefreshTokenDTO>> HandleAsync(RefreshTokenCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.RefreshToken))
             return ResultDTO<RefreshTokenDTO>.AsFailure(new FailureDTO(400, "E-mail e refresh token são obrigatórios."));

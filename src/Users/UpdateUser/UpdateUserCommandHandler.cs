@@ -8,7 +8,7 @@ namespace Sphera.API.Users.UpdateUser;
 
 public class UpdateUserCommandHandler(SpheraDbContext dbContext, ILogger<UpdateUserCommandHandler> logger) : IHandler<UpdateUserCommand, UserDTO>
 {
-    public async Task<IResultDTO<UserDTO>> HandleAsync(UpdateUserCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<UserDTO>> HandleAsync(UpdateUserCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando atualização de usuário {UserId}", request.Id);
 

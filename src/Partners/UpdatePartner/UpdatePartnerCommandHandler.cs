@@ -11,7 +11,7 @@ namespace Sphera.API.Partners.UpdatePartner;
 
 public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<UpdateClientCommandHandler> logger) : IHandler<UpdatePartnerCommand, PartnerDTO>
 {
-    public async Task<IResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         await dbContext.Database.BeginTransactionAsync(cancellationToken);
 

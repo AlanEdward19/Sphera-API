@@ -15,10 +15,11 @@ public class ActivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Ac
     /// Activates the specified partner and updates its status in the database asynchronously.
     /// </summary>
     /// <param name="request">The command containing the identifier of the partner to activate.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A result object indicating whether the partner was successfully activated. Returns a failure result if the
     /// partner is not found or if an error occurs during the operation.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(ActivatePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(ActivatePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Definindo status do Parceiro: '{request.Id}' para ativado.");
 

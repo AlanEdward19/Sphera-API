@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Clients.ActivateClient;
 using Sphera.API.Clients.CreateClient;
@@ -14,13 +15,14 @@ namespace Sphera.API.Clients;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class ClientsController : ControllerBase
 {
     [HttpGet(Name = "GetClients")]
     public async Task<IActionResult> GetClients([FromServices] IHandler<GetClientsQuery, IEnumerable<ClientDTO>> handler,
         [FromQuery] GetClientsQuery query, CancellationToken cancellationToken)
     {
-        var response = await handler.HandleAsync(query, cancellationToken);
+        var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? Ok(response.Success)
@@ -33,7 +35,7 @@ public class ClientsController : ControllerBase
     {
         var query = new GetClientByIdQuery(id, includePartner);
 
-        var response = await handler.HandleAsync(query, cancellationToken);
+        var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? Ok(response.Success)
@@ -44,7 +46,7 @@ public class ClientsController : ControllerBase
     public async Task<IActionResult> CreateClient([FromServices] IHandler<CreateClientCommand, ClientDTO> handler, [FromBody] CreateClientCommand command,
         CancellationToken cancellationToken)
     {
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
@@ -56,7 +58,7 @@ public class ClientsController : ControllerBase
         Guid id, CancellationToken cancellationToken)
     {
         command.SetId(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
            ? Ok(response.Success)
@@ -67,7 +69,7 @@ public class ClientsController : ControllerBase
     public async Task<IActionResult> ActivateClient([FromServices] IHandler<ActivateClientCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
         var command = new ActivateClientCommand(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? NoContent()
@@ -78,7 +80,7 @@ public class ClientsController : ControllerBase
     public async Task<IActionResult> DeactivateClient([FromServices] IHandler<DeactivateClientCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
         var command = new DeactivateClientCommand(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? NoContent()
@@ -89,7 +91,7 @@ public class ClientsController : ControllerBase
     public async Task<IActionResult> DeleteClient([FromServices] IHandler<DeleteClientCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
         var command = new DeleteClientCommand(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? NoContent()

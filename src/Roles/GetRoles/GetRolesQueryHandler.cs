@@ -10,7 +10,7 @@ namespace Sphera.API.Roles.GetRoles;
 
 public class GetRolesQueryHandler(SpheraDbContext dbContext, ILogger<GetRolesQueryHandler> logger) : IHandler<GetRolesQuery, IEnumerable<RoleDTO>>
 {
-    public async Task<IResultDTO<IEnumerable<RoleDTO>>> HandleAsync(GetRolesQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<RoleDTO>>> HandleAsync(GetRolesQuery request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando busca de roles. Parâmetros: Page={Page}, PageSize={PageSize}",request.Page, request.PageSize);
 

@@ -8,7 +8,7 @@ namespace Sphera.API.Users.GetUsers;
 
 public class GetUsersQueryHandler(SpheraDbContext dbContext, ILogger<GetUsersQueryHandler> logger) : IHandler<GetUsersQuery, IEnumerable<UserDTO>>
 {
-    public async Task<IResultDTO<IEnumerable<UserDTO>>> HandleAsync(GetUsersQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<UserDTO>>> HandleAsync(GetUsersQuery request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando busca de usuários. Parâmetros: Email={Email}, IsActive={IsActive}, RoleId={RoleId}, Page={Page}, PageSize={PageSize}",
             request.Email, request.IsActive, request.RoleId, request.Page, request.PageSize);

@@ -7,7 +7,7 @@ namespace Sphera.API.Users.DeactivateUser;
 public class DeactivateUserCommandHandler(SpheraDbContext dbContext, ILogger<DeactivateUserCommandHandler> logger)
     : IHandler<DeactivateUserCommand, bool>
 {
-    public async Task<IResultDTO<bool>> HandleAsync(DeactivateUserCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeactivateUserCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Definindo status do Usuário: '{UserId}' para desativado.", request.Id);
 
