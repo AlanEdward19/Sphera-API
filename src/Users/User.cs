@@ -106,7 +106,8 @@ public class User
             RoleId,
             Name,
             Email.Address,
-            IsFirstAccess
+            IsFirstAccess,
+            Active
         );
     }
 }

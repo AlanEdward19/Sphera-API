@@ -18,8 +18,8 @@ Accept: {{json}}
 Content-Type: {{json}}
 
 {
-    "name": "Abner Oliveira",
-    "email": "abnersanto2014@gmail.com",
+    "name": "Stefini Oliveira",
+    "email": "steprado@outlook.com",
     "roleId": 1
 }
 
