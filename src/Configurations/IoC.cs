@@ -1,8 +1,10 @@
-﻿using Sphera.API.Clients;
+﻿using Sphera.API.Auths;
+using Sphera.API.Clients;
 using Sphera.API.External;
 using Sphera.API.Partners;
 using Sphera.API.Users;
 using Sphera.API.Roles;
+using Sphera.API.Auths;
 
 namespace Sphera.API.Configurations;
 
@@ -29,6 +31,7 @@ public static class IoC
     {
         services
             .AddExernal(configuration)
+            .ConfigureAuthsRelatedDependencies(configuration)
             .ConfigureClientsRelatedDependencies()
             .ConfigurePartnersRelatedDependencies()
             .ConfigureUsersRelatedDependencies()

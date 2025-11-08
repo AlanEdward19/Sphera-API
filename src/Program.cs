@@ -3,7 +3,6 @@ using Sphera.API.External;
 
 var builder = WebApplication.CreateBuilder(args);
 
-
 builder.Services.AddIoC(builder.Configuration);
 builder.Services.ConfigureEndpoints();
 
