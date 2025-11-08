@@ -9,7 +9,7 @@ public class PartnerDTO
     public Guid Id { get; private set; }
     public string LegalName { get; private set; }
     public string Cnpj { get; private set; }
-    public AddressDTO Address { get; private set; }
+    public AddressDTO? Address { get; private set; }
     public bool Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Guid CreatedBy { get; private set; }
@@ -17,7 +17,7 @@ public class PartnerDTO
     public Guid? UpdatedBy { get; private set; }
     public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
 
-    public PartnerDTO(Guid id, string legalName, string cnpj, AddressDTO address, bool status,
+    public PartnerDTO(Guid id, string legalName, string cnpj, AddressDTO? address, bool status,
         DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, ReadOnlyCollection<ContactDTO> contacts)
     {
         Id = id;

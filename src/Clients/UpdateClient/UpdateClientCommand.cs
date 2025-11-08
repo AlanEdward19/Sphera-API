@@ -17,7 +17,7 @@ public class UpdateClientCommand
     /// <summary>
     /// Gets or sets the unique identifier for the entity.
     /// </summary>
-    public Guid Id { get; private set; }
+    private Guid Id { get; set; }
 
     /// <summary>
     /// Gets or sets the trade name associated with the entity.
@@ -107,6 +107,12 @@ public class UpdateClientCommand
     /// Gets or sets a value indicating whether the current entity is active.
     /// </summary>
     public bool Status { get; set; } = true;
+
+    /// <summary>
+    /// Gets the unique identifier associated with this instance.
+    /// </summary>
+    /// <returns>A <see cref="System.Guid"/> that uniquely identifies this instance.</returns>
+    public Guid GetId() => Id;
 
     /// <summary>
     /// Sets the unique identifier for the current instance.

@@ -1,4 +1,5 @@
-﻿using Sphera.API.Clients;
+﻿using Newtonsoft.Json.Linq;
+using Sphera.API.Clients;
 using Sphera.API.Contacts.Enums;
 using Sphera.API.Partners;
 using Sphera.API.Shared;
@@ -42,11 +43,6 @@ public class Contact
     /// Gets or sets the role associated with the contact.
     /// </summary>
     public EContactRole Role { get; private set; }
-
-    /// <summary>
-    /// Gets or sets the unique identifier of the owner associated with this entity.
-    /// </summary>
-    public Guid OwnerId { get; private set; }
 
     /// <summary>
     /// Gets or sets the string value associated with this instance.
@@ -124,19 +120,7 @@ public class Contact
 
         @value = @value.Trim();
 
-        switch (type)
-        {
-            case EContactType.Email:
-                Regex regex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
-                if (!regex.IsMatch(@value))
-                    throw new DomainException("Email inválido.");
-                break;
-            case EContactType.Phone:
-                // Additional phone format validation can be added here if needed
-                break;
-            default:
-                throw new DomainException("Tipo de contato inválido.");
-        }
+        ValidateValue(type.Value, @value);
 
         Id = Guid.NewGuid();
         Type = type.Value;
@@ -157,9 +141,36 @@ public class Contact
     public void UpdateValue(string? newValue, Guid actor)
     {
         if (string.IsNullOrWhiteSpace(newValue)) throw new DomainException("Value inválido");
+
+        ValidateValue(Type, newValue);
+
         Value = newValue!;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
+    }
+
+    /// <summary>
+    /// Validates that the specified value conforms to the expected format for the given contact type.
+    /// </summary>
+    /// <param name="type">The type of contact to validate. Determines the expected format of the value.</param>
+    /// <param name="value">The value to validate. The format must match the requirements for the specified contact type.</param>
+    /// <exception cref="DomainException">Thrown if the value does not match the expected format for the specified contact type, or if the contact type is
+    /// not supported.</exception>
+    private void ValidateValue(EContactType type, string @value)
+    {
+        switch (type)
+        {
+            case EContactType.Email:
+                Regex regex = new(@"^[^@\s]+@[^@\s]+\.[^@\s]+$", RegexOptions.IgnoreCase);
+                if (!regex.IsMatch(@value))
+                    throw new DomainException("Email inválido.");
+                break;
+            case EContactType.Phone:
+                // Additional phone format validation can be added here if needed
+                break;
+            default:
+                throw new DomainException("Tipo de contato inválido.");
+        }
     }
 
     /// <summary>
@@ -190,8 +201,12 @@ public class Contact
         UpdatedBy = actor;
     }
 
+    /// <summary>
+    /// Converts the current contact to a data transfer object (DTO) representation.
+    /// </summary>
+    /// <returns>A <see cref="ContactDTO"/> instance containing the data from this contact.</returns>
     public ContactDTO ToDTO()
     {
-        return new ContactDTO();
+        return new ContactDTO(Id, Type, Role, Value, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy);
     }
 }

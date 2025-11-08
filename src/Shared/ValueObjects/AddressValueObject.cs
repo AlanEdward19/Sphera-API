@@ -16,42 +16,37 @@ public sealed record AddressValueObject
     /// <summary>
     /// Gets the street component of the address.
     /// </summary>
-    [Required]
     [MinLength(1)]
     [MaxLength(160)]
-    public string Street { get; init; }
+    public string? Street { get; init; }
 
     /// <summary>
     /// Gets the number associated with this instance.
     /// </summary>
-    [Required]
     public int? Number { get; init; }
 
     /// <summary>
     /// Gets the name of the city associated with the entity.
     /// </summary>
-    [Required]
     [MinLength(1)]
     [MaxLength(80)]
-    public string City { get; init; }
+    public string? City { get; init; }
 
     /// <summary>
     /// Gets the two-letter postal abbreviation for the state.
     /// </summary>
     /// <remarks>The value must be exactly two characters in length, typically conforming to standard U.S.
     /// state abbreviations (e.g., "NY" for New York).</remarks>
-    [Required]
     [MinLength(2)]
     [MaxLength(2)]
-    public string State { get; init; }
+    public string? State { get; init; }
 
     /// <summary>
     /// Gets the postal code associated with the address.
     /// </summary>
-    [Required]
     [MinLength(10)]
     [MaxLength(10)]
-    public string ZipCode { get; init; }
+    public string? ZipCode { get; init; }
 
     /// <summary>
     /// Initializes a new instance of the AddressValueObject class with the specified address details.
@@ -76,6 +71,8 @@ public sealed record AddressValueObject
         //TODO: Validação de CEP
         ZipCode = zipCode;
     }
+
+    private AddressValueObject(){}
 
     /// <summary>
     /// Converts the current address instance to an AddressDTO object.

@@ -10,22 +10,27 @@ using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.UpdatePartner;
 
-public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<UpdateClientCommandHandler> logger) : IHandler<UpdatePartnerCommand, PartnerDTO>
+public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<UpdateClientCommandHandler> logger)
+    : IHandler<UpdatePartnerCommand, PartnerDTO>
 {
-    public async Task<IResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
+    public async Task<IResultDTO<PartnerDTO>> HandleAsync(UpdatePartnerCommand request, HttpContext context,
+        CancellationToken cancellationToken)
     {
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        logger.LogInformation($"Iniciando a atualização do parceiro: '{request.GetId()}'.");
+
+        Partner? partner = await dbContext.Partners.Include(x => x.Contacts)
+            .FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
+
+        if (partner is null)
+            return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, $"Parceiro não encontrado"));
 
         try
         {
             var user = context.User;
             var actor = user.GetUserId();
+
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
             
-            Partner? partner = await dbContext.Partners.Include(x => x.Contacts).FirstOrDefaultAsync(x => x.Id == request.Id, cancellationToken);
-
-            if (partner is null)
-                return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, $"Parceiro não encontrado"));
-
             CnpjValueObject? cnpj = string.IsNullOrWhiteSpace(request.Cnpj) ? null : new(request.Cnpj);
             AddressValueObject? address = request.Address?.ToValueObject();
 
@@ -34,7 +39,7 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients:false));
+            return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false));
         }
         catch (DomainException ex)
         {

@@ -30,14 +30,14 @@ public class DeleteClientCommandHandler(SpheraDbContext dbContext, ILogger<Delet
     {
         logger.LogInformation("Iniciando exclusão de cliente {ClientId}", request.Id);
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        Client? client = await dbContext.Clients.FindAsync([request.Id], cancellationToken);
 
-		try
+        if (client is null)
+            return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
+
+        try
 		{
-			Client? client = await dbContext.Clients.FindAsync(request.Id, cancellationToken);
-
-            if (client is null)
-				return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
+            await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
 			dbContext.Clients.Remove(client);
 			await dbContext.SaveChangesAsync(cancellationToken);
