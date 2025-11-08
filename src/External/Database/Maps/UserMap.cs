@@ -50,13 +50,13 @@ public class UserMap : IEntityTypeConfiguration<User>
         
         var passwordConverter = new ValueConverter<PasswordValueObject, string>(
             v => v.Value,
-            v => new PasswordValueObject(v)
+            v => new PasswordValueObject(v, true)
         );
         
         var passwordComparer = new ValueComparer<PasswordValueObject>(
             (a, b) => a.Value == b.Value,
             v => v == null ? 0 : v.Value.GetHashCode(),
-            v => new PasswordValueObject(v.Value)
+            v => new PasswordValueObject(v.Value, true)
         );
         
         var passwordProp = b.Property(u => u.Password);

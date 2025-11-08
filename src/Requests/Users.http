@@ -1,6 +1,7 @@
 @Sphera_API_HostAddress = http://localhost:5000
 @json = application/json
 @uuid = c32ae1dd-28ee-49f7-975a-45f217395b02
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbHMiOiJhYm5lcnNhbnRvMjAxNEBnbWFpbC5jb20iLCJuYW1lIjoiQWJuZXIgUy4gT2xpdmVpcmEiLCJvaWQiOiJjMzJhZTFkZC0yOGVlLTQ5ZjctOTc1YS00NWYyMTczOTViMDIiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJHZXN0b3IiLCJleHAiOjE3NjI2NDMzMzMsImlzcyI6IlNwaGVyYS5BUEkiLCJhdWQiOiJTcGhlcmFBcHAifQ.BrB5hTYxmP0GcUpx_J0OObbQY47MNazzYxpZlDjXbDI
 
 ###
 # USERS
@@ -9,6 +10,7 @@
 # GetUsers
 GET {{Sphera_API_HostAddress}}/api/v1/Users
 Accept: {{json}}
+Authorization: {{token}}
 
 ###
 
@@ -48,3 +50,23 @@ Accept: {{json}}
 # DeleteUser
 DELETE {{Sphera_API_HostAddress}}/api/v1/Users/{{uuid}}
 Accept: {{json}}
+
+###
+# ChangePassword
+PATCH {{Sphera_API_HostAddress}}/api/v1/Users/{{uuid}}/password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+    "newPassword": "NewPassword123!"
+}
+
+###
+# FirstAccessPassword
+PATCH {{Sphera_API_HostAddress}}/api/v1/Users/{{uuid}}/first-password
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+    "newPassword": "NewPassword123!"
+}

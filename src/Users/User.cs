@@ -74,6 +74,11 @@ public class User
         Name = name;
         UpdatedAt = DateTime.UtcNow;
     }
+    
+    public void PasswordHash(string hashedPassword)
+    {
+        Password = new PasswordValueObject(hashedPassword, true);
+    }
 
     public void ChangePassword(string newPassword)
     {
