@@ -1,6 +1,7 @@
 @Sphera_API_HostAddress = http://localhost:5000
 @json = application/json
 @uuid = 11111111-1111-1111-1111-111111111111
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbHMiOiJhYm5lcnNhbnRvMjAxNEBnbWFpbC5jb20iLCJuYW1lIjoiQWJuZXIgT2xpdmVpcmEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA5LzA5L2lkZW50aXR5L2NsYWltcy9hY3RvciI6ImRjZTc4ODgzLTRmOTEtNDI2NS1hNDdkLWYxNDljY2FkOTI2YyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluaXN0cmFkb3IiLCJleHAiOjE3NjI3MzI5MTQsImlzcyI6IlNwaGVyYS5BUEkiLCJhdWQiOiJTcGhlcmFBcHAifQ.05VtoUEunBdrtMHyn_40wntT42rHANbgIIPNKK_9c2E
 
 ###
 # DOCUMENTS
@@ -9,6 +10,7 @@
 # GetDocuments
 GET {{Sphera_API_HostAddress}}/api/v1/Documents
 Accept: {{json}}
+Authorization: {{token}}
 
 ###
 
@@ -16,9 +18,15 @@ Accept: {{json}}
 POST {{Sphera_API_HostAddress}}/api/v1/Documents
 Accept: {{json}}
 Content-Type: {{json}}
+Authorization: {{token}}
 
 {
-  // payload de criação do documento
+  "clientId": "c978a943-12b7-4308-b75b-466f9a067e3f",
+  "serviceId": "eae05e97-4d38-49f7-a571-93c9ea91e4ea",
+  "responsibleId": "dce78883-4f91-4265-a47d-f149ccad926c",
+  "issueDate": "2025-06-01T00:00:00Z",
+  "dueDate": "2026-06-10T00:00:00Z",
+  "notes": "Observação opcional sobre o documento"
 }
 
 ###
@@ -26,12 +34,14 @@ Content-Type: {{json}}
 # DeleteDocument (em lote, conforme rota sem {id})
 DELETE {{Sphera_API_HostAddress}}/api/v1/Documents
 Accept: {{json}}
+Authorization: {{token}}
 
 ###
 
 # GetDocumentById
 GET {{Sphera_API_HostAddress}}/api/v1/Documents/{{uuid}}
 Accept: {{json}}
+Authorization: {{token}}
 
 ###
 
@@ -39,6 +49,7 @@ Accept: {{json}}
 PUT {{Sphera_API_HostAddress}}/api/v1/Documents/{{uuid}}
 Accept: {{json}}
 Content-Type: {{json}}
+Authorization: {{token}}
 
 {
   // payload de atualização do documento
@@ -50,6 +61,7 @@ Content-Type: {{json}}
 POST {{Sphera_API_HostAddress}}/api/v1/Documents/{{uuid}}/upload
 Accept: {{json}}
 Content-Type: {{json}}
+Authorization: {{token}}
 
 {
   "contentBase64": "<arquivo_em_base64>",
@@ -62,3 +74,4 @@ Content-Type: {{json}}
 # GetDocumentStatuses
 GET {{Sphera_API_HostAddress}}/api/v1/Documents/statuses
 Accept: {{json}}
+Authorization: {{token}}

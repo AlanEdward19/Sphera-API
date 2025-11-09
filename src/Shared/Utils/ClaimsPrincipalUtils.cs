@@ -12,10 +12,10 @@ public static class ClaimsPrincipalUtils
 
     public static Guid GetUserId(this ClaimsPrincipal user)
     {
-        var value = user.FindFirst("oid")?.Value;
+        var value = user.FindFirst(ClaimTypes.Actor)?.Value;
         return Guid.TryParse(value, out var guid) ? guid : Guid.Empty;
     }
-    
+
     public static string GetName(this ClaimsPrincipal user)
         => user.FindFirst("name")?.Value ?? string.Empty;
 }

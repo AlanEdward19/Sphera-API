@@ -39,13 +39,11 @@ public class Partner
     /// </summary>
     /// <remarks>The CNPJ is a unique identifier assigned to legal entities in Brazil. Use this property to
     /// access the validated CNPJ value for the entity.</remarks>
-    [Required]
     public CnpjValueObject? Cnpj { get; private set; }
 
     /// <summary>
     /// Gets the address associated with the current entity.
     /// </summary>
-    [Required]
     public AddressValueObject? Address { get; private set; }
 
     /// <summary>
@@ -250,10 +248,10 @@ public class Partner
     public PartnerDTO ToDTO(bool includeClients)
     {
         return includeClients
-            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
                 Clients.Select(c => c.ToDTO(includePartner: false)).ToList().AsReadOnly())
-            : new PartnerDTO(Id, LegalName, Cnpj.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+            : new PartnerDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly());
     }
 }

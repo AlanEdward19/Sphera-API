@@ -2,6 +2,8 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Sphera.API.Clients;
 using Sphera.API.Documents.Common.Enums;
+using Sphera.API.Documents.CreateDocument;
+using Sphera.API.Documents.DTOs;
 using Sphera.API.Services;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
@@ -149,6 +151,26 @@ public class Document
         CreatedBy = createdBy;
     }
 
+    public Document(CreateDocumentCommand command, Guid createdBy)
+    {
+        Id = Guid.NewGuid();
+        if (command.ClientId == Guid.Empty) throw new DomainException("ClientId obrigatório.");
+        if (command.ServiceId == Guid.Empty) throw new DomainException("ServiceId obrigatório.");
+
+        if (string.IsNullOrWhiteSpace(command.ResponsibleId.ToString()) || command.ResponsibleId.Equals(Guid.Empty))
+            throw new DomainException("Responsável obrigatório.");
+
+        if (command.IssueDate > command.DueDate) throw new DomainException("Data de emissão não pode ser posterior ao vencimento.");
+        ClientId = command.ClientId;
+        ServiceId = command.ServiceId;
+        ResponsibleId = command.ResponsibleId;
+        IssueDate = command.IssueDate;
+        DueDate = command.DueDate;
+        Notes = command.Notes;
+        CreatedAt = DateTime.UtcNow;
+        CreatedBy = createdBy;
+    }
+
     /// <summary>
     /// Determines the current status of the document based on its due date and the default due period.
     /// </summary>
@@ -237,5 +259,23 @@ public class Document
         DueDate = newDueDate;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
+    }
+    
+    public DocumentDTO ToDTO()
+    {
+        return new DocumentDTO(
+            Id,
+            ClientId,
+            ServiceId,
+            ResponsibleId,
+            IssueDate,
+            DueDate,
+            Notes,
+            CreatedAt,
+            CreatedBy,
+            UpdatedAt,
+            UpdatedBy,
+            Status
+        );
     }
 }

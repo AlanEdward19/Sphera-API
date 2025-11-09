@@ -1,5 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Sphera.API.Documents.CreateDocument;
+using Sphera.API.Documents.DTOs;
+using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Documents;
 
@@ -21,9 +25,12 @@ public class DocumentsController : ControllerBase
     }
     
     [HttpPost(Name = "CreateDocument")]
-    public async Task<IActionResult> CreateDocument()
+    public async Task<IActionResult> CreateDocument([FromServices] IHandler<CreateDocumentCommand, DocumentDTO> handler, [FromBody] CreateDocumentCommand command, CancellationToken cancellationToken)
     {
-        return Ok();
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
+            : BadRequest(response.Failure);
     }
     
     [HttpPut("{id:guid}", Name = "UpdateDocument")]

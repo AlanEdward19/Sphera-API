@@ -5,6 +5,7 @@ using Sphera.API.Partners;
 using Sphera.API.Users;
 using Sphera.API.Roles;
 using Sphera.API.Auths;
+using Sphera.API.Documents;
 using Sphera.API.Services;
 
 namespace Sphera.API.Configurations;
@@ -37,7 +38,8 @@ public static class IoC
             .ConfigurePartnersRelatedDependencies()
             .ConfigureUsersRelatedDependencies()
             .ConfigureRolesRelatedDependencies()
-            .ConfigureServicesRelatedDependencies();
+            .ConfigureServicesRelatedDependencies()
+            .ConfigureDocumentsRelatedDependencies();
 
         return services;
     }

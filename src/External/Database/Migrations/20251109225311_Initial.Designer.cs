@@ -12,8 +12,8 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20251109020229_serviceWithDateInsteadOfNumber")]
-    partial class serviceWithDateInsteadOfNumber
+    [Migration("20251109225311_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -276,7 +276,6 @@ namespace Sphera.API.External.Database.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Cnpj")
-                        .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)")
                         .HasColumnName("Cnpj");
@@ -311,7 +310,8 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasIndex("Cnpj")
                         .IsUnique()
-                        .HasDatabaseName("IX_Partners_Cnpj");
+                        .HasDatabaseName("IX_Partners_Cnpj")
+                        .HasFilter("[Cnpj] IS NOT NULL");
 
                     b.ToTable("Partners", "dbo");
                 });
@@ -611,8 +611,7 @@ namespace Sphera.API.External.Database.Migrations
                                 .HasForeignKey("PartnerId");
                         });
 
-                    b.Navigation("Address")
-                        .IsRequired();
+                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("Sphera.API.Users.User", b =>

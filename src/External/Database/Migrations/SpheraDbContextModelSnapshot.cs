@@ -273,7 +273,6 @@ namespace Sphera.API.External.Database.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Cnpj")
-                        .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)")
                         .HasColumnName("Cnpj");
@@ -308,7 +307,8 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasIndex("Cnpj")
                         .IsUnique()
-                        .HasDatabaseName("IX_Partners_Cnpj");
+                        .HasDatabaseName("IX_Partners_Cnpj")
+                        .HasFilter("[Cnpj] IS NOT NULL");
 
                     b.ToTable("Partners", "dbo");
                 });
@@ -608,8 +608,7 @@ namespace Sphera.API.External.Database.Migrations
                                 .HasForeignKey("PartnerId");
                         });
 
-                    b.Navigation("Address")
-                        .IsRequired();
+                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("Sphera.API.Users.User", b =>

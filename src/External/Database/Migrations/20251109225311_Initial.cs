@@ -43,7 +43,7 @@ namespace Sphera.API.External.Database.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     LegalName = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: false),
-                    Cnpj = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: false),
+                    Cnpj = table.Column<string>(type: "nvarchar(14)", maxLength: 14, nullable: true),
                     Street = table.Column<string>(type: "nvarchar(160)", maxLength: 160, nullable: true),
                     Number = table.Column<int>(type: "int", nullable: true),
                     City = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
@@ -85,7 +85,7 @@ namespace Sphera.API.External.Database.Migrations
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false, defaultValueSql: "NEWID()"),
                     Name = table.Column<string>(type: "nvarchar(120)", maxLength: 120, nullable: false),
                     Code = table.Column<string>(type: "nvarchar(40)", maxLength: 40, nullable: false),
-                    DefaultDueInDays = table.Column<short>(type: "smallint", nullable: false),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -309,7 +309,8 @@ namespace Sphera.API.External.Database.Migrations
                 schema: "dbo",
                 table: "Partners",
                 column: "Cnpj",
-                unique: true);
+                unique: true,
+                filter: "[Cnpj] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Services_Code",
