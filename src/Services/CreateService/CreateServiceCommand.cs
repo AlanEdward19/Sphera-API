@@ -26,7 +26,5 @@ public class CreateServiceCommand
     /// <summary>
     /// Gets or sets the default number of days until an item is due.
     /// </summary>
-    [Required]
-    [MinLength(1)]
-    public short DefaultDueInDays { get; set; }
+    public short? DefaultDueInDays { get; set; }
 }

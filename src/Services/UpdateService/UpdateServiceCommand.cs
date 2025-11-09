@@ -11,7 +11,7 @@ public class UpdateServiceCommand
     /// <summary>
     /// Gets or sets the unique identifier for the entity.
     /// </summary>
-    public Guid Id { get; private set; }
+    private Guid Id { get; set; }
 
     /// <summary>
     /// Gets or sets the name associated with the object.
@@ -24,8 +24,13 @@ public class UpdateServiceCommand
     /// <summary>
     /// Gets or sets the default number of days until an item is due.
     /// </summary>
-    [Range(1, 31)]
-    public short DefaultDueInDays { get; set; }
+    public short? DefaultDueInDays { get; set; }
+
+    /// <summary>
+    /// Gets the unique identifier for the current instance.
+    /// </summary>
+    /// <returns>A <see cref="Guid"/> representing the unique identifier of this instance.</returns>
+    public Guid GetId() => Id;
 
     /// <summary>
     /// Sets the unique identifier for the current instance.

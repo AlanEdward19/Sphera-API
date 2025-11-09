@@ -36,11 +36,9 @@ public class Service
     public string Code { get; private set; }
 
     /// <summary>
-    /// Gets the default number of days until an item is due.
+    /// Gets the due date for the item.
     /// </summary>
-    [Required]
-    [MinLength(1)]
-    public short DefaultDueInDays { get; private set; }
+    public DateTime? DueDate { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether the entity is active.
@@ -81,43 +79,43 @@ public class Service
     /// EF Core parameterless constructor.
     /// </summary>
     private Service() { }
-    
+
     /// <summary>
-    /// Initializes a new instance of the Service class with the specified name, code, default due period, and creator
-    /// identifier.
+    /// Initializes a new instance of the Service class with the specified name, code, due date, and creator identifier.
     /// </summary>
     /// <param name="name">The name of the service. Cannot be null, empty, or consist only of white-space characters.</param>
-    /// <param name="code">The unique code that identifies the service. Cannot be null, empty, or consist only of white-space characters.</param>
-    /// <param name="defaultDueInDays">The default number of days until the service is due. Must be zero or a positive value.</param>
+    /// <param name="code">The unique code identifying the service. Cannot be null, empty, or consist only of white-space characters.</param>
+    /// <param name="dueDate">The due date for the service.</param>
     /// <param name="createdBy">The unique identifier of the user who created the service.</param>
-    /// <exception cref="DomainException">Thrown when the name or code is null, empty, or consists only of white-space characters, or when
-    /// defaultDueInDays is negative.</exception>
-    public Service(string name, string code, short defaultDueInDays, Guid createdBy)
+    /// <exception cref="DomainException">Thrown if name or code is null, empty, or consists only of white-space characters.</exception>
+    public Service(string name, string code, DateTime? dueDate, Guid createdBy)
     {
         Id = Guid.NewGuid();
         if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Nome do serviço obrigatório.");
         if (string.IsNullOrWhiteSpace(code)) throw new DomainException("Código do serviço obrigatório.");
-        if (defaultDueInDays < 0) throw new DomainException("DefaultDueInDays inválido.");
+
         Name = name;
         Code = code;
-        DefaultDueInDays = defaultDueInDays;
+        DueDate = dueDate;
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
     }
 
     /// <summary>
-    /// Updates the name and default due-in days for the entity, and records the actor performing the update.
+    /// Updates the name and due date of the item if new values are provided, and records the actor and update
+    /// timestamp.
     /// </summary>
-    /// <remarks>The method only updates the name and default due-in days if the provided values are valid.
-    /// The update timestamp and actor are always set.</remarks>
-    /// <param name="name">The new name to assign to the entity. If null, empty, or whitespace, the name is not changed.</param>
-    /// <param name="defaultDueInDays">The new default number of days until due. If negative, the value is not changed.</param>
+    /// <remarks>The method updates the item's last modified timestamp and actor regardless of whether the
+    /// name or due date are changed.</remarks>
+    /// <param name="name">The new name to assign to the item. If null or whitespace, the name is not changed.</param>
+    /// <param name="dueDate">The new due date to assign to the item. If null, the due date is not changed.</param>
     /// <param name="actor">The unique identifier of the actor performing the update. This value is recorded as the updater.</param>
-    public void Update(string name, short defaultDueInDays, Guid actor)
+    public void Update(string? name, DateTime? dueDate, Guid actor)
     {
         if (!string.IsNullOrWhiteSpace(name)) Name = name;
-        if (defaultDueInDays >= 0) DefaultDueInDays = defaultDueInDays;
+
+        DueDate = dueDate;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
@@ -135,4 +133,14 @@ public class Service
     /// <param name="actor">The unique identifier of the actor performing the deactivation. This value is used to update the audit
     /// information.</param>
     public void Deactivate(Guid actor) { IsActive = false; UpdatedAt = DateTime.UtcNow; UpdatedBy = actor; }
+    
+    /// <summary>
+    /// Converts the current service entity to a corresponding data transfer object (DTO).
+    /// </summary>
+    /// <returns>A <see cref="ServiceDTO"/> instance containing the data from the current service entity.</returns>
+    public ServiceDTO ToDTO()
+    {
+        return new ServiceDTO(Id, Name, Code, DueDate, DueDate.HasValue ? (DueDate.Value - DateTime.Today).Days,
+            IsActive, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy);
+    }
 }
