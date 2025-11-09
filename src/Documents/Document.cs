@@ -163,7 +163,7 @@ public class Document
 
         var daysLeft = (DueDate.Date - now).TotalDays;
 
-        return daysLeft <= Service.DefaultDueInDays ? EDocumentStatus.AboutToExpire : EDocumentStatus.WithinDeadline;
+        return daysLeft <= 7 ? EDocumentStatus.AboutToExpire : EDocumentStatus.WithinDeadline;
     }
 
     /// <summary>
