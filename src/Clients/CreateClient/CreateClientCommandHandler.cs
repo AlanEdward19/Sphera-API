@@ -3,6 +3,7 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.CreateClient;
 
@@ -15,7 +16,8 @@ namespace Sphera.API.Clients.CreateClient;
 /// and troubleshooting.</remarks>
 /// <param name="dbContext">The database context used to access and persist client and partner data.</param>
 /// <param name="logger">The logger instance used to record informational and error messages during client creation.</param>
-public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<CreateClientCommandHandler> logger) : IHandler<CreateClientCommand, ClientDTO>
+public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<CreateClientCommandHandler> logger)
+    : IHandler<CreateClientCommand, ClientDTO>
 {
     /// <summary>
     /// Processes a request to create a new client associated with a specified partner.
@@ -25,21 +27,26 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
     /// The operation is performed within a database transaction to ensure consistency.</remarks>
     /// <param name="request">The command containing the details required to create the client, including the partner identifier and client
     /// information.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the created client data if successful; otherwise, a failure result with error
     /// details.</returns>
-    public async Task<IResultDTO<ClientDTO>> HandleAsync(CreateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ClientDTO>> HandleAsync(CreateClientCommand request, HttpContext context,
+        CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação de cliente para o parceiro {PartnerId}", request.PartnerId);
 
         if (await dbContext.Partners.FindAsync([request.PartnerId], cancellationToken) is null)
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "Parceiro não encontrado."));
-        
+
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            Client client = new(request, Guid.Empty);  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            Client client = new(request, actor);
 
             await dbContext.AddAsync(client, cancellationToken);
 

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Contacts.AddContactToClient;
 using Sphera.API.Contacts.AddContactToPartner;
@@ -11,6 +12,7 @@ namespace Sphera.API.Contacts;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class ContactController : ControllerBase
 {
     [HttpPost("/api/v1/Clients/{clientId:guid}/Contacts", Name = "AddContactToClient")]
@@ -19,7 +21,7 @@ public class ContactController : ControllerBase
     {
         command.SetClientId(clientId);
 
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
             : BadRequest(response.Failure);
@@ -30,7 +32,7 @@ public class ContactController : ControllerBase
         [FromBody] AddContactToPartnerCommand command,  Guid partnerId, CancellationToken cancellationToken)
     {
         command.SetPartnerId(partnerId);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
             : BadRequest(response.Failure);
@@ -41,7 +43,7 @@ public class ContactController : ControllerBase
         Guid clientId, Guid contactId, CancellationToken cancellationToken)
     {
         var command = new RemoveContactFromClientCommand(clientId, contactId);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess
             ? Ok(response.Success)
             : BadRequest(response.Failure);
@@ -52,7 +54,7 @@ public class ContactController : ControllerBase
         Guid partnerId, Guid contactId, CancellationToken cancellationToken)
     {
         var command = new RemoveContactFromPartnerCommand(partnerId, contactId);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess
             ? Ok(response.Success)
             : BadRequest(response.Failure);
@@ -63,7 +65,7 @@ public class ContactController : ControllerBase
         [FromBody] EditContactCommand command, Guid id, CancellationToken cancellationToken)
     {
         command.SetId(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess
            ? Ok(response.Success)
            : BadRequest(response.Failure);

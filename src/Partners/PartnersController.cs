@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http.Extensions;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Partners.ActivatePartner;
 using Sphera.API.Partners.CreatePartner;
@@ -14,13 +15,14 @@ namespace Sphera.API.Partners;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class PartnersController : ControllerBase
 {
     [HttpGet(Name = "GetPartners")]
     public async Task<IActionResult> GetPartners([FromServices] IHandler<GetPartnersQuery, IEnumerable<PartnerDTO>> handler,
         [FromQuery] GetPartnersQuery query, CancellationToken cancellationToken)
     {
-        var response = await handler.HandleAsync(query, cancellationToken);
+        var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? Ok(response.Success)
@@ -32,7 +34,7 @@ public class PartnersController : ControllerBase
     {
         var query = new GetPartnerByIdQuery(id, includeClients);
 
-        var response = await handler.HandleAsync(query, cancellationToken);
+        var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? Ok(response.Success)
@@ -43,7 +45,7 @@ public class PartnersController : ControllerBase
     public async Task<IActionResult> CreatePartner([FromServices] IHandler<CreatePartnerCommand, PartnerDTO> handler,
         [FromBody] CreatePartnerCommand command, CancellationToken cancellationToken)
     {
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
@@ -55,7 +57,7 @@ public class PartnersController : ControllerBase
         Guid id, CancellationToken cancellationToken)
     {
         command.SetId(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
            ? Ok(response.Success)
@@ -66,7 +68,7 @@ public class PartnersController : ControllerBase
     public async Task<IActionResult> ActivatePartner([FromServices] IHandler<ActivatePartnerCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
         var command = new ActivatePartnerCommand(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? NoContent()
@@ -77,7 +79,7 @@ public class PartnersController : ControllerBase
     public async Task<IActionResult> DeactivatePartner([FromServices] IHandler<DeactivatePartnerCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
         var command = new DeactivatePartnerCommand(id);
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? NoContent()
@@ -89,7 +91,7 @@ public class PartnersController : ControllerBase
     {
         var command = new DeletePartnerCommand(id);
 
-        var response = await handler.HandleAsync(command, cancellationToken);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
             ? NoContent()

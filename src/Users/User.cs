@@ -74,11 +74,10 @@ public class User
         Name = name;
         UpdatedAt = DateTime.UtcNow;
     }
-
-    public void UpdateEmail(string email)
+    
+    public void PasswordHash(string hashedPassword)
     {
-        Email = new EmailValueObject(email);
-        UpdatedAt = DateTime.UtcNow;
+        Password = new PasswordValueObject(hashedPassword, true);
     }
 
     public void ChangePassword(string newPassword)
@@ -87,10 +86,9 @@ public class User
         IsFirstAccess = false;
         UpdatedAt = DateTime.UtcNow;
     }
-
-    public void UpdatePassword(string password)
+    public void UpdateRole(short roleId)
     {
-        Password = new PasswordValueObject(password);
+        RoleId = roleId;
         UpdatedAt = DateTime.UtcNow;
     }
 
@@ -113,7 +111,8 @@ public class User
             RoleId,
             Name,
             Email.Address,
-            IsFirstAccess
+            IsFirstAccess,
+            Active
         );
     }
 }

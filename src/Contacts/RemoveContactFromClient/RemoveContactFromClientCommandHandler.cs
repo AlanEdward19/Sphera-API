@@ -3,6 +3,7 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Contacts.RemoveContactFromClient;
 
@@ -24,11 +25,12 @@ public class RemoveContactFromClientCommandHandler(SpheraDbContext dbContext, IL
     /// result with a 404 error. In case of an unexpected error, the operation returns a failure result with a 500 error
     /// code. The operation is performed within a database transaction.</remarks>
     /// <param name="request">The command containing the identifiers of the client and contact to be removed. Cannot be null.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
     /// <returns>A result object containing a boolean value that is <see langword="true"/> if the contact was successfully
     /// removed; otherwise, <see langword="false"/>. If the contact is not found, the result indicates failure with a
     /// 404 error code.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(RemoveContactFromClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(RemoveContactFromClientCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Removendo contato para o Cliente: '{request.ClientId}'.");
 

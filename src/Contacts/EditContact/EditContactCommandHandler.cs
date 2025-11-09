@@ -3,12 +3,13 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Contacts.EditContact;
 
 public class EditContactCommandHandler(SpheraDbContext dbContext, ILogger<EditContactCommandHandler> logger) : IHandler<EditContactCommand, ContactDTO>
 {
-    public async Task<IResultDTO<ContactDTO>> HandleAsync(EditContactCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ContactDTO>> HandleAsync(EditContactCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Iniciando atualização do contato: '{request.GetId()}'.");
 
@@ -21,16 +22,19 @@ public class EditContactCommandHandler(SpheraDbContext dbContext, ILogger<EditCo
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
             if (string.IsNullOrWhiteSpace(request.Value))
-                contact.UpdateValue(request.Value, Guid.Empty);  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+                contact.UpdateValue(request.Value, actor);
 
             if (request.Type is not null)
-                contact.UpdateType(request.Type, Guid.Empty);  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+                contact.UpdateType(request.Type, actor);
 
             if (request.Role is not null)
-                contact.UpdateRole(request.Role, Guid.Empty);  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+                contact.UpdateRole(request.Role, actor);
 
             dbContext.Contacts.Update(contact);
             await dbContext.SaveChangesAsync(cancellationToken);

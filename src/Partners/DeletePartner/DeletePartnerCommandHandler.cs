@@ -24,10 +24,11 @@ public class DeletePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Dele
     /// code. If an error occurs during the deletion process, a failure result with a 500 error code is returned. The
     /// operation is performed within a database transaction to ensure consistency.</remarks>
     /// <param name="request">The command containing the identifier of the partner to be deleted. Cannot be null.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token that can be used to cancel the delete operation.</param>
     /// <returns>A ResultDTO<bool> indicating whether the partner was successfully deleted. Returns a failure result if the
     /// partner is not found or if an error occurs during deletion.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(DeletePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeletePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando exclusão de parceiro {PartnerId}", request.Id);
 

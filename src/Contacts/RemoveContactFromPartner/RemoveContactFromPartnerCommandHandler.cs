@@ -24,11 +24,12 @@ public class RemoveContactFromPartnerCommandHandler(SpheraDbContext dbContext, I
     /// result with a 404 error. In case of an unexpected error, a failure result with a 500 error code is returned. The
     /// operation is performed within a database transaction to ensure consistency.</remarks>
     /// <param name="request">The command containing the identifiers of the partner and the contact to be removed.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A result object containing a boolean value that is <see langword="true"/> if the contact was successfully
     /// removed; otherwise, <see langword="false"/>. If the contact is not found, the result indicates failure with a
     /// 404 error code.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(RemoveContactFromPartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(RemoveContactFromPartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Removendo contato para o Parceiro: '{request.PartnerId}'.");
 

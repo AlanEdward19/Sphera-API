@@ -26,7 +26,7 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing a collection of client data transfer objects that match the query criteria. The
     /// collection will be empty if no clients are found.</returns>
-    public async Task<IResultDTO<IEnumerable<ClientDTO>>> HandleAsync(GetClientsQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<ClientDTO>>> HandleAsync(GetClientsQuery request, HttpContext context, CancellationToken cancellationToken)
     {
         //TODO: Colocar Logs
         IQueryable<Client> query = dbContext

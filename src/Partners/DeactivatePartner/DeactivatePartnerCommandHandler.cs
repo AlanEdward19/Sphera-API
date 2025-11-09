@@ -2,6 +2,7 @@
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.DeactivatePartner;
 
@@ -22,13 +23,14 @@ public class DeactivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<
     /// code. In case of an unexpected error, the result will indicate failure with a 500 error code. The operation is
     /// performed within a database transaction to ensure consistency.</remarks>
     /// <param name="request">The command containing the information required to identify and deactivate the partner.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A token that can be used to request cancellation of the operation.</param>
     /// <returns>A result object indicating whether the partner was successfully deactivated. Returns a failure result if the
     /// partner is not found or if an error occurs during the operation.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(DeactivatePartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeactivatePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Definindo status do Parceiro: '{request.Id}' para desativado.");
-
+        
         Partner? partner = await dbContext.Partners.FindAsync([request.Id], cancellationToken);
 
         if (partner is null)
@@ -36,9 +38,12 @@ public class DeactivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            partner.Deactivate(Guid.Empty); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            partner.Deactivate(actor);
             dbContext.Partners.Update(partner);
 
             await dbContext.SaveChangesAsync(cancellationToken);

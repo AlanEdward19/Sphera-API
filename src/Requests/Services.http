@@ -1,0 +1,57 @@
+@Sphera_API_HostAddress = http://localhost:5000
+@json = application/json
+@uuid = 11111111-1111-1111-1111-111111111111
+
+###
+# SERVICES
+# --------------------------------------------
+
+# GetServices
+GET {{Sphera_API_HostAddress}}/api/v1/Services
+Accept: {{json}}
+
+###
+
+# CreateService
+POST {{Sphera_API_HostAddress}}/api/v1/Services
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  // coloque o payload do serviço aqui
+}
+
+###
+
+# GetServiceById
+GET {{Sphera_API_HostAddress}}/api/v1/Services/{{uuid}}
+Accept: {{json}}
+
+###
+
+# UpdateService
+PUT {{Sphera_API_HostAddress}}/api/v1/Services/{{uuid}}
+Accept: {{json}}
+Content-Type: {{json}}
+
+{
+  // payload para atualizar serviço
+}
+
+###
+
+# DeleteService
+DELETE {{Sphera_API_HostAddress}}/api/v1/Services/{{uuid}}
+Accept: {{json}}
+
+###
+
+# ActivateService
+PATCH {{Sphera_API_HostAddress}}/api/v1/Services/{{uuid}}/activate
+Accept: {{json}}
+
+###
+
+# DeactivateService
+PATCH {{Sphera_API_HostAddress}}/api/v1/Services/{{uuid}}/deactivate
+Accept: {{json}}

@@ -2,6 +2,7 @@
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Contacts.AddContactToClient;
 
@@ -17,20 +18,24 @@ public class AddContactToClientCommandHandler(SpheraDbContext dbContext, ILogger
     /// </summary>
     /// <param name="request">The command containing the details of the contact to add and the identifier of the client to which the contact
     /// will be associated. Cannot be null.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains an <see
     /// cref="IResultDTO{ContactDTO}"/> indicating the outcome of the operation. On success, the result contains the
     /// added contact's data; on failure, it contains error information.</returns>
-    public async Task<IResultDTO<ContactDTO>> HandleAsync(AddContactToClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ContactDTO>> HandleAsync(AddContactToClientCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Adicionando contato para o Cliente: '{request.GetClientId()}'.");
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            Contact contact = new Contact(request.Type, request.Role, request.Value, Guid.Empty, null,
-                request.GetClientId());  // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            Contact contact = new Contact(request.Type, request.Role, request.Value, actor, null,
+                request.GetClientId());
 
             await dbContext.Contacts.AddAsync(contact, cancellationToken);
 

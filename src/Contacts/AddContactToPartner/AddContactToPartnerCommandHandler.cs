@@ -2,6 +2,7 @@
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Contacts.AddContactToPartner;
 
@@ -19,18 +20,22 @@ public class AddContactToPartnerCommandHandler(SpheraDbContext dbContext, ILogge
     /// </summary>
     /// <param name="request">The command containing the details of the contact to add and the identifier of the partner to associate with the
     /// contact. Cannot be null.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the operation.</param>
     /// <returns>A result object containing the added contact data if the operation succeeds; otherwise, a failure result with
     /// error information.</returns>
-    public async Task<IResultDTO<ContactDTO>> HandleAsync(AddContactToPartnerCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<ContactDTO>> HandleAsync(AddContactToPartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation($"Adicionando contato para o Parceiro: '{request.GetPartnerId()}'.");
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+            
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            Contact contact = new Contact(request.Type, request.Role, request.Value, Guid.Empty, request.GetPartnerId()); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            Contact contact = new Contact(request.Type, request.Role, request.Value, actor, request.GetPartnerId());
 
             await dbContext.Contacts.AddAsync(contact, cancellationToken);
 

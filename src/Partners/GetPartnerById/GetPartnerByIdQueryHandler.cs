@@ -22,10 +22,11 @@ public class GetPartnerByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetPa
     /// PartnerDTO will include client information if the query's includeClients flag is set to true.</remarks>
     /// <param name="request">The query containing the partner ID to retrieve and an optional flag indicating whether to include associated
     /// clients in the result.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the partner data as a PartnerDTO if found; otherwise, a failure result with a 404
     /// error code.</returns>
-    public async Task<IResultDTO<PartnerDTO>> HandleAsync(GetPartnerByIdQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<PartnerDTO>> HandleAsync(GetPartnerByIdQuery request, HttpContext context, CancellationToken cancellationToken)
     {
         IQueryable<Partner> query = dbContext.Partners
             .AsNoTracking()

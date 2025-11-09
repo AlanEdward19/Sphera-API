@@ -2,6 +2,7 @@
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.DeactivateClient;
 
@@ -13,7 +14,8 @@ namespace Sphera.API.Clients.DeactivateClient;
 /// operation, a failure result with a 500 error code is returned.</remarks>
 /// <param name="dbContext">The database context used to access and update client data.</param>
 /// <param name="logger">The logger used to record informational and error messages during command handling.</param>
-public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<DeactivateClientCommandHandler> logger) : IHandler<DeactivateClientCommand, bool>
+public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<DeactivateClientCommandHandler> logger)
+    : IHandler<DeactivateClientCommand, bool>
 {
     /// <summary>
     /// Handles the deactivation of a client based on the specified command.
@@ -26,10 +28,11 @@ public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<D
     /// <param name="cancellationToken">A token that can be used to request cancellation of the asynchronous operation.</param>
     /// <returns>A result object indicating whether the client was successfully deactivated. Returns a failure result if the
     /// client is not found or if an error occurs during the operation.</returns>
-    public async Task<IResultDTO<bool>> HandleAsync(DeactivateClientCommand request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<bool>> HandleAsync(DeactivateClientCommand request, HttpContext context,
+        CancellationToken cancellationToken)
     {
         logger.LogInformation($"Definindo status do Cliente: '{request.Id}' para desativado.");
-
+        
         Client? client = await dbContext.Clients.FindAsync([request.Id], cancellationToken);
 
         if (client is null)
@@ -37,9 +40,12 @@ public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<D
 
         try
         {
+            var user = context.User;
+            var actor = user.GetUserId();
+
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            client.Deactivate(Guid.Empty); // TODO: substituir Guid.Empty pelo ID do usuário que está realizando a ação
+            client.Deactivate(actor);
             dbContext.Clients.Update(client);
 
             await dbContext.SaveChangesAsync(cancellationToken);
@@ -56,7 +62,8 @@ public class DeactivateClientCommandHandler(SpheraDbContext dbContext, ILogger<D
         {
             logger.LogError("Um erro ocorreu ao tentar definir o status do cliente para desativado.", e);
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar definir o status do cliente para desativado."));
+            return ResultDTO<bool>.AsFailure(new FailureDTO(500,
+                "Um erro ocorreu ao tentar definir o status do cliente para desativado."));
         }
     }
 }

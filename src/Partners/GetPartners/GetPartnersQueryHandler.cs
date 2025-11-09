@@ -23,10 +23,11 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
     /// partners match the criteria, the collection will be empty. The result may include related client information if
     /// requested.</remarks>
     /// <param name="request">The query parameters used to filter, search, and paginate the list of partners. Must not be null.</param>
+    /// <param name="context"></param>
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a successful result with an
     /// enumerable collection of partner data transfer objects matching the query.</returns>
-    public async Task<IResultDTO<IEnumerable<PartnerDTO>>> HandleAsync(GetPartnersQuery request, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<PartnerDTO>>> HandleAsync(GetPartnersQuery request, HttpContext context, CancellationToken cancellationToken)
     {
         //TODO: Colocar Logs
         IQueryable<Partner> query = dbContext

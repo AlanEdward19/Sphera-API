@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Sphera.API.Services;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class ServicesController : ControllerBase
 {
     [HttpGet(Name = "GetServices")]

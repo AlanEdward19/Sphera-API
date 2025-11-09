@@ -1,9 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 
 namespace Sphera.API.Documents;
 
 [ApiController]
 [Route("api/v1/[controller]")]
+[Authorize]
 public class DocumentsController : ControllerBase
 {
     [HttpGet(Name = "GetDocuments")]

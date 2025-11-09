@@ -1,0 +1,38 @@
+using Sphera.API.External.Database;
+using Sphera.API.Shared.DTOs;
+using Sphera.API.Shared.Interfaces;
+
+namespace Sphera.API.Users.DeactivateUser;
+
+public class DeactivateUserCommandHandler(SpheraDbContext dbContext, ILogger<DeactivateUserCommandHandler> logger)
+    : IHandler<DeactivateUserCommand, bool>
+{
+    public async Task<IResultDTO<bool>> HandleAsync(DeactivateUserCommand request, HttpContext context, CancellationToken cancellationToken)
+    {
+        logger.LogInformation("Definindo status do Usuário: '{UserId}' para desativado.", request.Id);
+
+        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+        try
+        {
+            var user = await dbContext.Users.FindAsync([request.Id], cancellationToken);
+
+            if (user is null)
+                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado"));
+
+            user.Deactivate();
+            dbContext.Users.Update(user);
+
+            await dbContext.SaveChangesAsync(cancellationToken);
+            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+            return ResultDTO<bool>.AsSuccess(true);
+        }
+        catch (Exception e)
+        {
+            logger.LogError(e, "Um erro ocorreu ao tentar definir o status do usuário para desativado.");
+            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar definir o status do usuário para desativado."));
+        }
+    }
+}

@@ -9,11 +9,11 @@ using Sphera.API.External.Database;
 
 #nullable disable
 
-namespace Sphera.API.Migrations
+namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20251108181903_initial")]
-    partial class initial
+    [Migration("20251108233944_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

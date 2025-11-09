@@ -2,5 +2,5 @@
 
 public interface IHandler<in TRequest, TResponse>
 {
-    Task<IResultDTO<TResponse>> HandleAsync(TRequest request, CancellationToken cancellationToken);
+    Task<IResultDTO<TResponse>> HandleAsync(TRequest request, HttpContext context, CancellationToken cancellationToken);
 }

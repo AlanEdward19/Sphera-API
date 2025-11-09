@@ -1,0 +1,23 @@
+@host = http://localhost:5000
+@base = {{host}}/api/v1/Auths
+@contentType = application/json
+
+### 
+# Auths - Login
+POST {{base}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "abnersanto2014@gmail.com",
+  "password": "NewPassword123!"
+}
+
+### 
+# Auths - Refresh Token
+POST {{base}}/refresh
+Content-Type: {{contentType}}
+
+{
+  "email": "abnersanto2014@gmail.com",
+  "refreshToken": "T45nX0O7qmjFFV7gjWjbLzJjz7FqwS7BRMMY9F-p3w8"
+}
