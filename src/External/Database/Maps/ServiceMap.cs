@@ -26,7 +26,7 @@ public class ServiceMap : IEntityTypeConfiguration<Service>
         b.Property(x => x.Id).HasColumnType("uniqueidentifier").HasDefaultValueSql("NEWID()");
         b.Property(x => x.Name).HasMaxLength(120).IsRequired();
         b.Property(x => x.Code).HasMaxLength(40).IsRequired();
-        b.Property(x => x.DefaultDueInDays).HasColumnType("smallint").IsRequired();
+        b.Property(x => x.DueDate).HasColumnType("datetime2");
         b.Property(x => x.IsActive).IsRequired();
         b.Property(x => x.CreatedAt).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.CreatedBy).HasColumnType("uniqueidentifier").IsRequired();

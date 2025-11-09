@@ -8,9 +8,6 @@ using Sphera.API.Services.GetServiceById;
 using Sphera.API.Services.GetServices;
 using Sphera.API.Services.UpdateService;
 using Sphera.API.Shared.Interfaces;
-using System.Threading;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace Sphera.API.Services;
 

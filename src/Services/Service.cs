@@ -140,7 +140,7 @@ public class Service
     /// <returns>A <see cref="ServiceDTO"/> instance containing the data from the current service entity.</returns>
     public ServiceDTO ToDTO()
     {
-        return new ServiceDTO(Id, Name, Code, DueDate, DueDate.HasValue ? (DueDate.Value - DateTime.Today).Days,
+        return new ServiceDTO(Id, Name, Code, DueDate, DueDate.HasValue ? (DueDate.Value - DateTime.Today).Days : null,
             IsActive, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy);
     }
 }
