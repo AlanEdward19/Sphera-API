@@ -42,7 +42,7 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
         
         b.OwnsOne(x => x.File, fm =>
         {
-            fm.Property(f => f.FileName).HasColumnName("FileName").HasMaxLength(260).IsRequired();
+            fm.Property(f => f.FileName).HasColumnName("FileName").HasMaxLength(260);
             fm.Property(f => f.Size).HasColumnName("FileSize").HasColumnType("bigint");
             fm.Property(f => f.ContentType).HasColumnName("ContentType").HasMaxLength(100);
             fm.Property(f => f.BlobUri).HasColumnName("BlobUri").HasMaxLength(500);

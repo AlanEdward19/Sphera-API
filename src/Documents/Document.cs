@@ -48,8 +48,7 @@ public class Document
     /// <summary>
     /// Gets the file metadata associated with this entity.
     /// </summary>
-    [Required]
-    public FileMetadataValueObject File { get; private set; }
+    public FileMetadataValueObject? File { get; private set; }
 
     /// <summary>
     /// Gets the optional notes or comments associated with this instance.
@@ -129,7 +128,7 @@ public class Document
     /// <exception cref="DomainException">Thrown if any required parameter is missing or invalid, such as when clientId, serviceId, or responsibleId is
     /// Guid.Empty, file is null, or issueDate is after dueDate.</exception>
     public Document(Guid id, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate, DateTime dueDate,
-        FileMetadataValueObject file, Guid createdBy, string? notes = null)
+        FileMetadataValueObject? file, Guid createdBy, string? notes = null)
     {
         Id = id == Guid.Empty ? Guid.NewGuid() : id;
         if (clientId == Guid.Empty) throw new DomainException("ClientId obrigatório.");
@@ -145,7 +144,7 @@ public class Document
         ResponsibleId = responsibleId;
         IssueDate = issueDate;
         DueDate = dueDate;
-        File = file ?? throw new DomainException("Arquivo obrigatório para documento.");
+        File = file;
         Notes = notes;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
