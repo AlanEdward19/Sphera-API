@@ -45,7 +45,7 @@ public class CreateDocumentCommandHandler(SpheraDbContext dbContext, ILogger<Cre
         catch (Exception e)
         {
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(500, "Erro ao criar cliente."));
+            return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(500, "Erro ao criar documento."));
         }
     }
 }

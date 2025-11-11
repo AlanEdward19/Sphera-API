@@ -1,5 +1,6 @@
 using Sphera.API.Documents.CreateDocument;
 using Sphera.API.Documents.DTOs;
+using Sphera.API.Documents.UploadDocument;
 using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Documents;
@@ -26,6 +27,7 @@ public static class DocumentsModule
     private static IServiceCollection ConfigureHandlers(this IServiceCollection services)
     {
         services.AddScoped<IHandler<CreateDocumentCommand, DocumentDTO>, CreateDocumentCommandHandler>();
+        services.AddScoped<IHandler<UploadDocumentCommand, bool>, UploadDocumentCommandHandler>();
 
         return services;
     }

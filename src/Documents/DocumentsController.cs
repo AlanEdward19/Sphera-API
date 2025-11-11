@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Documents.CreateDocument;
 using Sphera.API.Documents.DTOs;
+using Sphera.API.Documents.UploadDocument;
 using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Documents;
@@ -46,9 +47,21 @@ public class DocumentsController : ControllerBase
     }
     
     [HttpPost("{id:guid}/upload", Name = "UploadDocument")]
-    public async Task<IActionResult> UploadDocument(Guid id)
+    public async Task<IActionResult> UploadDocument([FromServices] IHandler<UploadDocumentCommand, bool> handler,[FromForm] UploadDocumentCommand command, Guid id, IFormFile file, CancellationToken cancellationToken)
     {
-        return Created();
+        var fileMemoryStream = new MemoryStream();
+        await file.CopyToAsync(fileMemoryStream, cancellationToken);
+        
+        command.SetId(id);
+        command.SetContentType(file.ContentType);
+        command.SetSize(file.Length);
+        command.SetData(fileMemoryStream);
+        
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        
+        return response.IsSuccess
+            ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
+            : BadRequest(response.Failure);
     }
     
     [HttpGet("statuses", Name = "GetDocumentStatuses")]
