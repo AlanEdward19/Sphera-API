@@ -42,7 +42,7 @@ public class CreateDocumentCommandHandler(SpheraDbContext dbContext, ILogger<Cre
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
             return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(400, ex.Message));
         }
-        catch (Exception e)
+        catch (Exception)
         {
             await dbContext.Database.RollbackTransactionAsync(cancellationToken);
             return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(500, "Erro ao criar documento."));

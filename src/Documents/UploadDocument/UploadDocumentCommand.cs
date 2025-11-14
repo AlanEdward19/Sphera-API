@@ -7,7 +7,6 @@ public class UploadDocumentCommand
     /// </summary>
     private Guid _id;
 
-    public string FileName { get; set; } = string.Empty;
     private long _size;
     private string _contentType;
     private MemoryStream _data;

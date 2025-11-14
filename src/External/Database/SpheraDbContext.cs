@@ -8,11 +8,12 @@ using Sphera.API.Partners;
 using Sphera.API.Roles;
 using Sphera.API.Services;
 using Sphera.API.Shared;
+using Sphera.API.Shared.Utils;
 using Sphera.API.Users;
 
 namespace Sphera.API.External.Database;
 
-public class SpheraDbContext(DbContextOptions<SpheraDbContext> options) : DbContext(options)
+public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpContextAccessor httpContextAccessor) : DbContext(options)
 {
     public DbSet<Partner> Partners { get; set; }
     public DbSet<Client> Clients { get; set; }
@@ -41,8 +42,9 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options) : DbCont
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
+        var user = httpContextAccessor.HttpContext!.User;
         ChangeTracker.DetectChanges();
-        var auditEntries = AuditHelper.CreateAuditEntries(ChangeTracker,  Guid.Empty,
+        var auditEntries = AuditHelper.CreateAuditEntries(ChangeTracker,  user.GetUserId(),
             Guid.Empty, "unknown");
 
         if (auditEntries.Any())

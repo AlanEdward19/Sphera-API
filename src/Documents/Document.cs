@@ -7,13 +7,19 @@ using Sphera.API.Documents.DTOs;
 using Sphera.API.Services;
 using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
+using Sphera.API.Users;
 
 namespace Sphera.API.Documents;
 
 public class Document
 {
-    [Key]
-    public Guid Id { get; private set; }
+    [Key] public Guid Id { get; private set; }
+
+    [Required]
+    /// <summary>
+    /// Gets the name of the file associated with this entity.
+    /// </summary>
+    public string FileName { get; private set; }
 
     /// <summary>
     /// Gets the unique identifier of the client.
@@ -44,11 +50,6 @@ public class Document
     /// </summary>
     [Required]
     public DateTime DueDate { get; private set; }
-
-    /// <summary>
-    /// Gets the file metadata associated with this entity.
-    /// </summary>
-    public FileMetadataValueObject? File { get; private set; }
 
     /// <summary>
     /// Gets the optional notes or comments associated with this instance.
@@ -96,7 +97,7 @@ public class Document
     /// <remarks>This property is populated based on the foreign key relationship defined by the ServiceId
     /// property. The value is typically loaded by the Entity Framework when navigating relationships between
     /// entities.</remarks>
-    [ForeignKey(nameof(ServiceId))] 
+    [ForeignKey(nameof(ServiceId))]
     public virtual Service Service { get; private set; }
 
     /// <summary>
@@ -107,10 +108,15 @@ public class Document
     [ForeignKey(nameof(ClientId))]
     public virtual Client Client { get; private set; }
 
+    [ForeignKey(nameof(ResponsibleId))] 
+    public virtual User Responsible { get; private set; }
+
     /// <summary>
     /// EF Core parameterless constructor.
     /// </summary>
-    private Document() { }
+    private Document()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the Document class with the specified identifiers, dates, file metadata, creator,
@@ -127,10 +133,11 @@ public class Document
     /// <param name="notes">Optional notes or comments related to the document. Can be null.</param>
     /// <exception cref="DomainException">Thrown if any required parameter is missing or invalid, such as when clientId, serviceId, or responsibleId is
     /// Guid.Empty, file is null, or issueDate is after dueDate.</exception>
-    public Document(Guid id, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate, DateTime dueDate,
-        FileMetadataValueObject? file, Guid createdBy, string? notes = null)
+    public Document(Guid id, string fileName, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate,
+        DateTime dueDate, Guid createdBy, string? notes = null)
     {
         Id = id == Guid.Empty ? Guid.NewGuid() : id;
+        if (string.IsNullOrWhiteSpace(fileName)) throw new DomainException("Nome do arquivo obrigatório.");
         if (clientId == Guid.Empty) throw new DomainException("ClientId obrigatório.");
         if (serviceId == Guid.Empty) throw new DomainException("ServiceId obrigatório.");
 
@@ -144,7 +151,7 @@ public class Document
         ResponsibleId = responsibleId;
         IssueDate = issueDate;
         DueDate = dueDate;
-        File = file;
+        FileName = fileName;
         Notes = notes;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
@@ -153,13 +160,16 @@ public class Document
     public Document(CreateDocumentCommand command, Guid createdBy)
     {
         Id = Guid.NewGuid();
+        if (string.IsNullOrWhiteSpace(command.FileName)) throw new DomainException("Nome do arquivo obrigatório.");
         if (command.ClientId == Guid.Empty) throw new DomainException("ClientId obrigatório.");
         if (command.ServiceId == Guid.Empty) throw new DomainException("ServiceId obrigatório.");
 
         if (string.IsNullOrWhiteSpace(command.ResponsibleId.ToString()) || command.ResponsibleId.Equals(Guid.Empty))
             throw new DomainException("Responsável obrigatório.");
 
-        if (command.IssueDate > command.DueDate) throw new DomainException("Data de emissão não pode ser posterior ao vencimento.");
+        if (command.IssueDate > command.DueDate)
+            throw new DomainException("Data de emissão não pode ser posterior ao vencimento.");
+        FileName = command.FileName;
         ClientId = command.ClientId;
         ServiceId = command.ServiceId;
         ResponsibleId = command.ResponsibleId;
@@ -188,19 +198,6 @@ public class Document
     }
 
     /// <summary>
-    /// Updates the file metadata and records the actor responsible for the update.
-    /// </summary>
-    /// <param name="newFile">The new file metadata to assign. Cannot be null.</param>
-    /// <param name="actor">The unique identifier of the actor performing the update.</param>
-    /// <exception cref="DomainException">Thrown if newFile is null.</exception>
-    public void UpdateFile(FileMetadataValueObject? newFile, Guid actor)
-    {
-        File = newFile ?? throw new DomainException("Arquivo inválido.");
-        UpdatedAt = DateTime.UtcNow;
-        UpdatedBy = actor;
-    }
-
-    /// <summary>
     /// Updates the issue and due dates for the entity and records the actor responsible for the change.
     /// </summary>
     /// <remarks>This method also updates the last modified timestamp and the identifier of the user or
@@ -226,7 +223,8 @@ public class Document
     /// <exception cref="DomainException">Thrown if <paramref name="newResponsableId"/> is an empty GUID.</exception>
     public void ChangeResponsible(Guid newResponsableId, Guid actor)
     {
-        if (string.IsNullOrWhiteSpace(newResponsableId.ToString()) || newResponsableId.Equals(Guid.Empty)) throw new DomainException("Responsável inválido.");
+        if (string.IsNullOrWhiteSpace(newResponsableId.ToString()) || newResponsableId.Equals(Guid.Empty))
+            throw new DomainException("Responsável inválido.");
         ResponsibleId = newResponsableId;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
@@ -259,11 +257,12 @@ public class Document
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
-    
+
     public DocumentDTO ToDTO()
     {
         return new DocumentDTO(
             Id,
+            FileName,
             ClientId,
             ServiceId,
             ResponsibleId,
@@ -275,6 +274,31 @@ public class Document
             UpdatedAt,
             UpdatedBy,
             Status
+        );
+    }
+
+    public DocumentWithMetadataDTO ToDTO(string partnerName, string clientName, string serviceName,
+        string responsibleName, FileMetadataDTO? fileMetadata)
+    {
+        return new DocumentWithMetadataDTO(
+            Id,
+            FileName,
+            ClientId,
+            ServiceId,
+            ResponsibleId,
+            IssueDate,
+            DueDate,
+            Notes,
+            CreatedAt,
+            CreatedBy,
+            UpdatedAt,
+            UpdatedBy,
+            Status,
+            partnerName,
+            clientName,
+            serviceName,
+            responsibleName,
+            fileMetadata
         );
     }
 }

@@ -47,14 +47,14 @@ public class DocumentsController : ControllerBase
     }
     
     [HttpPost("{id:guid}/upload", Name = "UploadDocument")]
-    public async Task<IActionResult> UploadDocument([FromServices] IHandler<UploadDocumentCommand, bool> handler,[FromForm] UploadDocumentCommand command, Guid id, IFormFile file, CancellationToken cancellationToken)
+    public async Task<IActionResult> UploadDocument([FromServices] IHandler<UploadDocumentCommand, bool> handler, Guid id, IFormFile file, CancellationToken cancellationToken)
     {
         var fileMemoryStream = new MemoryStream();
         await file.CopyToAsync(fileMemoryStream, cancellationToken);
+
+        UploadDocumentCommand command = new();
         
         command.SetId(id);
-        command.SetContentType(file.ContentType);
-        command.SetSize(file.Length);
         command.SetData(fileMemoryStream);
         
         var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
@@ -63,6 +63,7 @@ public class DocumentsController : ControllerBase
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
             : BadRequest(response.Failure);
     }
+    
     
     [HttpGet("statuses", Name = "GetDocumentStatuses")]
     public async Task<IActionResult> GetDocumentStatuses()

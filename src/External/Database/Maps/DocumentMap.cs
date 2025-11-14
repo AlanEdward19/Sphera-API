@@ -24,7 +24,8 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
         b.ToTable("Documents");
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).HasColumnType("uniqueidentifier").HasDefaultValueSql("NEWID()");
-
+        
+        b.Property(f => f.FileName).HasMaxLength(260).IsRequired();
         b.Property(x => x.ClientId).HasColumnType("uniqueidentifier").IsRequired();
         b.Property(x => x.ServiceId).HasColumnType("uniqueidentifier").IsRequired();
         b.Property(x => x.ResponsibleId).HasColumnType("uniqueidentifier").IsRequired();
@@ -39,14 +40,6 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
 
         b.HasIndex(x => new { x.ClientId, x.ServiceId }).HasDatabaseName("IX_Documents_Client_Service");
         b.HasIndex(x => x.DueDate).HasDatabaseName("IX_Documents_DueDate");
-        
-        b.OwnsOne(x => x.File, fm =>
-        {
-            fm.Property(f => f.FileName).HasColumnName("FileName").HasMaxLength(260);
-            fm.Property(f => f.Size).HasColumnName("FileSize").HasColumnType("bigint");
-            fm.Property(f => f.ContentType).HasColumnName("ContentType").HasMaxLength(100);
-            fm.Property(f => f.BlobUri).HasColumnName("BlobUri").HasMaxLength(500);
-        });
 
         b.HasOne(x => x.Client)
          .WithMany()
@@ -59,5 +52,12 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
          .HasForeignKey(x => x.ServiceId)
          .OnDelete(DeleteBehavior.Restrict)
          .HasConstraintName("FK_Documents_Service");
+
+        b.HasOne(x => x.Responsible)
+            .WithMany()
+            .HasForeignKey(x => x.ResponsibleId)
+            .HasPrincipalKey(u => u.Id)  
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_Documents_Responsible");
     }
 }

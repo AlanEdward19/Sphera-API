@@ -5,6 +5,7 @@ namespace Sphera.API.Documents.DTOs;
 public class DocumentDTO
 {
     public Guid Id { get; private set; }
+    public string FileName { get; private set; }
     public Guid ClientId { get; private set; }
     public Guid ServiceId { get; private set; }
     public Guid ResponsibleId { get; private set; }
@@ -17,9 +18,10 @@ public class DocumentDTO
     public Guid? UpdatedBy { get; private set; }
     public EDocumentStatus Status { get; private set; }
     
-    public DocumentDTO(Guid id, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate, DateTime dueDate, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, EDocumentStatus status)
+    public DocumentDTO(Guid id, string fileName, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate, DateTime dueDate, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, EDocumentStatus status)
     {
         Id = id;
+        FileName = fileName;
         ClientId = clientId;
         ServiceId = serviceId;
         ResponsibleId = responsibleId;
