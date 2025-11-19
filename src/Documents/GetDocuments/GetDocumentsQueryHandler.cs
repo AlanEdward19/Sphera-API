@@ -3,6 +3,7 @@ using Sphera.API.Documents.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Documents.GetDocuments;
 
@@ -62,6 +63,19 @@ public class GetDocumentsQueryHandler(
             .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
+
+        List<FileMetadataDTO> filesMetadata = [];
+
+        foreach (var fileName in documents.Select(document => $"{document.ClientId}/{document.ServiceId}/{FileNameSanitizerUtils.SanitizeName(document.Id.ToString())}.pdf"))
+        {
+            var metadata = await storage.GetBlobClientWithSasAsync(fileName, null, cancellationToken);
+            filesMetadata.Add(new FileMetadataDTO(
+                metadata.Value.blobClient.Name,
+                metadata.Value.blobClient.GetProperties().Value.ContentLength,
+                metadata.Value.blobClient.GetProperties().Value.ContentType,
+                metadata.Value.sasUri.ToString()
+            ));
+        }
 
         return ResultDTO<IEnumerable<DocumentWithMetadataDTO>>.AsSuccess(documents.Select(c =>
             c.ToDTO(c.Client.Partner.LegalName, c.Client.LegalName, c.Service.Name, c.Responsible.Name, null)));
