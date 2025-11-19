@@ -3,6 +3,7 @@ using Sphera.API.Documents.DeleteDocument;
 using Sphera.API.Documents.DTOs;
 using Sphera.API.Documents.GetDocumentById;
 using Sphera.API.Documents.GetDocuments;
+using Sphera.API.Documents.UpdateDocument;
 using Sphera.API.Documents.UploadDocument;
 using Sphera.API.Shared.Interfaces;
 
@@ -32,6 +33,7 @@ public static class DocumentsModule
         services.AddScoped<IHandler<CreateDocumentCommand, DocumentDTO>, CreateDocumentCommandHandler>();
         services.AddScoped<IHandler<UploadDocumentCommand, bool>, UploadDocumentCommandHandler>();
         services.AddScoped<IHandler<DeleteDocumentCommand, bool>, DeleteDocumentCommandHandler>();
+        services.AddScoped<IHandler<UpdateDocumentCommand, DocumentDTO>, UpdateDocumentCommandHandler>();
         services.AddScoped<IHandler<GetDocumentsQuery, IEnumerable<DocumentWithMetadataDTO>>, GetDocumentsQueryHandler>();
         services.AddScoped<IHandler<GetDocumentByIdQuery, DocumentWithMetadataDTO>, GetDocumentByIdQueryHandler>();
 

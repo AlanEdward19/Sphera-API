@@ -6,6 +6,7 @@ using Sphera.API.Documents.DeleteDocument;
 using Sphera.API.Documents.DTOs;
 using Sphera.API.Documents.GetDocumentById;
 using Sphera.API.Documents.GetDocuments;
+using Sphera.API.Documents.UpdateDocument;
 using Sphera.API.Documents.UploadDocument;
 using Sphera.API.Shared.Interfaces;
 
@@ -50,9 +51,13 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpPut("{id:guid}", Name = "UpdateDocument")]
-    public async Task<IActionResult> UpdateDocument(Guid id)
+    public async Task<IActionResult> UpdateDocument([FromServices] IHandler<UpdateDocumentCommand, DocumentDTO> handler, [FromBody] UpdateDocumentCommand command, Guid id, CancellationToken cancellationToken)
     {
-        return Ok();
+        command.SetId(id);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? Ok(response.Success)
+            : BadRequest(response.Failure);
     }
 
     [HttpDelete("{id:guid}", Name = "DeleteDocument")]
