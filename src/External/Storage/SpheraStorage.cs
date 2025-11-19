@@ -31,21 +31,13 @@ public class SpheraStorage : IStorage
         fileStream.Position = 0;
         var blobClient = _containerClient.GetBlobClient(fileName);
         await blobClient.UploadAsync(fileStream, new BlobHttpHeaders { ContentType = contentType }, cancellationToken: cancellationToken);
-        var sasUri = blobClient.GenerateSasUri(Azure.Storage.Sas.BlobSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(10));
+        var sasUri = blobClient.GenerateSasUri(BlobSasPermissions.Read, DateTimeOffset.UtcNow.AddMinutes(10));
         return sasUri;
     }
 
-    public async Task<Stream?> DownloadAsync(string blobUri, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(string fileName, CancellationToken cancellationToken = default)
     {
-        var blobClient = new BlobClient(new Uri(blobUri));
-        if (!await blobClient.ExistsAsync(cancellationToken)) return null;
-        var response = await blobClient.OpenReadAsync(cancellationToken: cancellationToken);
-        return response;
-    }
-
-    public async Task DeleteAsync(string blobUri, CancellationToken cancellationToken = default)
-    {
-        var blobClient = new BlobClient(new Uri(blobUri));
+        var blobClient = _containerClient.GetBlobClient(fileName);
         await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }
 }
