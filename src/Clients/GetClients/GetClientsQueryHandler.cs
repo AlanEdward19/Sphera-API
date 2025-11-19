@@ -14,7 +14,8 @@ namespace Sphera.API.Clients.GetClients;
 /// track changes to the retrieved entities.</remarks>
 /// <param name="dbContext">The database context used to access client and partner data.</param>
 /// <param name="logger">The logger instance used for recording diagnostic and operational information.</param>
-public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClientsQueryHandler> logger) : IHandler<GetClientsQuery, IEnumerable<ClientDTO>>
+public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClientsQueryHandler> logger)
+    : IHandler<GetClientsQuery, IEnumerable<ClientDTO>>
 {
     /// <summary>
     /// Handles the retrieval of client records based on the specified query parameters.
@@ -26,7 +27,8 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing a collection of client data transfer objects that match the query criteria. The
     /// collection will be empty if no clients are found.</returns>
-    public async Task<IResultDTO<IEnumerable<ClientDTO>>> HandleAsync(GetClientsQuery request, HttpContext context, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<ClientDTO>>> HandleAsync(GetClientsQuery request, HttpContext context,
+        CancellationToken cancellationToken)
     {
         //TODO: Colocar Logs
         IQueryable<Client> query = dbContext
@@ -45,9 +47,9 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
-                string searchLower = request.Search!.ToLower();
+            string searchLower = request.Search!.ToLower();
             query = query.Where(c => EF.Functions.Like((c.LegalName ?? string.Empty).ToLower(), $"%{searchLower}%")
-            || EF.Functions.Like((c.TradeName ?? string.Empty).ToLower(), $"%{searchLower}%"));
+                                     || EF.Functions.Like((c.TradeName ?? string.Empty).ToLower(), $"%{searchLower}%"));
         }
 
         bool includePartner = request.IncludePartner.HasValue && request.IncludePartner.Value;
