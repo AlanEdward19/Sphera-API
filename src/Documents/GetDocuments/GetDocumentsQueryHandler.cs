@@ -64,20 +64,27 @@ public class GetDocumentsQueryHandler(
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
-        List<FileMetadataDTO> filesMetadata = [];
+        List<DocumentWithMetadataDTO> result = [];
 
-        foreach (var fileName in documents.Select(document => $"{document.ClientId}/{document.ServiceId}/{FileNameSanitizerUtils.SanitizeName(document.Id.ToString())}.pdf"))
+        foreach (var document in documents)
         {
+            var fileName =
+                $"{document.ClientId}/{document.ServiceId}/{FileNameSanitizerUtils.SanitizeName(document.Id.ToString())}.pdf";
+
             var metadata = await storage.GetBlobClientWithSasAsync(fileName, null, cancellationToken);
-            filesMetadata.Add(new FileMetadataDTO(
-                metadata.Value.blobClient.Name,
-                metadata.Value.blobClient.GetProperties().Value.ContentLength,
-                metadata.Value.blobClient.GetProperties().Value.ContentType,
+            
+            var fileMetadata = new FileMetadataDTO(
+                metadata!.Value.blobClient.Name,
+                (await metadata.Value.blobClient.GetPropertiesAsync(cancellationToken: cancellationToken)).Value
+                .ContentLength,
+                (await metadata.Value.blobClient.GetPropertiesAsync(cancellationToken: cancellationToken)).Value
+                .ContentType,
                 metadata.Value.sasUri.ToString()
-            ));
+            );
+            
+            result.Add(document.ToDTO(fileMetadata));
         }
 
-        return ResultDTO<IEnumerable<DocumentWithMetadataDTO>>.AsSuccess(documents.Select(c =>
-            c.ToDTO(c.Client.Partner.LegalName, c.Client.LegalName, c.Service.Name, c.Responsible.Name, null)));
+        return ResultDTO<IEnumerable<DocumentWithMetadataDTO>>.AsSuccess(result);
     }
 }

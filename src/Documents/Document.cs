@@ -277,8 +277,7 @@ public class Document
         );
     }
 
-    public DocumentWithMetadataDTO ToDTO(string partnerName, string clientName, string serviceName,
-        string responsibleName, FileMetadataDTO? fileMetadata)
+    public DocumentWithMetadataDTO ToDTO(FileMetadataDTO? fileMetadata)
     {
         return new DocumentWithMetadataDTO(
             Id,
@@ -294,10 +293,10 @@ public class Document
             UpdatedAt,
             UpdatedBy,
             Status,
-            partnerName,
-            clientName,
-            serviceName,
-            responsibleName,
+            Client.Partner.LegalName,
+            Client.LegalName,
+            Service.Name,
+            Responsible.Name,
             fileMetadata
         );
     }
