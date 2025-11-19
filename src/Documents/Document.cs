@@ -229,6 +229,24 @@ public class Document
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
+    
+    public void ChangeService(Guid newServiceId, Guid actor)
+    {
+        if (string.IsNullOrWhiteSpace(newServiceId.ToString()) || newServiceId.Equals(Guid.Empty))
+            throw new DomainException("Serviço inválido.");
+        ServiceId = newServiceId;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
+    }
+    
+    public void ChangeClient(Guid newClientId, Guid actor)
+    {
+        if (string.IsNullOrWhiteSpace(newClientId.ToString()) || newClientId.Equals(Guid.Empty))
+            throw new DomainException("Cliente inválido.");
+        ClientId = newClientId;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
+    }
 
     /// <summary>
     /// Appends a note to the existing notes and updates the actor and timestamp information.

@@ -15,6 +15,13 @@ public class SpheraStorage : IStorage
         _containerClient.CreateIfNotExists();
     }
 
+    public async Task<bool> ExistsAsync(string fileName, CancellationToken cancellationToken = default)
+    {
+        var blobClient = _containerClient.GetBlobClient(fileName);
+
+        return (bool)await blobClient.ExistsAsync(cancellationToken);
+    }
+
     public async Task<(BlobClient blobClient, Uri sasUri)?> GetBlobClientWithSasAsync(string fileName, TimeSpan? validity = null,
         CancellationToken cancellationToken = default)
     {

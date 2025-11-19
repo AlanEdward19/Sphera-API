@@ -4,7 +4,6 @@ using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.Utils;
-using Sphera.API.Shared.ValueObjects;
 
 namespace Sphera.API.Documents.UploadDocument;
 
@@ -28,6 +27,9 @@ public class UploadDocumentCommandHandler(
         {
             var fileName =
                 $"{document.ClientId}/{document.ServiceId}/{FileNameSanitizerUtils.SanitizeName(request.GetId().ToString())}.pdf";
+
+            if (await storage.ExistsAsync(fileName, cancellationToken))
+                await storage.DeleteAsync(fileName, cancellationToken);
 
             await storage.UploadAsync(request.GetData(), fileName, request.GetContentType(), cancellationToken);
 

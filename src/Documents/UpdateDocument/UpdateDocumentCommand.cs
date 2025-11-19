@@ -13,7 +13,7 @@ public class UpdateDocumentCommand
     /// <summary>
     /// Gets or sets the unique identifier for the entity.
     /// </summary>
-    public Guid Id { get; private set; }
+    private Guid _id;
 
     /// <summary>
     /// Gets or sets the unique identifier for the client.
@@ -55,5 +55,7 @@ public class UpdateDocumentCommand
     /// Sets the unique identifier for the current instance.
     /// </summary>
     /// <param name="id">The unique identifier to assign to the instance.</param>
-    public void SetId(Guid id) => Id = id;
+    public void SetId(Guid id) => _id = id;
+    
+    public Guid GetId() => _id;
 }
