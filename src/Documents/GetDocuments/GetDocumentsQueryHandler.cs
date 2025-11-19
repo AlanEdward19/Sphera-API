@@ -73,6 +73,12 @@ public class GetDocumentsQueryHandler(
 
             var metadata = await storage.GetBlobClientWithSasAsync(fileName, null, cancellationToken);
             
+            if (metadata is null)
+            {
+                result.Add(document.ToDTO(null));
+                continue;
+            }
+            
             var fileMetadata = new FileMetadataDTO(
                 metadata!.Value.blobClient.Name,
                 (await metadata.Value.blobClient.GetPropertiesAsync(cancellationToken: cancellationToken)).Value

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Documents.CreateDocument;
 using Sphera.API.Documents.DTOs;
+using Sphera.API.Documents.GetDocumentById;
 using Sphera.API.Documents.GetDocuments;
 using Sphera.API.Documents.UploadDocument;
 using Sphera.API.Shared.Interfaces;
@@ -26,9 +27,15 @@ public class DocumentsController : ControllerBase
     }
 
     [HttpGet("{id:guid}", Name = "GetDocumentById")]
-    public async Task<IActionResult> GetDocumentById(Guid id)
+    public async Task<IActionResult> GetDocumentById(
+        [FromServices] IHandler<GetDocumentByIdQuery, DocumentWithMetadataDTO> handler, Guid id,
+        CancellationToken cancellationToken)
     {
-        return Ok();
+        var query = new GetDocumentByIdQuery(id);
+        var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? Ok(response.Success)
+            : BadRequest(response.Failure);
     }
 
     [HttpPost(Name = "CreateDocument")]
@@ -70,12 +77,5 @@ public class DocumentsController : ControllerBase
         return response.IsSuccess
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
             : BadRequest(response.Failure);
-    }
-
-
-    [HttpGet("statuses", Name = "GetDocumentStatuses")]
-    public async Task<IActionResult> GetDocumentStatuses()
-    {
-        return Ok();
     }
 }
