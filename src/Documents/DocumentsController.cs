@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Documents.CreateDocument;
+using Sphera.API.Documents.DeleteDocument;
 using Sphera.API.Documents.DTOs;
 using Sphera.API.Documents.GetDocumentById;
 using Sphera.API.Documents.GetDocuments;
@@ -54,10 +55,15 @@ public class DocumentsController : ControllerBase
         return Ok();
     }
 
-    [HttpDelete(Name = "DeleteDocument")]
-    public async Task<IActionResult> DeleteDocument()
+    [HttpDelete("{id:guid}", Name = "DeleteDocument")]
+    public async Task<IActionResult> DeleteDocument([FromServices] IHandler<DeleteDocumentCommand, bool> handler, Guid id, CancellationToken cancellationToken)
     {
-        return NoContent();
+        DeleteDocumentCommand command = new(id);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        
+        return response.IsSuccess
+            ? NoContent()
+            : BadRequest(response.Failure);
     }
 
     [HttpPost("{id:guid}/upload", Name = "UploadDocument")]
