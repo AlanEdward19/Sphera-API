@@ -1,6 +1,7 @@
 @Sphera_API_HostAddress = http://localhost:5000
 @json = application/json
 @uuid = 11111111-1111-1111-1111-111111111111
+@token = Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbHMiOiJhYm5lcnNhbnRvMjAxNEBnbWFpbC5jb20iLCJuYW1lIjoiQWJuZXIgT2xpdmVpcmEiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA5LzA5L2lkZW50aXR5L2NsYWltcy9hY3RvciI6ImRjZTc4ODgzLTRmOTEtNDI2NS1hNDdkLWYxNDljY2FkOTI2YyIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluaXN0cmFkb3IiLCJleHAiOjE3NjI3MzI5MTQsImlzcyI6IlNwaGVyYS5BUEkiLCJhdWQiOiJTcGhlcmFBcHAifQ.05VtoUEunBdrtMHyn_40wntT42rHANbgIIPNKK_9c2E
 
 ###
 # CLIENTS
@@ -9,12 +10,14 @@
 # GetClients (todos)
 GET {{Sphera_API_HostAddress}}/api/v1/Clients
 Accept: {{json}}
+Authorization: {{token}}
 
 ###
 
 # GetClients (com filtros na query)
 GET {{Sphera_API_HostAddress}}/api/v1/Clients?PartnerId={{uuid}}&Status=true&Cnpj=12345678901234&Search=texto&IncludePartner=true
 Accept: {{json}}
+Authorization: {{token}}
 
 ###
 
@@ -22,20 +25,21 @@ Accept: {{json}}
 POST {{Sphera_API_HostAddress}}/api/v1/Clients
 Accept: {{json}}
 Content-Type: {{json}}
+Authorization: {{token}}
 
 {
-  "partnerId": "{{uuid}}",
-  "tradeName": "Acme LTDA",
-  "legalName": "Acme Indústria e Comércio LTDA",
-  "cnpj": "12345678000190",
+  "partnerId": "0f64f8ca-53fb-4b6f-b126-843aeb185f2a",
+  "tradeName": "ArqonTech – Desenvolvimento de Software",
+  "legalName": "STEFFANY GOMES PRADO DE OLIVEIRA",
+  "cnpj": "34013439000170",
   "stateRegistration": "ISENTO",
   "municipalRegistration": "123456",
   "address": {
-    "street": "Rua Exemplo",
-    "number": 123,
-    "city": "São Paulo",
+    "street": "Rua Gertrudes Pinheiro",
+    "number": 140,
+    "city": "Votorantim",
     "state": "SP",
-    "zipCode": "01000-000"
+    "zipCode": "18.113-690"
   },
   "financialEmail": "financeiro@acme.com",
   "financialPhone": "+55 11 99999-0000",

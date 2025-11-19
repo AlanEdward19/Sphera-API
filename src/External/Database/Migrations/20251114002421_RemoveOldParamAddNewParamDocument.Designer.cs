@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.External.Database;
 
@@ -11,9 +12,11 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    partial class SpheraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251114002421_RemoveOldParamAddNewParamDocument")]
+    partial class RemoveOldParamAddNewParamDocument
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,6 +42,9 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid>("ActorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("EntityId")
                         .HasColumnType("uniqueidentifier");
 
@@ -47,8 +53,16 @@ namespace Sphera.API.External.Database.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<string>("Folder")
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
                     b.Property<DateTime>("OccurredAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Path")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("RequestIp")
                         .IsRequired()
@@ -56,6 +70,9 @@ namespace Sphera.API.External.Database.Migrations
                         .HasColumnType("nvarchar(45)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId")
+                        .HasDatabaseName("IX_Audit_Correlation");
 
                     b.HasIndex("ActorId", "OccurredAt")
                         .HasDatabaseName("IX_Audit_Actor");
@@ -247,8 +264,6 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasIndex("DueDate")
                         .HasDatabaseName("IX_Documents_DueDate");
-
-                    b.HasIndex("ResponsibleId");
 
                     b.HasIndex("ServiceId");
 
@@ -511,13 +526,6 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Documents_Client");
 
-                    b.HasOne("Sphera.API.Users.User", "Responsible")
-                        .WithMany()
-                        .HasForeignKey("ResponsibleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Documents_Responsible");
-
                     b.HasOne("Sphera.API.Services.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -526,8 +534,6 @@ namespace Sphera.API.External.Database.Migrations
                         .HasConstraintName("FK_Documents_Service");
 
                     b.Navigation("Client");
-
-                    b.Navigation("Responsible");
 
                     b.Navigation("Service");
                 });

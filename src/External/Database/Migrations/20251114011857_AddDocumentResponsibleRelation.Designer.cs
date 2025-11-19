@@ -12,8 +12,8 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20251108233944_Initial")]
-    partial class Initial
+    [Migration("20251114011857_AddDocumentResponsibleRelation")]
+    partial class AddDocumentResponsibleRelation
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -230,6 +230,11 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
@@ -260,6 +265,8 @@ namespace Sphera.API.External.Database.Migrations
                     b.HasIndex("DueDate")
                         .HasDatabaseName("IX_Documents_DueDate");
 
+                    b.HasIndex("ResponsibleId");
+
                     b.HasIndex("ServiceId");
 
                     b.HasIndex("ClientId", "ServiceId")
@@ -276,7 +283,6 @@ namespace Sphera.API.External.Database.Migrations
                         .HasDefaultValueSql("NEWID()");
 
                     b.Property<string>("Cnpj")
-                        .IsRequired()
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)")
                         .HasColumnName("Cnpj");
@@ -311,7 +317,8 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasIndex("Cnpj")
                         .IsUnique()
-                        .HasDatabaseName("IX_Partners_Cnpj");
+                        .HasDatabaseName("IX_Partners_Cnpj")
+                        .HasFilter("[Cnpj] IS NOT NULL");
 
                     b.ToTable("Partners", "dbo");
                 });
@@ -358,8 +365,8 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<short>("DefaultDueInDays")
-                        .HasColumnType("smallint");
+                    b.Property<DateTime?>("DueDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -521,6 +528,13 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Documents_Client");
 
+                    b.HasOne("Sphera.API.Users.User", "Responsible")
+                        .WithMany()
+                        .HasForeignKey("ResponsibleId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Documents_Responsible");
+
                     b.HasOne("Sphera.API.Services.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -528,45 +542,9 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Documents_Service");
 
-                    b.OwnsOne("Sphera.API.Shared.ValueObjects.FileMetadataValueObject", "File", b1 =>
-                        {
-                            b1.Property<Guid>("DocumentId")
-                                .ValueGeneratedOnAdd()
-                                .HasColumnType("uniqueidentifier");
-
-                            b1.Property<string>("BlobUri")
-                                .HasMaxLength(500)
-                                .HasColumnType("nvarchar(500)")
-                                .HasColumnName("BlobUri");
-
-                            b1.Property<string>("ContentType")
-                                .IsRequired()
-                                .HasMaxLength(100)
-                                .HasColumnType("nvarchar(100)")
-                                .HasColumnName("ContentType");
-
-                            b1.Property<string>("FileName")
-                                .IsRequired()
-                                .HasMaxLength(260)
-                                .HasColumnType("nvarchar(260)")
-                                .HasColumnName("FileName");
-
-                            b1.Property<long>("Size")
-                                .HasColumnType("bigint")
-                                .HasColumnName("FileSize");
-
-                            b1.HasKey("DocumentId");
-
-                            b1.ToTable("Documents", "dbo");
-
-                            b1.WithOwner()
-                                .HasForeignKey("DocumentId");
-                        });
-
                     b.Navigation("Client");
 
-                    b.Navigation("File")
-                        .IsRequired();
+                    b.Navigation("Responsible");
 
                     b.Navigation("Service");
                 });
@@ -611,8 +589,7 @@ namespace Sphera.API.External.Database.Migrations
                                 .HasForeignKey("PartnerId");
                         });
 
-                    b.Navigation("Address")
-                        .IsRequired();
+                    b.Navigation("Address");
                 });
 
             modelBuilder.Entity("Sphera.API.Users.User", b =>

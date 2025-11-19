@@ -13,6 +13,12 @@ public class CreateDocumentCommand
     /// </summary>
     [Required]
     public Guid ClientId { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the unique identifier for the file name.
+    /// </summary>
+    [Required]
+    public string FileName { get; set; }
 
     /// <summary>
     /// Gets or sets the unique identifier for the service.

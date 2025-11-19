@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.External.Database;
 
@@ -11,9 +12,11 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    partial class SpheraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251109225311_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -39,6 +42,9 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid>("ActorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("CorrelationId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("EntityId")
                         .HasColumnType("uniqueidentifier");
 
@@ -47,8 +53,16 @@ namespace Sphera.API.External.Database.Migrations
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
 
+                    b.Property<string>("Folder")
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
                     b.Property<DateTime>("OccurredAt")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Path")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<string>("RequestIp")
                         .IsRequired()
@@ -56,6 +70,9 @@ namespace Sphera.API.External.Database.Migrations
                         .HasColumnType("nvarchar(45)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CorrelationId")
+                        .HasDatabaseName("IX_Audit_Correlation");
 
                     b.HasIndex("ActorId", "OccurredAt")
                         .HasDatabaseName("IX_Audit_Actor");
@@ -213,11 +230,6 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FileName")
-                        .IsRequired()
-                        .HasMaxLength(260)
-                        .HasColumnType("nvarchar(260)");
-
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
@@ -247,8 +259,6 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasIndex("DueDate")
                         .HasDatabaseName("IX_Documents_DueDate");
-
-                    b.HasIndex("ResponsibleId");
 
                     b.HasIndex("ServiceId");
 
@@ -511,13 +521,6 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Documents_Client");
 
-                    b.HasOne("Sphera.API.Users.User", "Responsible")
-                        .WithMany()
-                        .HasForeignKey("ResponsibleId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Documents_Responsible");
-
                     b.HasOne("Sphera.API.Services.Service", "Service")
                         .WithMany()
                         .HasForeignKey("ServiceId")
@@ -525,9 +528,45 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Documents_Service");
 
+                    b.OwnsOne("Sphera.API.Shared.ValueObjects.FileMetadataValueObject", "File", b1 =>
+                        {
+                            b1.Property<Guid>("DocumentId")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uniqueidentifier");
+
+                            b1.Property<string>("BlobUri")
+                                .HasMaxLength(500)
+                                .HasColumnType("nvarchar(500)")
+                                .HasColumnName("BlobUri");
+
+                            b1.Property<string>("ContentType")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("ContentType");
+
+                            b1.Property<string>("FileName")
+                                .IsRequired()
+                                .HasMaxLength(260)
+                                .HasColumnType("nvarchar(260)")
+                                .HasColumnName("FileName");
+
+                            b1.Property<long>("Size")
+                                .HasColumnType("bigint")
+                                .HasColumnName("FileSize");
+
+                            b1.HasKey("DocumentId");
+
+                            b1.ToTable("Documents", "dbo");
+
+                            b1.WithOwner()
+                                .HasForeignKey("DocumentId");
+                        });
+
                     b.Navigation("Client");
 
-                    b.Navigation("Responsible");
+                    b.Navigation("File")
+                        .IsRequired();
 
                     b.Navigation("Service");
                 });

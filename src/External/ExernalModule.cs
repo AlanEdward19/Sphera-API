@@ -1,5 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Sphera.API.External.Database;
+using Sphera.API.External.Storage;
+using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.External;
 
@@ -18,11 +20,12 @@ public static class ExernalModule
     public static IServiceCollection AddExernal(this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddData(configuration);
+            .AddData(configuration)
+            .AddStorage(configuration);
 
         return services;
     }
-    
+
     private static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<SpheraDbContext>(o =>
@@ -63,5 +66,16 @@ public static class ExernalModule
         }
 
         return app;
+    }
+
+    private static IServiceCollection AddStorage(this IServiceCollection services, IConfiguration configuration)
+    {
+        var connectionStringStorage = configuration.GetConnectionString("Storage");
+        
+        services.AddScoped<IStorage>(_ =>
+            new SpheraStorage(connectionStringStorage!, "documents"));
+
+
+        return services;
     }
 }
