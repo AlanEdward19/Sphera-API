@@ -6,7 +6,7 @@ namespace Sphera.API.Shared;
 
 public static class AuditHelper
 {
-    public static List<AuditEntry> CreateAuditEntries(ChangeTracker changeTracker, Guid actorId, Guid correlationId, string requestIp)
+    public static List<AuditEntry> CreateAuditEntries(ChangeTracker changeTracker, Guid actorId, string requestIp)
     {
         var result = new List<AuditEntry>();
 
@@ -20,8 +20,7 @@ public static class AuditHelper
             var action = entry.State.ToString(); // Added/Modified/Deleted
 
             var audit = new AuditEntry(actorId, action, entityType,
-                entityId, correlationId, requestIp, GetPathIfDocument(entry),
-                GetFolderIfDocument(entry));
+                entityId, requestIp);
 
             result.Add(audit);
         }

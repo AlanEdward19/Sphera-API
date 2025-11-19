@@ -18,4 +18,10 @@ public static class ClaimsPrincipalUtils
 
     public static string GetName(this ClaimsPrincipal user)
         => user.FindFirst("name")?.Value ?? string.Empty;
+    
+    public static string? GetClientIp(this HttpContext httpContext)
+    {
+        var remoteIp = httpContext.Connection.RemoteIpAddress;
+        return remoteIp?.MapToIPv4().ToString();
+    }
 }

@@ -30,13 +30,9 @@ public class AuditEntryMap : IEntityTypeConfiguration<AuditEntry>
         b.Property(x => x.Action).HasMaxLength(80).IsRequired();
         b.Property(x => x.EntityType).HasMaxLength(120).IsRequired();
         b.Property(x => x.EntityId).HasColumnType("uniqueidentifier");
-        b.Property(x => x.Path).HasMaxLength(500);
-        b.Property(x => x.Folder).HasMaxLength(260);
-        b.Property(x => x.CorrelationId).HasColumnType("uniqueidentifier").IsRequired();
         b.Property(x => x.RequestIp).HasMaxLength(45).IsRequired();
 
         b.HasIndex(x => new { x.EntityType, x.EntityId }).HasDatabaseName("IX_Audit_Entity");
         b.HasIndex(x => new { x.ActorId, x.OccurredAt }).HasDatabaseName("IX_Audit_Actor");
-        b.HasIndex(x => x.CorrelationId).HasDatabaseName("IX_Audit_Correlation");
     }
 }

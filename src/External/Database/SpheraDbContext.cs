@@ -43,9 +43,11 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
         var user = httpContextAccessor.HttpContext!.User;
+        var clientIp = string.IsNullOrWhiteSpace(httpContextAccessor.HttpContext!.GetClientIp())
+            ? "unknown"
+            : httpContextAccessor.HttpContext!.GetClientIp();
         ChangeTracker.DetectChanges();
-        var auditEntries = AuditHelper.CreateAuditEntries(ChangeTracker,  user.GetUserId(),
-            Guid.Empty, "unknown");
+        var auditEntries = AuditHelper.CreateAuditEntries(ChangeTracker,  user.GetUserId(), clientIp ?? "unknown");
 
         if (auditEntries.Any())
             AuditEntries.AddRange(auditEntries);
