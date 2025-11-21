@@ -31,6 +31,13 @@ public class AuditEntryMap : IEntityTypeConfiguration<AuditEntry>
         b.Property(x => x.EntityType).HasMaxLength(120).IsRequired();
         b.Property(x => x.EntityId).HasColumnType("uniqueidentifier");
         b.Property(x => x.RequestIp).HasMaxLength(45).IsRequired();
+        
+        b.HasOne(x => x.Actor)
+            .WithMany()
+            .HasForeignKey(x => x.ActorId)
+            .HasPrincipalKey(u => u.Id)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_AuditEntries_Actor");
 
         b.HasIndex(x => new { x.EntityType, x.EntityId }).HasDatabaseName("IX_Audit_Entity");
         b.HasIndex(x => new { x.ActorId, x.OccurredAt }).HasDatabaseName("IX_Audit_Actor");

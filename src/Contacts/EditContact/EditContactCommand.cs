@@ -11,6 +11,7 @@ public class EditContactCommand
     /// Gets the unique identifier for the entity.
     /// </summary>
     private Guid Id { get; set; }
+    public string Name { get; set; }
     
     /// <summary>
     /// Gets or sets the string value associated with this instance.

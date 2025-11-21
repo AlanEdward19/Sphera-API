@@ -73,9 +73,12 @@ public class ClientMap : IEntityTypeConfiguration<Client>
         {
             a.Property(p => p.Street).HasColumnName("Street").HasMaxLength(160).IsRequired();
             a.Property(p => p.Number).HasColumnName("Number").IsRequired();
+            a.Property(p => p.Complement).HasColumnName("Complement").HasMaxLength(120);
+            a.Property(p => p.Neighborhood).HasColumnName("Neighborhood").HasMaxLength(100).IsRequired();
             a.Property(p => p.City).HasColumnName("City").HasMaxLength(80).IsRequired();
             a.Property(p => p.State).HasColumnName("State").HasMaxLength(2).IsRequired();
             a.Property(p => p.ZipCode).HasColumnName("ZipCode").HasMaxLength(10).IsRequired();
+            a.Property(p => p.Lot).HasColumnName("Lot").HasMaxLength(40);
         });
 
         b.HasOne(x => x.Partner)

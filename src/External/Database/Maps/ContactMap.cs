@@ -27,12 +27,17 @@ public class ContactMap : IEntityTypeConfiguration<Contact>
         b.Property(x => x.Id)
             .HasColumnType("uniqueidentifier")
             .HasDefaultValueSql("NEWID()");
+        
+        b.Property(x => x.Name)
+            .HasMaxLength(160);
 
         b.Property(x => x.Type)
             .IsRequired();
 
         b.Property(x => x.Role)
             .IsRequired();
+        
+        b.Property(x => x.PhoneType);
 
         b.Property(x => x.Value)
             .HasMaxLength(160)
@@ -67,9 +72,16 @@ public class ContactMap : IEntityTypeConfiguration<Contact>
             .HasForeignKey(x => x.ClientId)
             .HasConstraintName("FK_Contacts_Client")
             .OnDelete(DeleteBehavior.NoAction);
+        
+        b.HasOne(x => x.User)
+            .WithMany(u => u.Contacts)
+            .HasForeignKey(x => x.UserId)
+            .HasConstraintName("FK_Contacts_User")
+            .OnDelete(DeleteBehavior.NoAction);
 
         b.HasIndex(x => x.PartnerId).HasDatabaseName("IX_Contacts_PartnerId");
         b.HasIndex(x => x.ClientId).HasDatabaseName("IX_Contacts_ClientId");
+        b.HasIndex(x => x.UserId).HasDatabaseName("IX_Contacts_UserId");
         b.HasIndex(x => x.Role).HasDatabaseName("IX_Contacts_Role");
     }
 }

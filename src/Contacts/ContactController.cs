@@ -37,6 +37,12 @@ public class ContactController : ControllerBase
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
             : BadRequest(response.Failure);
     }
+    
+    [HttpPost("/api/v1/Users/{userId:guid}/Contacts", Name = "AddContactToUser")]
+    public async Task<IActionResult> AddContactToUser()
+    {
+        return Ok();
+    }
 
     [HttpDelete("/api/v1/Clients/{clientId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromClient")]
     public async Task<IActionResult> RemoveContactFromClient([FromServices] IHandler<RemoveContactFromClientCommand, ContactDTO> handler,
@@ -58,6 +64,12 @@ public class ContactController : ControllerBase
         return response.IsSuccess
             ? Ok(response.Success)
             : BadRequest(response.Failure);
+    }
+    
+    [HttpDelete("/api/v1/Users/{userId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromUser")]
+    public async Task<IActionResult> RemoveContactFromUser()
+    {
+        return Ok();
     }
 
     [HttpPatch("{id:guid}", Name = "EditContact")]

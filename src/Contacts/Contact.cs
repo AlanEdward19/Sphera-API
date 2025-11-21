@@ -6,6 +6,7 @@ using Sphera.API.Shared;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.RegularExpressions;
+using Sphera.API.Users;
 
 namespace Sphera.API.Contacts;
 
@@ -33,6 +34,15 @@ public class Contact
     /// Gets the unique identifier of the client associated with this instance, if available.
     /// </summary>
     public Guid? ClientId { get; private set; }
+    
+    public Guid? UserId { get; private set; }
+    
+    /// <summary>
+    /// Gets or sets the name associated with the contact.
+    /// </summary>
+    [MinLength(1)]
+    [MaxLength(160)]
+    public string? Name { get; private set; }
 
     /// <summary>
     /// Gets or sets the type of contact represented by this instance.
@@ -43,6 +53,8 @@ public class Contact
     /// Gets or sets the role associated with the contact.
     /// </summary>
     public EContactRole Role { get; private set; }
+    
+    public EPhoneType? PhoneType { get; private set; }
 
     /// <summary>
     /// Gets or sets the string value associated with this instance.
@@ -90,6 +102,15 @@ public class Contact
     /// data access framework when loading related entities.</remarks>
     [ForeignKey(nameof(ClientId))]
     public virtual Client? Client { get; private set; }
+    
+    /// <summary>
+    /// Gets the user associated with this contact.
+    /// </summary>
+    /// <remarks>This property is populated based on the foreign key relationship defined by the UserId
+    /// property. The value may be null if no user is associated. This property is read-only and typically set by the
+    /// data access framework when loading related entities.</remarks>
+    [ForeignKey(nameof(UserId))]
+    public virtual User? User { get; private set; }
 
     /// <summary>
     /// Initializes a new instance of the Contact class. This constructor is private and is intended to restrict
@@ -108,9 +129,14 @@ public class Contact
     /// <param name="value">The value of the contact, such as an email address or phone number. Cannot be null, empty, or consist only of
     /// white-space characters.</param>
     /// <param name="createdBy">The unique identifier of the user who created the contact.</param>
+    /// <param name="clientId"></param>
+    /// <param name="name"></param>
+    /// <param name="partnerId"></param>
+    /// <param name="userId"></param>
+    /// <param name="phoneType"></param>
     /// <exception cref="DomainException">Thrown if type or role is null, or if value is null, empty, or consists only of white-space characters.</exception>
     public Contact(EContactType? type, EContactRole? role, string @value, Guid createdBy, Guid? partnerId = null,
-        Guid? clientId = null)
+        Guid? clientId = null, string? name = null, Guid? userId = null, EPhoneType? phoneType = null)
     {
         if (type == null) throw new DomainException("Type é obrigatório");
         if (role == null) throw new DomainException("Role é obrigatório");
@@ -130,6 +156,9 @@ public class Contact
         CreatedBy = createdBy;
         PartnerId = partnerId;
         ClientId = clientId;
+        Name = name;
+        UserId = userId;
+        PhoneType = phoneType;
     }
 
     /// <summary>
@@ -200,6 +229,13 @@ public class Contact
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
+    
+    public void UpdateName(string? newName, Guid actor)
+    {
+        Name = newName;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
+    }
 
     /// <summary>
     /// Converts the current contact to a data transfer object (DTO) representation.
@@ -207,6 +243,6 @@ public class Contact
     /// <returns>A <see cref="ContactDTO"/> instance containing the data from this contact.</returns>
     public ContactDTO ToDTO()
     {
-        return new ContactDTO(Id, Type, Role, Value, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy);
+        return new ContactDTO(Id, Name, Type, Role, PhoneType, Value, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy);
     }
 }

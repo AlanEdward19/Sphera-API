@@ -68,9 +68,12 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
         {
             a.Property(p => p.Street).HasColumnName("Street").HasMaxLength(160);
             a.Property(p => p.Number).HasColumnName("Number");
+            a.Property(p => p.Complement).HasColumnName("Complement").HasMaxLength(120);
+            a.Property(p => p.Neighborhood).HasColumnName("Neighborhood").HasMaxLength(100);
             a.Property(p => p.City).HasColumnName("City").HasMaxLength(100);
             a.Property(p => p.State).HasColumnName("State").HasMaxLength(2);
             a.Property(p => p.ZipCode).HasColumnName("ZipCode").HasMaxLength(10);
+            a.Property(p => p.Lot).HasColumnName("Lot").HasMaxLength(40);
         });
 
         b.HasMany(p => p.Clients)
