@@ -14,6 +14,7 @@ public class ClientDTO
     public string MunicipalRegistration { get; private set; }
     public AddressDTO Address { get; private set; }
     public short? BillingDueDay { get; private set; }
+    public DateTime? ContractDate { get; private set; }
     public bool Status { get; private set; }
     public DateTime CreatedAt { get; private set; }
     public Guid CreatedBy { get; private set; }
@@ -21,7 +22,7 @@ public class ClientDTO
     public Guid? UpdatedBy { get; private set; }
     public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
 
-    public ClientDTO(Guid id, string tradeName, string legalName, string cnpj, string stateRegistration, string municipalRegistration, AddressDTO address, short? billingDueDay, bool status, 
+    public ClientDTO(Guid id, string tradeName, string legalName, string cnpj, string stateRegistration, string municipalRegistration, AddressDTO address, short? billingDueDay, DateTime? contractDate, bool status, 
         DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, ReadOnlyCollection<ContactDTO> contacts)
     {
         Id = id;
@@ -32,6 +33,7 @@ public class ClientDTO
         MunicipalRegistration = municipalRegistration;
         Address = address;
         BillingDueDay = billingDueDay;
+        ContractDate = contractDate;
         Status = status;
         CreatedAt = createdAt;
         CreatedBy = createdBy;

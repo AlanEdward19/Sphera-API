@@ -9,9 +9,9 @@ public class ClientWithPartnerDTO : ClientDTO
 {
     public PartnerDTO Partner { get; private set; }
     public ClientWithPartnerDTO(Guid id, string tradeName, string legalName, string cnpj, string stateRegistration, string municipalRegistration, 
-        AddressDTO address, short? billingDueDay, bool status, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, 
+        AddressDTO address, short? billingDueDay, DateTime? contractDate, bool status, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, 
         ReadOnlyCollection<ContactDTO> contacts, PartnerDTO partner) : base(id, tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, 
-            billingDueDay, status, createdAt, createdBy, updatedAt, updatedBy, contacts)
+            billingDueDay, contractDate, status, createdAt, createdBy, updatedAt, updatedBy, contacts)
     {
         Partner = partner;
     }

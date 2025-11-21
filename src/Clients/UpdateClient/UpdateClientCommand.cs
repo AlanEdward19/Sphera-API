@@ -102,6 +102,9 @@ public class UpdateClientCommand
     /// If the value is null, no billing due day is set.</remarks>
     [Range(1, 31)]
     public short? BillingDueDay { get; set; }
+    
+    [Required]
+    public DateTime ContractDate { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the current entity is active.
