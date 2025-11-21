@@ -37,7 +37,7 @@ public class AuditEntryMap : IEntityTypeConfiguration<AuditEntry>
             .HasForeignKey(x => x.ActorId)
             .HasPrincipalKey(u => u.Id)
             .OnDelete(DeleteBehavior.Restrict)
-            .HasConstraintName("FK_AuditEntries_Actor");
+            .HasConstraintName("FK_Audit_Actor");
 
         b.HasIndex(x => new { x.EntityType, x.EntityId }).HasDatabaseName("IX_Audit_Entity");
         b.HasIndex(x => new { x.ActorId, x.OccurredAt }).HasDatabaseName("IX_Audit_Actor");
