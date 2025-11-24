@@ -215,6 +215,13 @@ public class Contact
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
+    
+    public void UpdatePhoneType(EPhoneType? newPhoneType, Guid actor)
+    {
+        PhoneType = newPhoneType;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
+    }
 
     /// <summary>
     /// Updates the contact type and records the user responsible for the change.

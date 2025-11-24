@@ -193,7 +193,7 @@ public class Client
     /// <exception cref="DomainException">Thrown if <paramref name="tradeName"/> is null, empty, or white space; or if <paramref name="cnpj"/> or
     /// <paramref name="address"/> is null.</exception>
     private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, DateTime contractDate,
+        string municipalRegistration, AddressValueObject? address, DateTime? contractDate,
        short? billingDueDay)
     {
         if (string.IsNullOrWhiteSpace(tradeName)) throw new DomainException("Nome fantasia obrigatório.");
@@ -221,7 +221,7 @@ public class Client
     /// <param name="billingDueDay">The day of the month when billing is due. Must be between 1 and 31, or null if not set.</param>
     /// <param name="actor">The unique identifier of the user or process performing the update.</param>
     public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, DateTime contractDate, short? billingDueDay, Guid actor)
+        string municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay, Guid actor)
     {
         SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate, billingDueDay);
         UpdatedAt = DateTime.UtcNow;

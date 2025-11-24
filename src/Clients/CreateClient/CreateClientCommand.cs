@@ -101,6 +101,6 @@ public class CreateClientCommand
     [Range(1, 31)]
     public short? BillingDueDay { get; set; }
     
-    [Range(1, 31)]
+    [Required]
     public short ContractDateInDays { get; set; }
 }

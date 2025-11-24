@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Contacts.AddContactToClient;
 using Sphera.API.Contacts.AddContactToPartner;
+using Sphera.API.Contacts.AddContactToUser;
 using Sphera.API.Contacts.EditContact;
 using Sphera.API.Contacts.RemoveContactFromClient;
 using Sphera.API.Contacts.RemoveContactFromPartner;
@@ -39,9 +40,14 @@ public class ContactController : ControllerBase
     }
     
     [HttpPost("/api/v1/Users/{userId:guid}/Contacts", Name = "AddContactToUser")]
-    public async Task<IActionResult> AddContactToUser()
+    public async Task<IActionResult> AddContactToUser([FromServices] IHandler<AddContactToUserCommand, ContactDTO> handler, [FromBody] AddContactToUserCommand command,
+        Guid userId, CancellationToken cancellationToken)
     {
-        return Ok();
+        command.SetUserId(userId);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
+            : BadRequest(response.Failure);
     }
 
     [HttpDelete("/api/v1/Clients/{clientId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromClient")]
@@ -67,9 +73,14 @@ public class ContactController : ControllerBase
     }
     
     [HttpDelete("/api/v1/Users/{userId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromUser")]
-    public async Task<IActionResult> RemoveContactFromUser()
+    public async Task<IActionResult> RemoveContactFromUser([FromServices] IHandler<RemoveContactFromPartnerCommand, ContactDTO> handler,
+        Guid userId, Guid contactId, CancellationToken cancellationToken)
     {
-        return Ok();
+        var command = new RemoveContactFromPartnerCommand(userId, contactId);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? Ok(response.Success)
+            : BadRequest(response.Failure);
     }
 
     [HttpPatch("{id:guid}", Name = "EditContact")]

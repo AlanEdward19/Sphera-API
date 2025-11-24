@@ -48,13 +48,15 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
             var actor = user.GetUserId();
 
             await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            
+            DateTime? dueDate = request.ContractDateInDays.HasValue ? DateTime.Today.AddDays(request.ContractDateInDays.Value) : client.ContractDate;
 
             CnpjValueObject cnpj = new(request.Cnpj);
             AddressValueObject address = request.Address.ToValueObject();
 
             client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration,
                 request.MunicipalRegistration,
-                address, request.ContractDate, request.BillingDueDay, actor);
+                address, dueDate, request.BillingDueDay, actor);
 
             await dbContext.SaveChangesAsync(cancellationToken);
             await dbContext.Database.CommitTransactionAsync(cancellationToken);

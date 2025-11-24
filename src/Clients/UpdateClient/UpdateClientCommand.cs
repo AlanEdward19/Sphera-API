@@ -103,8 +103,7 @@ public class UpdateClientCommand
     [Range(1, 31)]
     public short? BillingDueDay { get; set; }
     
-    [Required]
-    public DateTime ContractDate { get; set; }
+    public short? ContractDateInDays { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether the current entity is active.
