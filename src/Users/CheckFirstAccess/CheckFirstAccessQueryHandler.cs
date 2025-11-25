@@ -6,9 +6,9 @@ using Sphera.API.Users.DTOs;
 namespace Sphera.API.Users.CheckFirstAccess;
 
 public class CheckFirstAccessQueryHandler(SpheraDbContext dbContext, ILogger<CheckFirstAccessQueryHandler> logger)
-    : IHandler<CheckFirstAccessQuery, UserDTO>
+    : IHandler<CheckFirstAccessQuery, bool>
 {
-    public async Task<IResultDTO<UserDTO>> HandleAsync(CheckFirstAccessQuery request, HttpContext context,
+    public async Task<IResultDTO<bool>> HandleAsync(CheckFirstAccessQuery request, HttpContext context,
         CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando verificação de primeiro acesso para o email: {Email}", request.Email);
@@ -18,7 +18,7 @@ public class CheckFirstAccessQueryHandler(SpheraDbContext dbContext, ILogger<Che
             .FindAsync([request.Email], cancellationToken);
 
         return user is null
-            ? ResultDTO<UserDTO>.AsFailure(new FailureDTO(400, "Usuário não encontrado."))
-            : ResultDTO<UserDTO>.AsSuccess(user.ToDTO());
+            ? ResultDTO<bool>.AsFailure(new FailureDTO(400, "Usuário não encontrado."))
+            : ResultDTO<bool>.AsSuccess(user.CheckFirstAccess());
     }
 }

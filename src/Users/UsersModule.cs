@@ -32,7 +32,7 @@ public static class UsersModule
         services.AddScoped<IHandler<DeleteUserCommand, bool>, DeleteUserCommandHandler>();
         services.AddScoped<IHandler<ChangePasswordCommand, bool>, ChangePasswordCommandHandler>();
         services.AddScoped<IHandler<FirstAccessPasswordCommand, bool>, FirstAccessPasswordCommandHandler>();
-        services.AddScoped<IHandler<CheckFirstAccessQuery, UserDTO>, CheckFirstAccessQueryHandler>();
+        services.AddScoped<IHandler<CheckFirstAccessQuery, bool>, CheckFirstAccessQueryHandler>();
 
         return services;
     }

@@ -133,4 +133,9 @@ public class User
             Active
         );
     }
+    
+    public bool CheckFirstAccess()
+    {
+        return IsFirstAccess;
+    }
 }
