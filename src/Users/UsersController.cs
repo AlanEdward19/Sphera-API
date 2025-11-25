@@ -8,6 +8,7 @@ using Sphera.API.Users.GetUsers;
 using Sphera.API.Users.UpdateUser;
 using Sphera.API.Users.ActivateUser;
 using Sphera.API.Users.ChangePassword;
+using Sphera.API.Users.CheckFirstAccess;
 using Sphera.API.Users.DeactivateUser;
 using Sphera.API.Users.DeleteUser;
 using Sphera.API.Users.FirstAccessPassword;
@@ -20,7 +21,8 @@ namespace Sphera.API.Users
     public class UsersController : ControllerBase
     {
         [HttpGet(Name = "GetUsers")]
-        public async Task<IActionResult> GetUsers([FromServices] IHandler<GetUsersQuery, IEnumerable<UserDTO>> handler, [FromQuery] GetUsersQuery query, CancellationToken cancellationToken)
+        public async Task<IActionResult> GetUsers([FromServices] IHandler<GetUsersQuery, IEnumerable<UserDTO>> handler,
+            [FromQuery] GetUsersQuery query, CancellationToken cancellationToken)
         {
             var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
 
@@ -28,22 +30,39 @@ namespace Sphera.API.Users
                 ? Ok(response.Success)
                 : BadRequest(response.Failure);
         }
-        
+
+        [HttpGet("first-access", Name = "CheckFirstAccess")]
+        [AllowAnonymous]
+        public async Task<IActionResult> CheckFirstAccess(
+            [FromServices] IHandler<CheckFirstAccessQuery, bool> handler,
+            [FromQuery] CheckFirstAccessQuery query,
+            CancellationToken cancellationToken)
+        {
+            var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
+
+            return response.IsSuccess
+                ? Ok(response.Success)
+                : BadRequest(response.Failure);
+        }
+
+
         [HttpPost(Name = "CreateUser")]
-        public async Task<IActionResult> CreateClient([FromServices] IHandler<CreateUserCommand, UserDTO> handler, [FromBody] CreateUserCommand command,
+        public async Task<IActionResult> CreateClient([FromServices] IHandler<CreateUserCommand, UserDTO> handler,
+            [FromBody] CreateUserCommand command,
             CancellationToken cancellationToken)
         {
             var user = HttpContext.User;
-            
+
             var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
             return response.IsSuccess
                 ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
                 : BadRequest(response.Failure);
         }
-        
+
         [HttpPut("{id:guid}", Name = "UpdateUser")]
-        public async Task<IActionResult> UpdateUser([FromServices] IHandler<UpdateUserCommand, UserDTO> handler, [FromBody] UpdateUserCommand command,
+        public async Task<IActionResult> UpdateUser([FromServices] IHandler<UpdateUserCommand, UserDTO> handler,
+            [FromBody] UpdateUserCommand command,
             Guid id, CancellationToken cancellationToken)
         {
             command.SetId(id);
@@ -53,9 +72,10 @@ namespace Sphera.API.Users
                 ? Ok(response.Success)
                 : BadRequest(response.Failure);
         }
-        
+
         [HttpPatch("{id:guid}/activate", Name = "ActivateUser")]
-        public async Task<IActionResult> ActivateUser([FromServices] IHandler<ActivateUserCommand, bool> handler, Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> ActivateUser([FromServices] IHandler<ActivateUserCommand, bool> handler,
+            Guid id, CancellationToken cancellationToken)
         {
             var command = new ActivateUserCommand(id);
             var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
@@ -66,7 +86,8 @@ namespace Sphera.API.Users
         }
 
         [HttpPatch("{id:guid}/deactivate", Name = "DeactivateUser")]
-        public async Task<IActionResult> DeactivateUser([FromServices] IHandler<DeactivateUserCommand, bool> handler, Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeactivateUser([FromServices] IHandler<DeactivateUserCommand, bool> handler,
+            Guid id, CancellationToken cancellationToken)
         {
             var command = new DeactivateUserCommand(id);
             var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
@@ -77,7 +98,8 @@ namespace Sphera.API.Users
         }
 
         [HttpDelete("{id:guid}", Name = "DeleteUser")]
-        public async Task<IActionResult> DeleteUser([FromServices] IHandler<DeleteUserCommand, bool> handler, Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> DeleteUser([FromServices] IHandler<DeleteUserCommand, bool> handler, Guid id,
+            CancellationToken cancellationToken)
         {
             var command = new DeleteUserCommand(id);
             var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
@@ -86,25 +108,28 @@ namespace Sphera.API.Users
                 ? NoContent()
                 : BadRequest(response.Failure);
         }
-        
+
         [HttpPatch("{id:guid}/change-password", Name = "ChangePassword")]
-        public async Task<IActionResult> ChangePassword([FromServices] IHandler<ChangePasswordCommand, bool> handler, [FromBody] ChangePasswordCommand command, Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> ChangePassword([FromServices] IHandler<ChangePasswordCommand, bool> handler,
+            [FromBody] ChangePasswordCommand command, Guid id, CancellationToken cancellationToken)
         {
             command.SetId(id);
             var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
-            return response.IsSuccess 
-                ? NoContent() 
+            return response.IsSuccess
+                ? NoContent()
                 : BadRequest(response.Failure);
         }
-        
+
         [HttpPatch("{id:guid}/first-password", Name = "FirstAccessPassword")]
         [AllowAnonymous]
-        public async Task<IActionResult> FirstAccessPassword([FromServices] IHandler<FirstAccessPasswordCommand, bool> handler, [FromBody] FirstAccessPasswordCommand command, Guid id, CancellationToken cancellationToken)
+        public async Task<IActionResult> FirstAccessPassword(
+            [FromServices] IHandler<FirstAccessPasswordCommand, bool> handler,
+            [FromBody] FirstAccessPasswordCommand command, Guid id, CancellationToken cancellationToken)
         {
             command.SetId(id);
             var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
-            return response.IsSuccess 
-                ? NoContent() 
+            return response.IsSuccess
+                ? NoContent()
                 : BadRequest(response.Failure);
         }
     }

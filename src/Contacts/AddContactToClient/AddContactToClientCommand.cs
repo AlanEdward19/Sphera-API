@@ -5,6 +5,7 @@ namespace Sphera.API.Contacts.AddContactToClient;
 public class AddContactToClientCommand
 {
     private Guid ClientId { get; set; }
+    public string Name { get; set; }
 
     public EContactType Type { get; set; }
     public EContactRole Role { get; set; }

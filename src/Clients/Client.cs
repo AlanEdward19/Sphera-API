@@ -75,6 +75,11 @@ public class Client
     /// </summary>
     [Range(1, 31)]
     public short? BillingDueDay { get; private set; }
+    
+    /// <summary>
+    /// Gets the date when the contract was established, if applicable.
+    /// </summary>
+    public DateTime? ContractDate { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether the current operation or entity is in an active or successful state.
@@ -138,15 +143,16 @@ public class Client
     /// <param name="cnpj">The CNPJ value object representing the client's tax identification number, or null if not applicable.</param>
     /// <param name="address">The address value object representing the client's address, or null if not provided.</param>
     /// <param name="createdBy">The unique identifier of the user who created the client.</param>
+    /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month when billing is due, or null if not specified.</param>
     /// <exception cref="DomainException">Thrown if partnerId is Guid.Empty.</exception>
     public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, Guid createdBy, short? billingDueDay = null)
+        string municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate, short? billingDueDay = null)
     {
         Id = Guid.NewGuid();
         if (partnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = partnerId;
-        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate, billingDueDay);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -157,6 +163,7 @@ public class Client
         Id = Guid.NewGuid();
         if (command.PartnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = command.PartnerId;
+        DateTime contractDate = DateTime.Today.AddDays(command.ContractDateInDays);
         SetBasicInfo(
             command.TradeName,
             command.LegalName,
@@ -164,6 +171,7 @@ public class Client
             command.StateRegistration,
             command.MunicipalRegistration,
             command.Address.ToValueObject(),
+            contractDate,
             command.BillingDueDay);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
@@ -177,12 +185,15 @@ public class Client
     /// <param name="tradeName">The trade name to assign. Cannot be null, empty, or consist only of white-space characters.</param>
     /// <param name="legalName">The legal name to assign. May be null or empty if not required by the domain.</param>
     /// <param name="cnpj">The CNPJ value object representing the entity's CNPJ. Cannot be null.</param>
+    /// <param name="stateRegistration"></param>
+    /// <param name="municipalRegistration"></param>
     /// <param name="address">The address value object representing the entity's address. Cannot be null.</param>
+    /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month on which billing is due. May be null if not applicable.</param>
     /// <exception cref="DomainException">Thrown if <paramref name="tradeName"/> is null, empty, or white space; or if <paramref name="cnpj"/> or
     /// <paramref name="address"/> is null.</exception>
     private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address,
+        string municipalRegistration, AddressValueObject? address, DateTime? contractDate,
        short? billingDueDay)
     {
         if (string.IsNullOrWhiteSpace(tradeName)) throw new DomainException("Nome fantasia obrigatório.");
@@ -195,6 +206,7 @@ public class Client
         MunicipalRegistration = municipalRegistration;
         Address = address ?? throw new DomainException("Endereço obrigatório.");
         BillingDueDay = billingDueDay;
+        ContractDate = contractDate;
     }
 
     /// <summary>
@@ -205,12 +217,13 @@ public class Client
     /// <param name="legalName">The legal name to assign to the company. Cannot be null or empty.</param>
     /// <param name="cnpj">The CNPJ value object representing the company's registration number. Can be null if not applicable.</param>
     /// <param name="address">The address value object representing the company's location. Can be null if not applicable.</param>
+    /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month when billing is due. Must be between 1 and 31, or null if not set.</param>
     /// <param name="actor">The unique identifier of the user or process performing the update.</param>
     public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, short? billingDueDay, Guid actor)
+        string municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay, Guid actor)
     {
-        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate, billingDueDay);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
@@ -281,6 +294,7 @@ public class Client
             MunicipalRegistration,
             Address.ToDTO(),
             BillingDueDay,
+            ContractDate,
             Status,
             CreatedAt,
             CreatedBy,
@@ -297,6 +311,7 @@ public class Client
             MunicipalRegistration,
             Address.ToDTO(),
             BillingDueDay,
+            ContractDate,
             Status,
             CreatedAt,
             CreatedBy,

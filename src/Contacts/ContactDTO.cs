@@ -15,8 +15,10 @@ namespace Sphera.API.Contacts;
 /// <param name="updatedBy">The unique identifier of the user who last updated the contact, or null if it has not been updated.</param>
 public class ContactDTO(
     Guid id,
+    string? name,
     EContactType type,
     EContactRole role,
+    EPhoneType? phoneType,
     string value,
     DateTime createdAt,
     Guid createdBy,
@@ -27,6 +29,11 @@ public class ContactDTO(
     /// Gets the unique identifier for the instance.
     /// </summary>
     public Guid Id { get; private set; } = id;
+    
+    /// <summary>
+    /// Gets the name associated with the contact.
+    /// </summary>
+    public string? Name { get; private set; } = name;
 
     /// <summary>
     /// Gets the type of contact represented by this instance.
@@ -37,7 +44,11 @@ public class ContactDTO(
     /// Gets the role associated with the contact.
     /// </summary>
     public EContactRole Role { get; private set; } = role;
-
+    
+    /// <summary>
+    /// Gets the phone type if the contact type is phone.
+    /// </summary>
+    public EPhoneType? PhoneType { get; private set; } = phoneType;
     /// <summary>
     /// Gets the current value as a string.
     /// </summary>

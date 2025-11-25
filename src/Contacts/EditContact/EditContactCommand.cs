@@ -11,6 +11,7 @@ public class EditContactCommand
     /// Gets the unique identifier for the entity.
     /// </summary>
     private Guid Id { get; set; }
+    public string Name { get; set; }
     
     /// <summary>
     /// Gets or sets the string value associated with this instance.
@@ -26,6 +27,8 @@ public class EditContactCommand
     /// Gets or sets the role associated with the contact, such as manager, assistant, or primary contact.
     /// </summary>
     public EContactRole? Role { get; set; }
+    
+    public EPhoneType? PhoneType { get; set; }
 
     /// <summary>
     /// Retrieves the current identifier value.

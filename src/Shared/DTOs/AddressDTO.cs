@@ -24,6 +24,14 @@ public class AddressDTO
     /// </summary>
     [Required]
     public int? Number { get; set; }
+    
+    [MaxLength(120)]
+    public string? Complement { get; set; }
+    
+    [Required]
+    [MinLength(1)]
+    [MaxLength(100)]
+    public string Neighborhood { get; set; }
 
     /// <summary>
     /// Gets or sets the name of the city associated with the entity.
@@ -48,11 +56,14 @@ public class AddressDTO
     [MinLength(10)]
     [MaxLength(10)]
     public string ZipCode { get; set; }
+    
+    [MaxLength(40)]
+    public string? Lot { get; set; }
 
     /// <summary>
     /// Creates a new value object that represents the current address.
     /// </summary>
     /// <returns>An <see cref="AddressValueObject"/> instance containing the street, number, city, state, and zip code of the
     /// current address.</returns>
-    public AddressValueObject ToValueObject() => new AddressValueObject(Street, Number, City, State, ZipCode);
+    public AddressValueObject ToValueObject() => new(Street, Number, Complement, Neighborhood, City, State, ZipCode, Lot);
 }

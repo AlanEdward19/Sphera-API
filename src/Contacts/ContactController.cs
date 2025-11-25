@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Contacts.AddContactToClient;
 using Sphera.API.Contacts.AddContactToPartner;
+using Sphera.API.Contacts.AddContactToUser;
 using Sphera.API.Contacts.EditContact;
 using Sphera.API.Contacts.RemoveContactFromClient;
 using Sphera.API.Contacts.RemoveContactFromPartner;
@@ -37,6 +38,17 @@ public class ContactController : ControllerBase
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
             : BadRequest(response.Failure);
     }
+    
+    [HttpPost("/api/v1/Users/{userId:guid}/Contacts", Name = "AddContactToUser")]
+    public async Task<IActionResult> AddContactToUser([FromServices] IHandler<AddContactToUserCommand, ContactDTO> handler, [FromBody] AddContactToUserCommand command,
+        Guid userId, CancellationToken cancellationToken)
+    {
+        command.SetUserId(userId);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
+            : BadRequest(response.Failure);
+    }
 
     [HttpDelete("/api/v1/Clients/{clientId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromClient")]
     public async Task<IActionResult> RemoveContactFromClient([FromServices] IHandler<RemoveContactFromClientCommand, ContactDTO> handler,
@@ -54,6 +66,17 @@ public class ContactController : ControllerBase
         Guid partnerId, Guid contactId, CancellationToken cancellationToken)
     {
         var command = new RemoveContactFromPartnerCommand(partnerId, contactId);
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? Ok(response.Success)
+            : BadRequest(response.Failure);
+    }
+    
+    [HttpDelete("/api/v1/Users/{userId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromUser")]
+    public async Task<IActionResult> RemoveContactFromUser([FromServices] IHandler<RemoveContactFromPartnerCommand, ContactDTO> handler,
+        Guid userId, Guid contactId, CancellationToken cancellationToken)
+    {
+        var command = new RemoveContactFromPartnerCommand(userId, contactId);
         var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess
             ? Ok(response.Success)

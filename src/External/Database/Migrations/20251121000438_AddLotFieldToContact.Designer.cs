@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.External.Database;
 
@@ -11,9 +12,11 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    partial class SpheraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251121000438_AddLotFieldToContact")]
+    partial class AddLotFieldToContact
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,9 +84,6 @@ namespace Sphera.API.External.Database.Migrations
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)")
                         .HasColumnName("Cnpj");
-
-                    b.Property<DateTime?>("ContractDate")
-                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -164,9 +164,6 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid?>("PartnerId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("PhoneType")
-                        .HasColumnType("int");
-
                     b.Property<int>("Role")
                         .HasColumnType("int");
 
@@ -185,9 +182,6 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasMaxLength(160)
@@ -203,9 +197,6 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasIndex("Role")
                         .HasDatabaseName("IX_Contacts_Role");
-
-                    b.HasIndex("UserId")
-                        .HasDatabaseName("IX_Contacts_UserId");
 
                     b.ToTable("Contacts", "dbo");
                 });
@@ -442,18 +433,6 @@ namespace Sphera.API.External.Database.Migrations
                     b.ToTable("Users", "dbo");
                 });
 
-            modelBuilder.Entity("Sphera.API.Auditory.AuditEntry", b =>
-                {
-                    b.HasOne("Sphera.API.Users.User", "Actor")
-                        .WithMany("AuditEntries")
-                        .HasForeignKey("ActorId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
-                        .HasConstraintName("FK_Audit_Actor");
-
-                    b.Navigation("Actor");
-                });
-
             modelBuilder.Entity("Sphera.API.Clients.Client", b =>
                 {
                     b.HasOne("Sphera.API.Partners.Partner", "Partner")
@@ -541,17 +520,9 @@ namespace Sphera.API.External.Database.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_Contacts_Partner");
 
-                    b.HasOne("Sphera.API.Users.User", "User")
-                        .WithMany("Contacts")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .HasConstraintName("FK_Contacts_User");
-
                     b.Navigation("Client");
 
                     b.Navigation("Partner");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sphera.API.Documents.Document", b =>
@@ -564,7 +535,7 @@ namespace Sphera.API.External.Database.Migrations
                         .HasConstraintName("FK_Documents_Client");
 
                     b.HasOne("Sphera.API.Users.User", "Responsible")
-                        .WithMany("Documents")
+                        .WithMany()
                         .HasForeignKey("ResponsibleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
@@ -664,15 +635,6 @@ namespace Sphera.API.External.Database.Migrations
                     b.Navigation("Clients");
 
                     b.Navigation("Contacts");
-                });
-
-            modelBuilder.Entity("Sphera.API.Users.User", b =>
-                {
-                    b.Navigation("AuditEntries");
-
-                    b.Navigation("Contacts");
-
-                    b.Navigation("Documents");
                 });
 #pragma warning restore 612, 618
         }

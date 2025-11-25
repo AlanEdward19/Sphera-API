@@ -86,5 +86,25 @@ public class UserMap : IEntityTypeConfiguration<User>
             .HasForeignKey(u => u.RoleId)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("FK_User_Role");
+        
+        b.HasMany(c => c.Contacts)
+            .WithOne(ct => ct.User)
+            .HasForeignKey(c => c.UserId)
+            .HasConstraintName("FK_Contacts_User")
+            .OnDelete(DeleteBehavior.NoAction);
+
+        b.HasMany(d => d.Documents)
+            .WithOne(doc => doc.Responsible)
+            .HasForeignKey(doc => doc.ResponsibleId)
+            .HasPrincipalKey(u => u.Id)
+            .HasConstraintName("FK_Documents_Responsible")
+            .OnDelete(DeleteBehavior.Restrict);
+
+        b.HasMany(a => a.AuditEntries)
+            .WithOne(ae => ae.Actor)
+            .HasForeignKey(ae => ae.ActorId)
+            .HasPrincipalKey(u => u.Id)
+            .HasConstraintName("FK_Audit_Actor")
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

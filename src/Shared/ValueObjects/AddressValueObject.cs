@@ -26,6 +26,19 @@ public sealed record AddressValueObject
     public int? Number { get; init; }
 
     /// <summary>
+    /// Gets additional address details, such as apartment or suite information.
+    /// </summary>
+    [MaxLength(120)] 
+    public string? Complement { get; init; }
+
+    /// <summary>
+    /// Gets the neighborhood or district of the address.
+    /// </summary>
+    [MinLength(1)] 
+    [MaxLength(100)] 
+    public string? Neighborhood { get; init; }
+
+    /// <summary>
     /// Gets the name of the city associated with the entity.
     /// </summary>
     [MinLength(1)]
@@ -49,6 +62,12 @@ public sealed record AddressValueObject
     public string? ZipCode { get; init; }
 
     /// <summary>
+    /// Gets the lot information associated with the address.
+    /// </summary>
+    [MaxLength(40)] 
+    public string? Lot { get; init; }
+
+    /// <summary>
     /// Initializes a new instance of the AddressValueObject class with the specified address details.
     /// </summary>
     /// <param name="street">The street name of the address. Cannot be null, empty, or consist only of white-space characters.</param>
@@ -58,21 +77,35 @@ public sealed record AddressValueObject
     /// <param name="zipCode">The postal code for the address. Can be null or empty if not applicable.</param>
     /// <exception cref="DomainException">Thrown if street or city is null, empty, or consists only of white-space characters, or if state is null, empty,
     /// or not exactly two characters.</exception>
-    public AddressValueObject(string street, int? number, string city, string state, string zipCode)
+    public AddressValueObject(
+        string street, 
+        int? number, 
+        string? complement,
+        string neighborhood,
+        string city, 
+        string state, 
+        string zipCode,
+        string? lot)
     {
         if (string.IsNullOrWhiteSpace(street)) throw new DomainException("Rua é obrigatória.");
+        if (string.IsNullOrWhiteSpace(neighborhood))  throw new DomainException("Bairro é obrigatório.");
         if (string.IsNullOrWhiteSpace(city)) throw new DomainException("Cidade é obrigatória.");
         if (string.IsNullOrWhiteSpace(state) || state.Length != 2) throw new DomainException("Estado inválido.");
         Street = street;
         Number = number;
+        Complement = complement;
+        Neighborhood = neighborhood;
         City = city;
         State = state.ToUpperInvariant();
 
         //TODO: Validação de CEP
         ZipCode = zipCode;
+        Lot = lot;
     }
 
-    private AddressValueObject(){}
+    private AddressValueObject()
+    {
+    }
 
     /// <summary>
     /// Converts the current address instance to an AddressDTO object.
@@ -82,11 +115,14 @@ public sealed record AddressValueObject
     {
         return new AddressDTO
         {
-            Street = this.Street,
-            Number = this.Number,
-            City = this.City,
-            State = this.State,
-            ZipCode = this.ZipCode
+            Street = Street,
+            Number = Number,
+            Complement = Complement,
+            Neighborhood = Neighborhood,
+            City = City,
+            State = State,
+            ZipCode = ZipCode,
+            Lot = Lot
         };
     }
 }

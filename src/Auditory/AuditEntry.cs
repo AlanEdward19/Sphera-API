@@ -1,8 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using Sphera.API.Users;
 
 namespace Sphera.API.Auditory;
 
-public sealed class AuditEntry
+public class AuditEntry
 {
     [Key]
     public long Id { get; private set; }
@@ -12,6 +14,9 @@ public sealed class AuditEntry
     public string EntityType { get; private set; }
     public Guid? EntityId { get; private set; }
     public string RequestIp { get; private set; }
+    
+    [ForeignKey(nameof(ActorId))]
+    public virtual User Actor { get; private set; }
 
     private AuditEntry() { }
 
@@ -22,6 +27,6 @@ public sealed class AuditEntry
         Action = action;
         EntityType = entityType;
         EntityId = entityId;
-        RequestIp = requestIp ?? "unknown";
+        RequestIp = requestIp;
     }
 }

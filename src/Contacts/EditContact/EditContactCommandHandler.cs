@@ -35,6 +35,9 @@ public class EditContactCommandHandler(SpheraDbContext dbContext, ILogger<EditCo
 
             if (request.Role is not null)
                 contact.UpdateRole(request.Role, actor);
+            
+            if (request.PhoneType is not null)
+                contact.UpdatePhoneType(request.PhoneType, actor);
 
             dbContext.Contacts.Update(contact);
             await dbContext.SaveChangesAsync(cancellationToken);

@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sphera.API.Auditory;
+using Sphera.API.Contacts;
+using Sphera.API.Documents;
 using Sphera.API.Roles;
 using Sphera.API.Shared.Services;
 using Sphera.API.Shared.ValueObjects;
@@ -40,6 +43,21 @@ public class User
 
     [ForeignKey(nameof(RoleId))] 
     public virtual Role Role { get; private set; }
+    
+    /// <summary>
+    /// Gets the collection of contacts associated with this entity.
+    /// </summary>
+    public virtual ICollection<Contact> Contacts { get; private set; } = new List<Contact>();
+    
+    /// <summary>
+    /// Gets the collection of documents for which this user is the responsible party.
+    /// </summary>
+    public virtual ICollection<Document> Documents { get; private set; } = new List<Document>();
+    
+    /// <summary>
+    /// Gets the collection of audit entries associated with this user as the actor.
+    /// </summary>
+    public virtual ICollection<AuditEntry> AuditEntries { get; private set; } = new List<AuditEntry>();
 
     protected User()
     {
@@ -114,5 +132,10 @@ public class User
             IsFirstAccess,
             Active
         );
+    }
+    
+    public bool CheckFirstAccess()
+    {
+        return IsFirstAccess;
     }
 }
