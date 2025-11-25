@@ -10,11 +10,11 @@ public class GetUserScheduleEventsQueryHandler(SpheraDbContext dbContext, ILogge
 {
     public async Task<IResultDTO<IEnumerable<ScheduleEventDTO>>> HandleAsync(GetUserScheduleEventsQuery request, HttpContext context, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Recuperando eventos de agenda para UserId={UserId} StartAt={StartAt} EndAt={EndAt}", request.UserId, request.StartAt, request.EndAt);
+        logger.LogInformation("Recuperando eventos de agenda para UserId={UserId} StartAt={StartAt} EndAt={EndAt}", request.GetUserId(), request.StartAt, request.EndAt);
 
         IQueryable<ScheduleEvent> query = dbContext.ScheduleEvents.AsNoTracking();
 
-        query = query.Where(s => s.UserId == request.UserId);
+        query = query.Where(s => s.UserId == request.GetUserId());
 
         if (request.StartAt.HasValue)
             query = query.Where(s => s.OccurredAt >= request.StartAt.Value);
