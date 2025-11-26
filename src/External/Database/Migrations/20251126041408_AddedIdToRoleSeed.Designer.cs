@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.External.Database;
 
@@ -11,9 +12,11 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    partial class SpheraDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251126041408_AddedIdToRoleSeed")]
+    partial class AddedIdToRoleSeed
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
