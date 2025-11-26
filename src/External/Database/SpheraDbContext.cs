@@ -38,7 +38,17 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
         modelBuilder.ApplyConfiguration(new ContactMap());
         modelBuilder.ApplyConfiguration(new RoleMap());
         modelBuilder.ApplyConfiguration(new UserMap());
-        
+
+        #region Seed
+
+        modelBuilder.Entity<Role>().HasData(
+            new Role ("Administrador"),
+            new Role ("Gestor"),
+            new Role ("Financeiro")
+        );
+
+        #endregion
+
         base.OnModelCreating(modelBuilder);
     }
 
