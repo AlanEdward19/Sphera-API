@@ -17,11 +17,10 @@ public class Role
     
     protected Role() {} 
     
-    public Role(short id, string name)
+    public Role(short id, string name, DateTime createdAt)
     {
         Id = id;
         Name = name;
-        CreatedAt = DateTime.UtcNow;
-        UpdatedAt = DateTime.UtcNow;
+        CreatedAt = createdAt;
     }
 }

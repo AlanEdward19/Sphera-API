@@ -41,10 +41,12 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
 
         #region Seed
 
+        var seedDate = new DateTime(2025, 11, 26);
+
         modelBuilder.Entity<Role>().HasData(
-            new Role (1, "Administrador"),
-            new Role (2, "Gestor"),
-            new Role (3, "Financeiro")
+            new Role (1, "Administrador",seedDate),
+            new Role (2, "Gestor",seedDate),
+            new Role (3, "Financeiro",seedDate)
         );
 
         #endregion
