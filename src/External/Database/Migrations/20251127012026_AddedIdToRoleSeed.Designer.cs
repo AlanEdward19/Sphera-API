@@ -12,7 +12,7 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20251126041408_AddedIdToRoleSeed")]
+    [Migration("20251127012026_AddedIdToRoleSeed")]
     partial class AddedIdToRoleSeed
     {
         /// <inheritdoc />
@@ -352,23 +352,20 @@ namespace Sphera.API.External.Database.Migrations
                         new
                         {
                             Id = (short)1,
-                            CreatedAt = new DateTime(2025, 11, 26, 4, 14, 7, 118, DateTimeKind.Utc).AddTicks(528),
-                            Name = "Administrador",
-                            UpdatedAt = new DateTime(2025, 11, 26, 4, 14, 7, 118, DateTimeKind.Utc).AddTicks(761)
+                            CreatedAt = new DateTime(2025, 11, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Administrador"
                         },
                         new
                         {
                             Id = (short)2,
-                            CreatedAt = new DateTime(2025, 11, 26, 4, 14, 7, 118, DateTimeKind.Utc).AddTicks(1270),
-                            Name = "Gestor",
-                            UpdatedAt = new DateTime(2025, 11, 26, 4, 14, 7, 118, DateTimeKind.Utc).AddTicks(1271)
+                            CreatedAt = new DateTime(2025, 11, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Gestor"
                         },
                         new
                         {
                             Id = (short)3,
-                            CreatedAt = new DateTime(2025, 11, 26, 4, 14, 7, 118, DateTimeKind.Utc).AddTicks(1273),
-                            Name = "Financeiro",
-                            UpdatedAt = new DateTime(2025, 11, 26, 4, 14, 7, 118, DateTimeKind.Utc).AddTicks(1273)
+                            CreatedAt = new DateTime(2025, 11, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Financeiro"
                         });
                 });
 
