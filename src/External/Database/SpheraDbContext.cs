@@ -42,9 +42,9 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
         #region Seed
 
         modelBuilder.Entity<Role>().HasData(
-            new Role ("Administrador"),
-            new Role ("Gestor"),
-            new Role ("Financeiro")
+            new Role (1, "Administrador"),
+            new Role (2, "Gestor"),
+            new Role (3, "Financeiro")
         );
 
         #endregion

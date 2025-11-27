@@ -17,8 +17,9 @@ public class Role
     
     protected Role() {} 
     
-    public Role(string name)
+    public Role(short id, string name)
     {
+        Id = id;
         Name = name;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
