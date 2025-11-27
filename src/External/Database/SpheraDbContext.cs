@@ -6,6 +6,7 @@ using Sphera.API.Documents;
 using Sphera.API.External.Database.Maps;
 using Sphera.API.Partners;
 using Sphera.API.Roles;
+using Sphera.API.Schedules;
 using Sphera.API.Services;
 using Sphera.API.Shared;
 using Sphera.API.Shared.Utils;
@@ -23,6 +24,7 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
     public DbSet<Contact> Contacts { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<ScheduleEvent> ScheduleEvents { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,7 +38,17 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
         modelBuilder.ApplyConfiguration(new ContactMap());
         modelBuilder.ApplyConfiguration(new RoleMap());
         modelBuilder.ApplyConfiguration(new UserMap());
-        
+
+        #region Seed
+
+        modelBuilder.Entity<Role>().HasData(
+            new Role ("Administrador"),
+            new Role ("Gestor"),
+            new Role ("Financeiro")
+        );
+
+        #endregion
+
         base.OnModelCreating(modelBuilder);
     }
 
