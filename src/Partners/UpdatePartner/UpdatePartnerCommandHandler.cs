@@ -1,11 +1,12 @@
-﻿using Sphera.API.Clients.UpdateClient;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.Clients.UpdateClient;
 using Sphera.API.External.Database;
 using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.ValueObjects;
-using System.Data.Entity;
+
 using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.UpdatePartner;
@@ -18,7 +19,7 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
     {
         logger.LogInformation($"Iniciando a atualização do parceiro: '{request.GetId()}'.");
 
-        Partner? partner = await dbContext.Partners.Include(x => x.Contacts)
+        var partner = await dbContext.Partners.Include(x => x.Contacts)
             .FirstOrDefaultAsync(x => x.Id == request.GetId(), cancellationToken);
 
         if (partner is null)

@@ -3,5 +3,6 @@
 public enum EContactRole
 {
     Personal = 0,
-    Financial = 1
+    Financial = 1,
+    General = 2
 }
