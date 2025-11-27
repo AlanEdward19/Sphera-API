@@ -51,7 +51,7 @@ public class ContactController : ControllerBase
     }
 
     [HttpDelete("/api/v1/Clients/{clientId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromClient")]
-    public async Task<IActionResult> RemoveContactFromClient([FromServices] IHandler<RemoveContactFromClientCommand, ContactDTO> handler,
+    public async Task<IActionResult> RemoveContactFromClient([FromServices] IHandler<RemoveContactFromClientCommand, bool> handler,
         Guid clientId, Guid contactId, CancellationToken cancellationToken)
     {
         var command = new RemoveContactFromClientCommand(clientId, contactId);
@@ -62,7 +62,7 @@ public class ContactController : ControllerBase
     }
 
     [HttpDelete("/api/v1/Partners/{partnerId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromPartner")]
-    public async Task<IActionResult> RemoveContactFromPartner([FromServices] IHandler<RemoveContactFromPartnerCommand, ContactDTO> handler,
+    public async Task<IActionResult> RemoveContactFromPartner([FromServices] IHandler<RemoveContactFromPartnerCommand, bool> handler,
         Guid partnerId, Guid contactId, CancellationToken cancellationToken)
     {
         var command = new RemoveContactFromPartnerCommand(partnerId, contactId);
@@ -73,7 +73,7 @@ public class ContactController : ControllerBase
     }
     
     [HttpDelete("/api/v1/Users/{userId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromUser")]
-    public async Task<IActionResult> RemoveContactFromUser([FromServices] IHandler<RemoveContactFromPartnerCommand, ContactDTO> handler,
+    public async Task<IActionResult> RemoveContactFromUser([FromServices] IHandler<RemoveContactFromPartnerCommand, bool> handler,
         Guid userId, Guid contactId, CancellationToken cancellationToken)
     {
         var command = new RemoveContactFromPartnerCommand(userId, contactId);
