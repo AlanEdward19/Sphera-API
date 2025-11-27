@@ -61,10 +61,13 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
             ? "unknown"
             : httpContextAccessor.HttpContext!.GetClientIp();
         ChangeTracker.DetectChanges();
-        var auditEntries = AuditHelper.CreateAuditEntries(ChangeTracker,  user.GetUserId(), clientIp ?? "unknown");
-
-        if (auditEntries.Any())
-            AuditEntries.AddRange(auditEntries);
+        
+        if (user?.Identity?.IsAuthenticated == true)
+        {
+            var auditEntries = AuditHelper.CreateAuditEntries(ChangeTracker, user.GetUserId(), clientIp ?? "unknown");
+            if (auditEntries.Any())
+                AuditEntries.AddRange(auditEntries);
+        }
 
         try
         {
