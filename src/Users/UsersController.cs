@@ -34,7 +34,7 @@ namespace Sphera.API.Users
         [HttpGet("first-access", Name = "CheckFirstAccess")]
         [AllowAnonymous]
         public async Task<IActionResult> CheckFirstAccess(
-            [FromServices] IHandler<CheckFirstAccessQuery, bool> handler,
+            [FromServices] IHandler<CheckFirstAccessQuery, FirstAccessUserDTO> handler,
             [FromQuery] CheckFirstAccessQuery query,
             CancellationToken cancellationToken)
         {
@@ -47,7 +47,7 @@ namespace Sphera.API.Users
 
 
         [HttpPost(Name = "CreateUser")]
-        public async Task<IActionResult> CreateClient([FromServices] IHandler<CreateUserCommand, UserDTO> handler,
+        public async Task<IActionResult> CreateUser([FromServices] IHandler<CreateUserCommand, UserDTO> handler,
             [FromBody] CreateUserCommand command,
             CancellationToken cancellationToken)
         {
@@ -130,7 +130,7 @@ namespace Sphera.API.Users
             var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
             return response.IsSuccess
                 ? NoContent()
-                : BadRequest(response.Failure);
+                : new ObjectResult(response.Failure) { StatusCode = response.Failure.Code };
         }
     }
 }
