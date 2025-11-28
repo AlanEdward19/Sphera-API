@@ -53,8 +53,8 @@ public class AddressDTO
     /// Gets or sets the postal code for the associated address.
     /// </summary>
     [Required]
-    [MinLength(10)]
-    [MaxLength(10)]
+    [MinLength(8)]
+    [MaxLength(8)]
     public string ZipCode { get; set; }
     
     [MaxLength(40)]
