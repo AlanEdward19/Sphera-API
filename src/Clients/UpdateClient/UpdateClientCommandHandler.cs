@@ -1,10 +1,10 @@
-﻿using Sphera.API.Clients.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.ValueObjects;
-using System.Data.Entity;
 using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.UpdateClient;
