@@ -38,6 +38,7 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
         modelBuilder.ApplyConfiguration(new ContactMap());
         modelBuilder.ApplyConfiguration(new RoleMap());
         modelBuilder.ApplyConfiguration(new UserMap());
+        modelBuilder.ApplyConfiguration(new ScheduleEventMap());
 
         #region Seed
 
