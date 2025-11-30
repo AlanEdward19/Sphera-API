@@ -11,7 +11,8 @@ public class ScheduleEvent
     /// <summary>
     /// Gets the unique identifier for the entity.
     /// </summary>
-    [Key] public Guid Id { get; private set; }
+    [Key]
+    public Guid Id { get; private set; }
 
     /// <summary>
     /// Gets the date and time when the event occurred.
@@ -83,7 +84,9 @@ public class ScheduleEvent
     /// </summary>
     /// <remarks>This constructor is private and is intended for internal use only. Instances of ScheduleEvent
     /// cannot be created directly from outside the class.</remarks>
-    private ScheduleEvent() { }
+    private ScheduleEvent()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the ScheduleEvent class with the specified occurrence time, user, client, creator, and

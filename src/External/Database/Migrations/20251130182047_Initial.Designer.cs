@@ -12,8 +12,8 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20251119020245_RemoveFieldsFromAuditEntry")]
-    partial class RemoveFieldsFromAuditEntry
+    [Migration("20251130182047_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -84,6 +84,9 @@ namespace Sphera.API.External.Database.Migrations
                         .HasMaxLength(14)
                         .HasColumnType("nvarchar(14)")
                         .HasColumnName("Cnpj");
+
+                    b.Property<DateTime?>("ContractDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -157,8 +160,15 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Name")
+                        .HasMaxLength(160)
+                        .HasColumnType("nvarchar(160)");
+
                     b.Property<Guid?>("PartnerId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int?>("PhoneType")
+                        .HasColumnType("int");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
@@ -178,6 +188,9 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Value")
                         .IsRequired()
                         .HasMaxLength(160)
@@ -193,6 +206,9 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasIndex("Role")
                         .HasDatabaseName("IX_Contacts_Role");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_Contacts_UserId");
 
                     b.ToTable("Contacts", "dbo");
                 });
@@ -331,6 +347,75 @@ namespace Sphera.API.External.Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Roles", "dbo");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (short)1,
+                            CreatedAt = new DateTime(2025, 11, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Administrador"
+                        },
+                        new
+                        {
+                            Id = (short)2,
+                            CreatedAt = new DateTime(2025, 11, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Gestor"
+                        },
+                        new
+                        {
+                            Id = (short)3,
+                            CreatedAt = new DateTime(2025, 11, 26, 0, 0, 0, 0, DateTimeKind.Unspecified),
+                            Name = "Financeiro"
+                        });
+                });
+
+            modelBuilder.Entity("Sphera.API.Schedules.ScheduleEvent", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<DateTime>("OccurredAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId")
+                        .HasDatabaseName("IX_ScheduleEvents_ClientId");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("IX_ScheduleEvents_UserId");
+
+                    b.ToTable("ScheduleEvents", "dbo");
                 });
 
             modelBuilder.Entity("Sphera.API.Services.Service", b =>
@@ -429,6 +514,18 @@ namespace Sphera.API.External.Database.Migrations
                     b.ToTable("Users", "dbo");
                 });
 
+            modelBuilder.Entity("Sphera.API.Auditory.AuditEntry", b =>
+                {
+                    b.HasOne("Sphera.API.Users.User", "Actor")
+                        .WithMany("AuditEntries")
+                        .HasForeignKey("ActorId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Audit_Actor");
+
+                    b.Navigation("Actor");
+                });
+
             modelBuilder.Entity("Sphera.API.Clients.Client", b =>
                 {
                     b.HasOne("Sphera.API.Partners.Partner", "Partner")
@@ -449,6 +546,22 @@ namespace Sphera.API.External.Database.Migrations
                                 .HasMaxLength(80)
                                 .HasColumnType("nvarchar(80)")
                                 .HasColumnName("City");
+
+                            b1.Property<string>("Complement")
+                                .HasMaxLength(120)
+                                .HasColumnType("nvarchar(120)")
+                                .HasColumnName("Complement");
+
+                            b1.Property<string>("Lot")
+                                .HasMaxLength(40)
+                                .HasColumnType("nvarchar(40)")
+                                .HasColumnName("Lot");
+
+                            b1.Property<string>("Neighborhood")
+                                .IsRequired()
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("Neighborhood");
 
                             b1.Property<int>("Number")
                                 .HasColumnType("int")
@@ -500,9 +613,17 @@ namespace Sphera.API.External.Database.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .HasConstraintName("FK_Contacts_Partner");
 
+                    b.HasOne("Sphera.API.Users.User", "User")
+                        .WithMany("Contacts")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .HasConstraintName("FK_Contacts_User");
+
                     b.Navigation("Client");
 
                     b.Navigation("Partner");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Sphera.API.Documents.Document", b =>
@@ -515,7 +636,7 @@ namespace Sphera.API.External.Database.Migrations
                         .HasConstraintName("FK_Documents_Client");
 
                     b.HasOne("Sphera.API.Users.User", "Responsible")
-                        .WithMany()
+                        .WithMany("Documents")
                         .HasForeignKey("ResponsibleId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
@@ -548,6 +669,21 @@ namespace Sphera.API.External.Database.Migrations
                                 .HasColumnType("nvarchar(100)")
                                 .HasColumnName("City");
 
+                            b1.Property<string>("Complement")
+                                .HasMaxLength(120)
+                                .HasColumnType("nvarchar(120)")
+                                .HasColumnName("Complement");
+
+                            b1.Property<string>("Lot")
+                                .HasMaxLength(40)
+                                .HasColumnType("nvarchar(40)")
+                                .HasColumnName("Lot");
+
+                            b1.Property<string>("Neighborhood")
+                                .HasMaxLength(100)
+                                .HasColumnType("nvarchar(100)")
+                                .HasColumnName("Neighborhood");
+
                             b1.Property<int?>("Number")
                                 .HasColumnType("int")
                                 .HasColumnName("Number");
@@ -578,6 +714,27 @@ namespace Sphera.API.External.Database.Migrations
                     b.Navigation("Address");
                 });
 
+            modelBuilder.Entity("Sphera.API.Schedules.ScheduleEvent", b =>
+                {
+                    b.HasOne("Sphera.API.Clients.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_ScheduleEvents_Client");
+
+                    b.HasOne("Sphera.API.Users.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_ScheduleEvents_User");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("Sphera.API.Users.User", b =>
                 {
                     b.HasOne("Sphera.API.Roles.Role", "Role")
@@ -600,6 +757,15 @@ namespace Sphera.API.External.Database.Migrations
                     b.Navigation("Clients");
 
                     b.Navigation("Contacts");
+                });
+
+            modelBuilder.Entity("Sphera.API.Users.User", b =>
+                {
+                    b.Navigation("AuditEntries");
+
+                    b.Navigation("Contacts");
+
+                    b.Navigation("Documents");
                 });
 #pragma warning restore 612, 618
         }
