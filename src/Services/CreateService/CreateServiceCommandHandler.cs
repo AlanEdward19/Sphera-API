@@ -31,32 +31,35 @@ public class CreateServiceCommandHandler(SpheraDbContext dbContext, ILogger<Crea
         logger.LogInformation("Inicializando criação do serviço.");
         var actor = context.User.GetUserId();
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            DateTime? dueDate = request.DefaultDueInDays.HasValue ? DateTime.Today.AddDays(request.DefaultDueInDays.Value) : null;
+                DateTime? dueDate = request.DefaultDueInDays.HasValue ? DateTime.Today.AddDays(request.DefaultDueInDays.Value) : null;
 
-            Service service = new(request.Name, request.Code, dueDate, actor);
+                Service service = new(request.Name, request.Code, dueDate, actor);
 
-            await dbContext.Services.AddAsync(service, cancellationToken);
+                await dbContext.Services.AddAsync(service, cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<ServiceDTO>.AsSuccess(service.ToDTO());
-        }
-        catch (DomainException e)
-        {
-            logger.LogError("Um erro ocorreu ao tentar criar o serviço", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(400, e.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Um erro ocorreu ao tentar criar o serviço", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar criar o serviço"));
-        }
+                return ResultDTO<ServiceDTO>.AsSuccess(service.ToDTO());
+            }
+            catch (DomainException e)
+            {
+                logger.LogError("Um erro ocorreu ao tentar criar o serviço", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(400, e.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Um erro ocorreu ao tentar criar o serviço", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar criar o serviço"));
+            }
+        }, cancellationToken);
     }
 }

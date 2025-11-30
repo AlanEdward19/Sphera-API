@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Users.ChangePassword;
 
@@ -12,28 +13,32 @@ public class ChangePasswordCommandHandler(SpheraDbContext dbContext, ILogger<Cha
     {
         logger.LogInformation("Iniciando alteração de senha para usuário {UserId}", request.Id);
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
-            if (user is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado."));
-            
-            user.ChangePassword(request.NewPassword);
-            user.PasswordHash(auth.HashPassword(request.NewPassword));
-            dbContext.Users.Update(user);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == request.Id, cancellationToken);
+                if (user is null)
+                    return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado."));
 
-            logger.LogInformation("Senha alterada com sucesso para usuário {UserId}", request.Id);
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (Exception ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            logger.LogError(ex, "Erro ao alterar senha do usuário {UserId}", request.Id);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao alterar senha do usuário."));
-        }
+                user.ChangePassword(request.NewPassword);
+                user.PasswordHash(auth.HashPassword(request.NewPassword));
+                dbContext.Users.Update(user);
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                logger.LogInformation("Senha alterada com sucesso para usuário {UserId}", request.Id);
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (Exception ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                logger.LogError(ex, "Erro ao alterar senha do usuário {UserId}", request.Id);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao alterar senha do usuário."));
+            }
+        }, cancellationToken);
     }
 }

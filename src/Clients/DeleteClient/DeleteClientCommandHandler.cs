@@ -1,7 +1,9 @@
-﻿using Sphera.API.External.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.DeleteClient;
 
@@ -35,25 +37,28 @@ public class DeleteClientCommandHandler(SpheraDbContext dbContext, ILogger<Delet
         if (client is null)
             return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
 
-        try
-		{
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-			dbContext.Clients.Remove(client);
-			await dbContext.SaveChangesAsync(cancellationToken);
-			await dbContext.Database.CommitTransactionAsync(cancellationToken);
-
-			return ResultDTO<bool>.AsSuccess(true);
-		}
-        catch (DomainException ex)
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-		{
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar cliente."));
-        }
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+                dbContext.Clients.Remove(client);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar cliente."));
+            }
+        }, cancellationToken);
     }
 }

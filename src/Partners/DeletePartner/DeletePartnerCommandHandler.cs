@@ -2,6 +2,7 @@
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.DeletePartner;
 
@@ -37,25 +38,28 @@ public class DeletePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Dele
         if (partner is null)
             return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            dbContext.Partners.Remove(partner);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                dbContext.Partners.Remove(partner);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar parceiro."));
-        }
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar parceiro."));
+            }
+        }, cancellationToken);
     }
 }

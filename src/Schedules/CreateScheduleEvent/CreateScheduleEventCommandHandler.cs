@@ -33,31 +33,34 @@ public class CreateScheduleEventCommandHandler(
             "Criando evento de agenda para UserId={UserId} ClientId={ClientId} OccurredAt={OccurredAt}",
             request.UserId, request.ClientId, request.OccurredAt);
         
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var actor = context.User.GetUserId();
-            
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var actor = context.User.GetUserId();
 
-            var entity = new ScheduleEvent(request.OccurredAt, request.UserId, request.ClientId, actor, request.Notes);
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            await dbContext.ScheduleEvents.AddAsync(entity, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                var entity = new ScheduleEvent(request.OccurredAt, request.UserId, request.ClientId, actor, request.Notes);
 
-            return ResultDTO<ScheduleEventDTO>.AsSuccess(entity.ToDTO());
-        }
-        catch (DomainException e)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ScheduleEventDTO>.AsFailure(new FailureDTO(400, e.Message));
-        }
-        catch (Exception e)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            logger.LogError(e, "Ocorreu um erro ao tentar criar um evento para o usuário.");
-            return ResultDTO<ScheduleEventDTO>.AsFailure(new FailureDTO(500,
-                "Ocorreu um erro ao tentar criar um evento para o usuário."));
-        }
+                await dbContext.ScheduleEvents.AddAsync(entity, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                return ResultDTO<ScheduleEventDTO>.AsSuccess(entity.ToDTO());
+            }
+            catch (DomainException e)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ScheduleEventDTO>.AsFailure(new FailureDTO(400, e.Message));
+            }
+            catch (Exception e)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                logger.LogError(e, "Ocorreu um erro ao tentar criar um evento para o usuário.");
+                return ResultDTO<ScheduleEventDTO>.AsFailure(new FailureDTO(500,
+                    "Ocorreu um erro ao tentar criar um evento para o usuário."));
+            }
+        }, cancellationToken);
     }
 }

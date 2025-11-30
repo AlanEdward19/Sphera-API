@@ -3,6 +3,7 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Contacts.RemoveContactFromPartner;
 
@@ -40,28 +41,31 @@ public class RemoveContactFromPartnerCommandHandler(SpheraDbContext dbContext, I
         if (contact is null)
             return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Contato não encontrado"));
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            dbContext.Contacts.Remove(contact);
+                dbContext.Contacts.Remove(contact);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<bool>.AsSuccess(true);
+                return ResultDTO<bool>.AsSuccess(true);
 
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError($"Um erro ocorreu ao tentar remover o contato: '{request.ContactId}' para o Parceiro: '{request.PartnerId}'.", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar remover o contato para o Parceiro."));
-        }
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"Um erro ocorreu ao tentar remover o contato: '{request.ContactId}' para o Parceiro: '{request.PartnerId}'.", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar remover o contato para o Parceiro."));
+            }
+        }, cancellationToken);
     }
 }

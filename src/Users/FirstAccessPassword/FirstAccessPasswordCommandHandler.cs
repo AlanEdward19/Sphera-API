@@ -3,6 +3,7 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Users.FirstAccessPassword;
 
@@ -13,38 +14,42 @@ public class FirstAccessPasswordCommandHandler(SpheraDbContext dbContext, ILogge
     {
         logger.LogInformation("Iniciando definição de senha de primeiro acesso para usuário {UserId}", request.GetId());
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == request.GetId(), cancellationToken);
-            if (user is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado."));
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            if (!user.IsFirstAccess)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(409,
-                    "Senha de primeiro acesso já foi definida para este usuário."));
+                var user = await dbContext.Users.FirstOrDefaultAsync(u => u.Id == request.GetId(), cancellationToken);
+                if (user is null)
+                    return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado."));
 
-            user.ChangePassword(request.NewPassword);
-            user.PasswordHash(auth.HashPassword(request.NewPassword));
-            dbContext.Users.Update(user);
+                if (!user.IsFirstAccess)
+                    return ResultDTO<bool>.AsFailure(new FailureDTO(409,
+                        "Senha de primeiro acesso já foi definida para este usuário."));
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                user.ChangePassword(request.NewPassword);
+                user.PasswordHash(auth.HashPassword(request.NewPassword));
+                dbContext.Users.Update(user);
 
-            logger.LogInformation("Senha de primeiro acesso definida com sucesso para usuário {UserId}",
-                request.GetId());
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            logger.LogError(ex, "Erro ao definir senha de primeiro acesso do usuário {UserId}", request.GetId());
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao definir senha de primeiro acesso do usuário."));
-        }
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                logger.LogInformation("Senha de primeiro acesso definida com sucesso para usuário {UserId}",
+                    request.GetId());
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                logger.LogError(ex, "Erro ao definir senha de primeiro acesso do usuário {UserId}", request.GetId());
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao definir senha de primeiro acesso do usuário."));
+            }
+        }, cancellationToken);
     }
 }

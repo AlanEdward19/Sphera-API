@@ -1,4 +1,5 @@
-﻿using Sphera.API.External.Database;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
@@ -28,33 +29,36 @@ public class AddContactToPartnerCommandHandler(SpheraDbContext dbContext, ILogge
     {
         logger.LogInformation($"Adicionando contato para o Parceiro: '{request.GetPartnerId()}'.");
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
-            
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
+                
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            Contact contact = new Contact(request.Type, request.Role, request.Value, actor, request.GetPartnerId(), phoneType: request.PhoneType);
+                Contact contact = new Contact(request.Type, request.Role, request.Value, actor, request.GetPartnerId(), phoneType: request.PhoneType);
 
-            await dbContext.Contacts.AddAsync(contact, cancellationToken);
+                await dbContext.Contacts.AddAsync(contact, cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<ContactDTO>.AsSuccess(contact.ToDTO());
+                return ResultDTO<ContactDTO>.AsSuccess(contact.ToDTO());
 
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Parceiro: '{request.GetPartnerId()}'.", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar adicionar o contato para o Parceiro."));
-        }
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Parceiro: '{request.GetPartnerId()}'.", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar adicionar o contato para o Parceiro."));
+            }
+        }, cancellationToken);
     }
 }

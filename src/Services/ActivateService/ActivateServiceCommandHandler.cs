@@ -40,31 +40,34 @@ public class ActivateServiceCommandHandler(SpheraDbContext dbContext, ILogger<Ac
 
         Guid actor = context.User.GetUserId();
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            service.Activate(actor);
+                service.Activate(actor);
 
-            dbContext.Services.Update(service);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                dbContext.Services.Update(service);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (DomainException e)
-        {
-            logger.LogError("Um erro ocorreu ao tentar ativar o serviço", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException e)
+            {
+                logger.LogError("Um erro ocorreu ao tentar ativar o serviço", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
 
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, e.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Um erro ocorreu ao tentar ativar o serviço", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, e.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Um erro ocorreu ao tentar ativar o serviço", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
 
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro inesperado ocorreu ao tentar ativar o serviço"));
-        }
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro inesperado ocorreu ao tentar ativar o serviço"));
+            }
+        }, cancellationToken);
     }
 }

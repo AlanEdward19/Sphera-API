@@ -3,6 +3,7 @@ using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.Utils;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.DeactivatePartner;
 
@@ -36,31 +37,34 @@ public class DeactivatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<
         if (partner is null)
             return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
-            
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
 
-            partner.Deactivate(actor);
-            dbContext.Partners.Update(partner);
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                partner.Deactivate(actor);
+                dbContext.Partners.Update(partner);
 
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Um erro ocorreu ao tentar definir o status do parceiro para desativado.", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar definir o status do parceiro para desativado."));
-        }
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Um erro ocorreu ao tentar definir o status do parceiro para desativado.", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar definir o status do parceiro para desativado."));
+            }
+        }, cancellationToken);
     }
 }

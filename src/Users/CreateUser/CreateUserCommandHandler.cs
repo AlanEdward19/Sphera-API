@@ -2,6 +2,7 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Users.DTOs;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Users.CreateUser;
 
@@ -11,25 +12,28 @@ public class CreateUserCommandHandler(SpheraDbContext dbContext, ILogger<CreateU
     {
         logger.LogInformation("Iniciando criação de usuário {Email}", request.Email);
         
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
+        {
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-        try
-        {
-            if(await dbContext.Roles.FindAsync( [request.RoleId], cancellationToken) is null)
-                return ResultDTO<UserDTO>.AsFailure(new FailureDTO(400, "Função não encontrada."));
-            
-            User user = new(request);
-            
-            await dbContext.Users.AddAsync(user, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
-            
-            return ResultDTO<UserDTO>.AsSuccess(user.ToDTO());
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<UserDTO>.AsFailure(new FailureDTO(500, "Erro ao criar usuário."));
-        }
+                if(await dbContext.Roles.FindAsync( [request.RoleId], cancellationToken) is null)
+                    return ResultDTO<UserDTO>.AsFailure(new FailureDTO(400, "Função não encontrada."));
+
+                User user = new(request);
+
+                await dbContext.Users.AddAsync(user, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                return ResultDTO<UserDTO>.AsSuccess(user.ToDTO());
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<UserDTO>.AsFailure(new FailureDTO(500, "Erro ao criar usuário."));
+            }
+        }, cancellationToken);
     }
 }
