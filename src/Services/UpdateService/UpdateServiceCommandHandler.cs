@@ -18,29 +18,32 @@ public class UpdateServiceCommandHandler(SpheraDbContext dbContext, ILogger<Upda
         if (service is null)
             return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(400, "Serviço não encontrado"));
         
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            DateTime? dueDate = request.DefaultDueInDays.HasValue ? DateTime.Today.AddDays(request.DefaultDueInDays.Value) : null;
+                DateTime? dueDate = request.DefaultDueInDays.HasValue ? DateTime.Today.AddDays(request.DefaultDueInDays.Value) : null;
 
-            service.Update(request.Name, dueDate, actor);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                service.Update(request.Name, dueDate, actor);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<ServiceDTO>.AsSuccess(service.ToDTO());
-        }
-        catch (DomainException e)
-        {
-            logger.LogError($"Um erro ocorreu ao tentar atualizar o serviço: '{request.GetId()}'.", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(400, e.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError($"Um erro ocorreu ao tentar atualizar o serviço: '{request.GetId()}'.", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar atualizar o serviço."));
-        }
+                return ResultDTO<ServiceDTO>.AsSuccess(service.ToDTO());
+            }
+            catch (DomainException e)
+            {
+                logger.LogError($"Um erro ocorreu ao tentar atualizar o serviço: '{request.GetId()}'.", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(400, e.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"Um erro ocorreu ao tentar atualizar o serviço: '{request.GetId()}'.", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ServiceDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar atualizar o serviço."));
+            }
+        }, cancellationToken);
     }
 }

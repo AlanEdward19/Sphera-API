@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Http;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Users.ActivateUser;
 
@@ -12,28 +13,31 @@ public class ActivateUserCommandHandler(SpheraDbContext dbContext, ILogger<Activ
     {
         logger.LogInformation("Definindo status do Usuário: '{UserId}' para ativado.", request.Id);
 
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = await dbContext.Users.FindAsync([request.Id], cancellationToken);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            if (user is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado"));
+                var user = await dbContext.Users.FindAsync([request.Id], cancellationToken);
 
-            user.Activate();
-            dbContext.Users.Update(user);
+                if (user is null)
+                    return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado"));
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                user.Activate();
+                dbContext.Users.Update(user);
 
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Um erro ocorreu ao tentar definir o status do usuário para ativo.");
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar definir o status do usuário para ativo."));
-        }
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, "Um erro ocorreu ao tentar definir o status do usuário para ativo.");
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar definir o status do usuário para ativo."));
+            }
+        }, cancellationToken);
     }
 }

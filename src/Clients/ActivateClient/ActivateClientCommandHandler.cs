@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
@@ -40,32 +40,39 @@ public class ActivateClientCommandHandler(SpheraDbContext dbContext, ILogger<Act
         if (client is null)
             return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
 
-        try
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+
+        var result = await strategy.ExecuteAsync(async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
 
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            client.Activate(actor);
-            dbContext.Clients.Update(client);
+                client.Activate(actor);
+                dbContext.Clients.Update(client);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError("Um erro ocorreu ao tentar definir o status do cliente para ativo.", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500,
-                "Um erro ocorreu ao tentar definir o status do cliente para ativo."));
-        }
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError("Um erro ocorreu ao tentar definir o status do cliente para ativo.", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500,
+                    "Um erro ocorreu ao tentar definir o status do cliente para ativo."));
+            }
+        });
+
+        return result;
     }
 }

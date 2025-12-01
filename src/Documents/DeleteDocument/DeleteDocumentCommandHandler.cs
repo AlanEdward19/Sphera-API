@@ -24,26 +24,29 @@ public class DeleteDocumentCommandHandler(
         var fileName =
             $"{document.ClientId}/{document.ServiceId}/{FileNameSanitizerUtils.SanitizeName(request.Id.ToString())}.pdf";
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            dbContext.Documents.Remove(document);
-            await dbContext.SaveChangesAsync(cancellationToken);
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                dbContext.Documents.Remove(document);
+                await dbContext.SaveChangesAsync(cancellationToken);
 
-            await storage.DeleteAsync(fileName, cancellationToken);
-            
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar documento."));
-        }
+                await storage.DeleteAsync(fileName, cancellationToken);
+
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar documento."));
+            }
+        }, cancellationToken);
     }
 }

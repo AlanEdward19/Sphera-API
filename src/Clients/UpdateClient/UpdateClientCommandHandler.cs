@@ -1,10 +1,10 @@
-﻿using Sphera.API.Clients.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.ValueObjects;
-using System.Data.Entity;
 using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Clients.UpdateClient;
@@ -42,36 +42,43 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
         if (client is null)
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, $"Cliente não encontrado"));
 
-        try
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+
+        var result = await strategy.ExecuteAsync(async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
 
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            
-            DateTime? dueDate = request.ContractDateInDays.HasValue ? DateTime.Today.AddDays(request.ContractDateInDays.Value) : client.ContractDate;
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                
+                DateTime? dueDate = request.ContractDateInDays.HasValue ? DateTime.Today.AddDays(request.ContractDateInDays.Value) : client.ContractDate;
 
-            CnpjValueObject cnpj = new(request.Cnpj);
-            AddressValueObject address = request.Address.ToValueObject();
+                CnpjValueObject cnpj = new(request.Cnpj);
+                AddressValueObject address = request.Address.ToValueObject();
 
-            client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration,
-                request.MunicipalRegistration,
-                address, dueDate, request.BillingDueDay, actor);
+                client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration,
+                    request.MunicipalRegistration,
+                    address, dueDate, request.BillingDueDay, actor);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(500, "Erro ao atualizar cliente"));
-        }
+                return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(500, "Erro ao atualizar cliente"));
+            }
+        });
+
+        return result;
     }
 }

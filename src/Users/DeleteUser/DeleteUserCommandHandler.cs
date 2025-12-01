@@ -2,6 +2,7 @@ using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Users.DeleteUser;
 
@@ -10,29 +11,32 @@ public class DeleteUserCommandHandler(SpheraDbContext dbContext, ILogger<DeleteU
     public async Task<IResultDTO<bool>> HandleAsync(DeleteUserCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando exclusão de usuário {UserId}", request.Id);
-        await dbContext.Database.BeginTransactionAsync(cancellationToken);
-
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = await dbContext.Users.FindAsync([request.Id], cancellationToken);
-            if (user is null)
-                return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado"));
+            try
+            {
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            dbContext.Users.Remove(user);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                var user = await dbContext.Users.FindAsync([request.Id], cancellationToken);
+                if (user is null)
+                    return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Usuário não encontrado"));
 
-            return ResultDTO<bool>.AsSuccess(true);
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar usuário."));
-        }
+                dbContext.Users.Remove(user);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                return ResultDTO<bool>.AsSuccess(true);
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao deletar usuário."));
+            }
+        }, cancellationToken);
     }
 }

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
@@ -17,28 +18,31 @@ public class AddContactToUserCommandHandler(SpheraDbContext dbContext, ILogger<A
         if(await dbContext.Users.FindAsync([request.GetUserId()], cancellationToken) is null)
             return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(404, "Usuário não encontrado."));
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
-            
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            var contact = new Contact(request.Type, request.Role, request.Value, actor, userId: request.GetUserId(), phoneType: request.PhoneType);
-            await dbContext.Contacts.AddAsync(contact, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
-            return ResultDTO<ContactDTO>.AsSuccess(contact.ToDTO());
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception e)
-        {
-            logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Parceiro: '{request.GetUserId()}'.", e);
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar adicionar o contato para o Parceiro."));
-        }
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
+                
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                var contact = new Contact(request.Type, request.Role, request.Value, actor, userId: request.GetUserId(), phoneType: request.PhoneType);
+                await dbContext.Contacts.AddAsync(contact, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                return ResultDTO<ContactDTO>.AsSuccess(contact.ToDTO());
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception e)
+            {
+                logger.LogError($"Um erro ocorreu ao tentar adicionar um contato para o Parceiro: '{request.GetUserId()}'.", e);
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ContactDTO>.AsFailure(new FailureDTO(500, "Um erro ocorreu ao tentar adicionar o contato para o Parceiro."));
+            }
+        }, cancellationToken);
     }
 }

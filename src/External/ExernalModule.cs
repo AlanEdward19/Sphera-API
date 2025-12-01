@@ -29,7 +29,13 @@ public static class ExernalModule
     private static IServiceCollection AddData(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddDbContext<SpheraDbContext>(o =>
-            o.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+            o.UseSqlServer(configuration.GetConnectionString("DefaultConnection"), sqlOptions =>
+            {
+                sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null);
+            }));
 
         return services;
     }

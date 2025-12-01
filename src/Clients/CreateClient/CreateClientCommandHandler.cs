@@ -1,4 +1,5 @@
-﻿using Sphera.API.Clients.DTOs;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.Clients.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
@@ -39,31 +40,38 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
         if (await dbContext.Partners.FindAsync([request.PartnerId], cancellationToken) is null)
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "Parceiro não encontrado."));
 
-        try
+        var strategy = dbContext.Database.CreateExecutionStrategy();
+
+        var result = await strategy.ExecuteAsync(async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
 
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-            Client client = new(request, actor);
+                Client client = new(request, actor);
 
-            await dbContext.AddAsync(client, cancellationToken);
+                await dbContext.AddAsync(client, cancellationToken);
 
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-            return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(500, "Erro ao criar cliente."));
-        }
+                return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(500, "Erro ao criar cliente."));
+            }
+        });
+        
+        return result;
     }
 }

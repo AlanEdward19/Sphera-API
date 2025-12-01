@@ -20,33 +20,36 @@ public class UpdateDocumentCommandHandler(SpheraDbContext dbContext,
         if (document is null)
             return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(404, "Documento não encontrado"));
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
-            
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            
-            document.ChangeClient(request.ClientId, actor);
-            document.ChangeService(request.ServiceId, actor);
-            document.ChangeResponsible(request.ResponsibleId, actor);
-            document.UpdateDates(request.IssueDate, request.DueDate, actor);
-            document.AddNotes(request.Notes, actor);
-            
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
-            
-            return ResultDTO<DocumentDTO>.AsSuccess(document.ToDTO());
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(500, "Erro ao atualizar o documento."));
-        }
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
+
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
+
+                document.ChangeClient(request.ClientId, actor);
+                document.ChangeService(request.ServiceId, actor);
+                document.ChangeResponsible(request.ResponsibleId, actor);
+                document.UpdateDates(request.IssueDate, request.DueDate, actor);
+                document.AddNotes(request.Notes, actor);
+
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+
+                return ResultDTO<DocumentDTO>.AsSuccess(document.ToDTO());
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(500, "Erro ao atualizar o documento."));
+            }
+        }, cancellationToken);
     }
 }

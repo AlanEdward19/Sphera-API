@@ -23,29 +23,32 @@ public class CreateDocumentCommandHandler(SpheraDbContext dbContext, ILogger<Cre
         if(await dbContext.Users.FindAsync([request.ResponsibleId], cancellationToken) is null)
             return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(400, "Usuário não encontrado."));
 
-        try
+        return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
-            var user = context.User;
-            var actor = user.GetUserId();
+            try
+            {
+                var user = context.User;
+                var actor = user.GetUserId();
 
-            await dbContext.Database.BeginTransactionAsync(cancellationToken);
-            
-            Document document = new(request, actor);
-            await dbContext.AddAsync(document, cancellationToken);
-            await dbContext.SaveChangesAsync(cancellationToken);
-            await dbContext.Database.CommitTransactionAsync(cancellationToken);
-            return ResultDTO<DocumentDTO>.AsSuccess(document.ToDTO());
+                await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-        }
-        catch (DomainException ex)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(400, ex.Message));
-        }
-        catch (Exception)
-        {
-            await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-            return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(500, "Erro ao criar documento."));
-        }
+                Document document = new(request, actor);
+                await dbContext.AddAsync(document, cancellationToken);
+                await dbContext.SaveChangesAsync(cancellationToken);
+                await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                return ResultDTO<DocumentDTO>.AsSuccess(document.ToDTO());
+
+            }
+            catch (DomainException ex)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(400, ex.Message));
+            }
+            catch (Exception)
+            {
+                await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                return ResultDTO<DocumentDTO>.AsFailure(new FailureDTO(500, "Erro ao criar documento."));
+            }
+        }, cancellationToken);
     }
 }
