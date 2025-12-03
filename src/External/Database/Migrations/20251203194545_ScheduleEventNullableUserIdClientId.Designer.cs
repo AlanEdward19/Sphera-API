@@ -12,7 +12,7 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20251203152240_ScheduleEventNullableUserIdClientId")]
+    [Migration("20251203194545_ScheduleEventNullableUserIdClientId")]
     partial class ScheduleEventNullableUserIdClientId
     {
         /// <inheritdoc />
@@ -376,7 +376,7 @@ namespace Sphera.API.External.Database.Migrations
                         .HasColumnType("uniqueidentifier")
                         .HasDefaultValueSql("NEWID()");
 
-                    b.Property<Guid>("ClientId")
+                    b.Property<Guid?>("ClientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -404,7 +404,7 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid?>("UpdatedBy")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("UserId")
+                    b.Property<Guid?>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
@@ -720,14 +720,12 @@ namespace Sphera.API.External.Database.Migrations
                         .WithMany()
                         .HasForeignKey("ClientId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("FK_ScheduleEvents_Client");
 
                     b.HasOne("Sphera.API.Users.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired()
                         .HasConstraintName("FK_ScheduleEvents_User");
 
                     b.Navigation("Client");

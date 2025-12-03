@@ -48,7 +48,8 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
                 a.EntityType,
                 a.EntityId,
                 a.RequestIp,
-                a.Actor.Email.Address
+                a.Actor.Email.Address,
+                a.Actor.Name
             ))
             .ToListAsync(cancellationToken);
 

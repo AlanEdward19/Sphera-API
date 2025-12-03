@@ -10,8 +10,9 @@ public class AuditoryDTO
     public Guid? EntityId { get; private set; }
     public string RequestIp { get; private set; }
     public string ActorEmail { get; private set; }
+    public string ActorName { get; private set; }
     
-    public AuditoryDTO(long id, DateTime occurredAt, Guid actorId, string action, string entityType, Guid? entityId, string requestIp,  string actorEmail)
+    public AuditoryDTO(long id, DateTime occurredAt, Guid actorId, string action, string entityType, Guid? entityId, string requestIp,  string actorEmail, string actorName)
     {
         Id = id;
         OccurredAt = occurredAt;
@@ -21,5 +22,6 @@ public class AuditoryDTO
         EntityId = entityId;
         RequestIp = requestIp;
         ActorEmail = actorEmail;
+        ActorName = actorName;
     }
 }

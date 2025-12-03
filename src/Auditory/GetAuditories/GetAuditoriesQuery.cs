@@ -6,7 +6,7 @@ public class GetAuditoriesQuery
     public DateTime? OccurredAtStart { get; set; }
     public DateTime? OccurredAtEnd { get; set; }
     public Guid? ActorId { get; set; }
-    public string Action { get; set; }
-    public string EntityType { get; set; }
+    public string? Action { get; set; }
+    public string? EntityType { get; set; }
     public Guid? EntityId { get; set; }
 }

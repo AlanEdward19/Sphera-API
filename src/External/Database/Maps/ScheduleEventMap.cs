@@ -21,12 +21,10 @@ public class ScheduleEventMap : IEntityTypeConfiguration<ScheduleEvent>
             .IsRequired();
 
         b.Property(x => x.UserId)
-            .HasColumnType("uniqueidentifier")
-            .IsRequired();
+            .HasColumnType("uniqueidentifier");
 
         b.Property(x => x.ClientId)
-            .HasColumnType("uniqueidentifier")
-            .IsRequired();
+            .HasColumnType("uniqueidentifier");
 
         b.Property(x => x.Notes)
             .HasMaxLength(500);
@@ -59,12 +57,14 @@ public class ScheduleEventMap : IEntityTypeConfiguration<ScheduleEvent>
             .WithMany()
             .HasForeignKey(x => x.UserId)
             .HasConstraintName("FK_ScheduleEvents_User")
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
 
         b.HasOne(x => x.Client)
             .WithMany()
             .HasForeignKey(x => x.ClientId)
             .HasConstraintName("FK_ScheduleEvents_Client")
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict)
+            .IsRequired(false);
     }
 }
