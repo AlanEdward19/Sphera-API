@@ -13,14 +13,14 @@ public class ScheduleEventDTO
     public DateTime OccurredAt { get; private set; }
 
     /// <summary>
-    /// Gets the unique identifier for the user.
+    /// Gets the unique identifier for the user, when available.
     /// </summary>
-    public Guid UserId { get; private set; }
+    public Guid? UserId { get; private set; }
 
     /// <summary>
-    /// Gets the unique identifier for the client.
+    /// Gets the unique identifier for the client, when available.
     /// </summary>
-    public Guid ClientId { get; private set; }
+    public Guid? ClientId { get; private set; }
 
     /// <summary>
     /// Gets any additional notes or comments related to the event.
@@ -52,14 +52,14 @@ public class ScheduleEventDTO
     /// </summary>
     /// <param name="id">The unique identifier for the schedule event.</param>
     /// <param name="occurredAt">The date and time when the event occurred.</param>
-    /// <param name="userId">The unique identifier of the user associated with the event.</param>
-    /// <param name="clientId">The unique identifier of the client associated with the event.</param>
+    /// <param name="userId">The unique identifier of the user associated with the event, if any.</param>
+    /// <param name="clientId">The unique identifier of the client associated with the event, if any.</param>
     /// <param name="notes">Optional notes or comments related to the event. Can be null.</param>
     /// <param name="createdAt">The date and time when the event record was created.</param>
     /// <param name="createdBy">The unique identifier of the user who created the event record.</param>
     /// <param name="updatedAt">The date and time when the event record was last updated, or null if it has not been updated.</param>
     /// <param name="updatedBy">The unique identifier of the user who last updated the event record, or null if it has not been updated.</param>
-    public ScheduleEventDTO(Guid id, DateTime occurredAt, Guid userId, Guid clientId, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy)
+    public ScheduleEventDTO(Guid id, DateTime occurredAt, Guid? userId, Guid? clientId, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy)
     {
         Id = id;
         OccurredAt = occurredAt;

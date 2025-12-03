@@ -19,16 +19,14 @@ public class UpdateScheduleEventCommand
     public DateTime OccurredAt { get; set; }
 
     /// <summary>
-    /// Gets or sets the unique identifier for the user.
+    /// Gets or sets the unique identifier for the user (optional).
     /// </summary>
-    [Required]
-    public Guid UserId { get; set; }
+    public Guid? UserId { get; set; }
 
     /// <summary>
-    /// Gets or sets the unique identifier for the client.
+    /// Gets or sets the unique identifier for the client (optional).
     /// </summary>
-    [Required]
-    public Guid ClientId { get; set; }
+    public Guid? ClientId { get; set; }
 
     /// <summary>
     /// Gets or sets optional notes or comments associated with the entity.

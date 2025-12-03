@@ -1,5 +1,6 @@
 ﻿using Sphera.API.Schedules.CreateScheduleEvent;
 using Sphera.API.Schedules.DeleteScheduleEvent;
+using Sphera.API.Schedules.GetScheduleEvents;
 using Sphera.API.Schedules.GetUserScheduleEvents;
 using Sphera.API.Schedules.UpdateScheduleEvent;
 using Sphera.API.Shared.Interfaces;
@@ -42,6 +43,7 @@ public static class ScheduleModule
         services.AddScoped<IHandler<UpdateScheduleEventCommand, ScheduleEventDTO>, UpdateScheduleEventCommandHandler>();
         services.AddScoped<IHandler<DeleteScheduleEventCommand, bool>, DeleteScheduleEventCommandHandler>();
         services.AddScoped<IHandler<GetUserScheduleEventsQuery, IEnumerable<ScheduleEventDTO>>, GetUserScheduleEventsQueryHandler>();
+        services.AddScoped<IHandler<GetScheduleEventsQuery, IEnumerable<ScheduleEventDTO>>, GetScheduleEventsQueryHandler>();
 
         return services;
     }
