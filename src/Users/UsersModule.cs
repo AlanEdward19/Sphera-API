@@ -9,6 +9,7 @@ using Sphera.API.Users.CheckFirstAccess;
 using Sphera.API.Users.DeactivateUser;
 using Sphera.API.Users.DeleteUser;
 using Sphera.API.Users.FirstAccessPassword;
+using Sphera.API.Users.GetUserById;
 
 namespace Sphera.API.Users;
 
@@ -21,7 +22,7 @@ public static class UsersModule
 
         return services;
     }
-    
+
     private static IServiceCollection ConfigureHandlers(this IServiceCollection services)
     {
         services.AddScoped<IHandler<CreateUserCommand, UserDTO>, CreateUserCommandHandler>();
@@ -33,6 +34,7 @@ public static class UsersModule
         services.AddScoped<IHandler<ChangePasswordCommand, bool>, ChangePasswordCommandHandler>();
         services.AddScoped<IHandler<FirstAccessPasswordCommand, bool>, FirstAccessPasswordCommandHandler>();
         services.AddScoped<IHandler<CheckFirstAccessQuery, FirstAccessUserDTO>, CheckFirstAccessQueryHandler>();
+        services.AddScoped<IHandler<GetUserByIdQuery, UserDTO>, GetUserByIdQueryHandler>();
 
         return services;
     }

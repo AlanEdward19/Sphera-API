@@ -12,6 +12,7 @@ using Sphera.API.Users.CheckFirstAccess;
 using Sphera.API.Users.DeactivateUser;
 using Sphera.API.Users.DeleteUser;
 using Sphera.API.Users.FirstAccessPassword;
+using Sphera.API.Users.GetUserById;
 
 namespace Sphera.API.Users
 {
@@ -26,6 +27,17 @@ namespace Sphera.API.Users
         {
             var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
 
+            return response.IsSuccess
+                ? Ok(response.Success)
+                : BadRequest(response.Failure);
+        }
+        
+        [HttpGet("{id:guid}", Name = "GetUserById")]
+        public async Task<IActionResult> GetUserById([FromServices] IHandler<GetUserByIdQuery, UserDTO> handler, Guid id, CancellationToken cancellationToken)
+        {
+            var query = new GetUserByIdQuery(id);
+            
+            var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
             return response.IsSuccess
                 ? Ok(response.Success)
                 : BadRequest(response.Failure);

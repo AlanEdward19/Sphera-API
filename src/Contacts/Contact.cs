@@ -141,7 +141,7 @@ public class Contact
         if (type == null) throw new DomainException("Type é obrigatório");
         if (role == null) throw new DomainException("Role é obrigatório");
         if (string.IsNullOrWhiteSpace(@value)) throw new DomainException("Value é obrigatório");
-        if (partnerId is null && clientId is null)
+        if (partnerId is null && clientId is null && userId is null)
             throw new DomainException("O contato deve pertencer a um parceiro ou cliente.");
 
         @value = @value.Trim();

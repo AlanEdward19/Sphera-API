@@ -33,8 +33,6 @@ public class GetDocumentByIdQueryHandler(SpheraDbContext dbContext,
             $"{document.ClientId}/{document.ServiceId}/{FileNameSanitizerUtils.SanitizeName(request.Id.ToString())}.pdf";
         
         var metadata = await storage.GetBlobClientWithSasAsync(fileName, null, cancellationToken);
-
-        
         
         if (metadata is null)
             return ResultDTO<DocumentWithMetadataDTO>.AsSuccess(document.ToDTO(null));

@@ -13,47 +13,39 @@ namespace Sphera.API.Users;
 
 public class User
 {
-    [Key] 
-    public Guid Id { get; private set; }
+    [Key] public Guid Id { get; private set; }
 
-    [Required] 
-    public short RoleId { get; private set; }
+    [Required] public short RoleId { get; private set; }
 
     [Required]
     [MinLength(1)]
     [MaxLength(100)]
     public string Name { get; private set; }
 
-    [Required]
-    public EmailValueObject Email { get; private set; }
+    [Required] public EmailValueObject Email { get; private set; }
 
-    [Required]
-    public PasswordValueObject Password { get; private set; }
+    [Required] public PasswordValueObject Password { get; private set; }
 
-    [Required]
-    public bool Active { get; private set; }
-    
-    [Required]
-    public bool IsFirstAccess { get; private set; }
+    [Required] public bool Active { get; private set; }
 
-    [Required] 
-    public DateTime CreatedAt { get; private set; }
-    
+    [Required] public bool IsFirstAccess { get; private set; }
+
+    [Required] public DateTime CreatedAt { get; private set; }
+
     public DateTime? UpdatedAt { get; private set; }
 
-    [ForeignKey(nameof(RoleId))] 
-    public virtual Role Role { get; private set; }
-    
+    [ForeignKey(nameof(RoleId))] public virtual Role Role { get; private set; }
+
     /// <summary>
     /// Gets the collection of contacts associated with this entity.
     /// </summary>
     public virtual ICollection<Contact> Contacts { get; private set; } = new List<Contact>();
-    
+
     /// <summary>
     /// Gets the collection of documents for which this user is the responsible party.
     /// </summary>
     public virtual ICollection<Document> Documents { get; private set; } = new List<Document>();
-    
+
     /// <summary>
     /// Gets the collection of audit entries associated with this user as the actor.
     /// </summary>
@@ -74,25 +66,27 @@ public class User
         IsFirstAccess = true;
         CreatedAt = DateTime.UtcNow;
     }
-    
-    public User(CreateUserCommand command){
+
+    public User(CreateUserCommand command)
     {
-        Id = Guid.NewGuid();
-        RoleId = command.RoleId;
-        Name = command.Name;
-        Email = new EmailValueObject(command.Email);
-        Password = new PasswordValueObject(PasswordGenerator.Generate());
-        Active = true;
-        IsFirstAccess = true;
-        CreatedAt = DateTime.UtcNow;
-    }}
+        {
+            Id = Guid.NewGuid();
+            RoleId = command.RoleId;
+            Name = command.Name;
+            Email = new EmailValueObject(command.Email);
+            Password = new PasswordValueObject(PasswordGenerator.Generate());
+            Active = true;
+            IsFirstAccess = true;
+            CreatedAt = DateTime.UtcNow;
+        }
+    }
 
     public void UpdateName(string name)
     {
         Name = name;
         UpdatedAt = DateTime.UtcNow;
     }
-    
+
     public void PasswordHash(string hashedPassword)
     {
         Password = new PasswordValueObject(hashedPassword, true);
@@ -104,6 +98,7 @@ public class User
         IsFirstAccess = false;
         UpdatedAt = DateTime.UtcNow;
     }
+
     public void UpdateRole(short roleId)
     {
         RoleId = roleId;
@@ -130,10 +125,11 @@ public class User
             Name,
             Email.Address,
             IsFirstAccess,
-            Active
+            Active,
+            Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly()
         );
     }
-    
+
     public bool CheckFirstAccess()
     {
         return IsFirstAccess;
