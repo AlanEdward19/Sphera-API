@@ -1,3 +1,6 @@
+using System.Collections.ObjectModel;
+using Sphera.API.Contacts;
+
 namespace Sphera.API.Users.DTOs;
 
 public class UserDTO
@@ -8,8 +11,9 @@ public class UserDTO
     public string Email { get; private set; }
     public bool IsFirstAccess { get; private set; }
     public bool Active { get; private set; }
+    public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
 
-    public UserDTO(Guid id, short roleId, string name, string email, bool isFirstAccess, bool isActive)
+    public UserDTO(Guid id, short roleId, string name, string email, bool isFirstAccess, bool isActive, ReadOnlyCollection<ContactDTO> contacts)
     {
         Id = id;
         RoleId = roleId;
@@ -17,5 +21,6 @@ public class UserDTO
         Email = email;
         IsFirstAccess = isFirstAccess;
         Active = isActive;
+        Contacts = contacts;
     }
 }

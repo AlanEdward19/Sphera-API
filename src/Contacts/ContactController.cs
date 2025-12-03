@@ -7,6 +7,7 @@ using Sphera.API.Contacts.AddContactToUser;
 using Sphera.API.Contacts.EditContact;
 using Sphera.API.Contacts.RemoveContactFromClient;
 using Sphera.API.Contacts.RemoveContactFromPartner;
+using Sphera.API.Contacts.RemoveContactFromUser;
 using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Contacts;
@@ -73,10 +74,10 @@ public class ContactController : ControllerBase
     }
     
     [HttpDelete("/api/v1/Users/{userId:guid}/Contacts/{contactId:guid}", Name = "RemoveContactFromUser")]
-    public async Task<IActionResult> RemoveContactFromUser([FromServices] IHandler<RemoveContactFromPartnerCommand, bool> handler,
+    public async Task<IActionResult> RemoveContactFromUser([FromServices] IHandler<RemoveContactFromUserCommand, bool> handler,
         Guid userId, Guid contactId, CancellationToken cancellationToken)
     {
-        var command = new RemoveContactFromPartnerCommand(userId, contactId);
+        var command = new RemoveContactFromUserCommand(userId, contactId);
         var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess
             ? Ok(response.Success)

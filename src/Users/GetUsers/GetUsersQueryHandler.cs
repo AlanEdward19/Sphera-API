@@ -12,11 +12,11 @@ public class GetUsersQueryHandler(SpheraDbContext dbContext, ILogger<GetUsersQue
     {
         logger.LogInformation("Iniciando busca de usuários. Parâmetros: Email={Email}, IsActive={IsActive}, RoleId={RoleId}, Page={Page}, PageSize={PageSize}",
             request.Email, request.IsActive, request.RoleId, request.Page, request.PageSize);
-        
-        IQueryable<User> query = dbContext.
-            Users
+
+        IQueryable<User> query = dbContext.Users
             .AsNoTracking()
-            .Include(u => u.Role);
+            .Include(u => u.Role)
+            .Include(c => c.Contacts);
         
         if(!string.IsNullOrWhiteSpace(request.Email))
             query = query.Where(u => u.Email.Address == request.Email);
