@@ -38,7 +38,7 @@ public class AddContactToPartnerCommandHandler(SpheraDbContext dbContext, ILogge
                 
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-                Contact contact = new Contact(request.Type, request.Role, request.Value, actor, request.GetPartnerId(), phoneType: request.PhoneType);
+                Contact contact = new (request.Type, request.Role, request.Value, actor, request.GetPartnerId(), phoneType: request.PhoneType);
 
                 await dbContext.Contacts.AddAsync(contact, cancellationToken);
 

@@ -21,16 +21,14 @@ public class ScheduleEvent
     public DateTime OccurredAt { get; private set; }
 
     /// <summary>
-    /// Gets the unique identifier for the user.
+    /// Gets the unique identifier for the user. Optional.
     /// </summary>
-    [Required]
-    public Guid UserId { get; private set; }
+    public Guid? UserId { get; private set; }
 
     /// <summary>
-    /// Gets the unique identifier for the client.
+    /// Gets the unique identifier for the client. Optional.
     /// </summary>
-    [Required]
-    public Guid ClientId { get; private set; }
+    public Guid? ClientId { get; private set; }
 
     /// <summary>
     /// Gets the optional notes or comments associated with this instance.
@@ -71,13 +69,13 @@ public class ScheduleEvent
     /// Gets the user associated with this entity.
     /// </summary>
     [ForeignKey(nameof(UserId))]
-    public virtual User User { get; private set; }
+    public virtual User? User { get; private set; }
 
     /// <summary>
     /// Gets the client associated with this entity.
     /// </summary>
     [ForeignKey(nameof(ClientId))]
-    public virtual Client Client { get; private set; }
+    public virtual Client? Client { get; private set; }
 
     /// <summary>
     /// Initializes a new instance of the ScheduleEvent class.
@@ -97,16 +95,13 @@ public class ScheduleEvent
     /// <param name="clientId">The unique identifier of the client associated with the event. Cannot be null or empty.</param>
     /// <param name="createdBy">The unique identifier of the user who created the event.</param>
     /// <param name="notes">Optional notes or comments related to the event. If null or whitespace, the value is ignored.</param>
-    /// <exception cref="DomainException">Thrown if userId or clientId is null or an empty GUID.</exception>
+    /// <remarks>Both <paramref name="userId"/> and <paramref name="clientId"/> are optional.</remarks>
     public ScheduleEvent(DateTime occurredAt, Guid? userId, Guid? clientId, Guid createdBy, string? notes = null)
     {
-        if (userId is null || userId == Guid.Empty) throw new DomainException("UserId obrigatório.");
-        if (clientId is null || clientId == Guid.Empty) throw new DomainException("ClientId obrigatório.");
-
         Id = Guid.NewGuid();
         OccurredAt = occurredAt;
-        UserId = userId.Value;
-        ClientId = clientId.Value;
+        UserId = userId is null || userId == Guid.Empty ? null : userId;
+        ClientId = clientId is null || clientId == Guid.Empty ? null : clientId;
         Notes = string.IsNullOrWhiteSpace(notes) ? null : notes;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
@@ -120,15 +115,11 @@ public class ScheduleEvent
     /// <param name="clientId">The unique identifier of the client associated with the event. Cannot be null or empty.</param>
     /// <param name="notes">Optional notes or comments related to the event. If null or whitespace, notes will be cleared.</param>
     /// <param name="actor">The unique identifier of the user performing the update.</param>
-    /// <exception cref="DomainException">Thrown if <paramref name="userId"/> or <paramref name="clientId"/> is null or empty.</exception>
     public void Update(DateTime occurredAt, Guid? userId, Guid? clientId, string? notes, Guid actor)
     {
-        if (userId is null || userId == Guid.Empty) throw new DomainException("UserId inválido.");
-        if (clientId is null || clientId == Guid.Empty) throw new DomainException("ClientId inválido.");
-
         OccurredAt = occurredAt;
-        UserId = userId.Value;
-        ClientId = clientId.Value;
+        UserId = userId is null || userId == Guid.Empty ? null : userId;
+        ClientId = clientId is null || clientId == Guid.Empty ? null : clientId;
         Notes = string.IsNullOrWhiteSpace(notes) ? null : notes;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;

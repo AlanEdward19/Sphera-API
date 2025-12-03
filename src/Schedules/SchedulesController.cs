@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Schedules.CreateScheduleEvent;
 using Sphera.API.Schedules.DeleteScheduleEvent;
+using Sphera.API.Schedules.GetScheduleEvents;
 using Sphera.API.Schedules.GetUserScheduleEvents;
 using Sphera.API.Schedules.UpdateScheduleEvent;
 using Sphera.API.Shared.Interfaces;
@@ -30,6 +31,17 @@ public class SchedulesController : ControllerBase
         Guid userId, [FromQuery] GetUserScheduleEventsQuery query, CancellationToken cancellationToken)
     {
         query.SetUserId(userId);
+        var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
+
+        return response.IsSuccess
+            ? Ok(response.Success)
+            : BadRequest(response.Failure);
+    }
+    
+    [HttpGet(Name = "GetScheduleEvents")]
+    public async Task<IActionResult> GetEvents([FromServices] IHandler<GetScheduleEventsQuery, IEnumerable<ScheduleEventDTO>> handler,
+        [FromQuery] GetScheduleEventsQuery query, CancellationToken cancellationToken)
+    {
         var response = await handler.HandleAsync(query, HttpContext, cancellationToken);
 
         return response.IsSuccess
