@@ -47,4 +47,10 @@ public class SpheraStorage : IStorage
         var blobClient = _containerClient.GetBlobClient(fileName);
         await blobClient.DeleteIfExistsAsync(cancellationToken: cancellationToken);
     }
+
+    public async Task<Stream> DownloadAsync(string fileName, CancellationToken cancellationToken = default)
+    {
+        var blobClient = _containerClient.GetBlobClient(fileName);
+        return await blobClient.OpenReadAsync(cancellationToken: cancellationToken);
+    }
 }
