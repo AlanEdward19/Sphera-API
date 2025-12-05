@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using Sphera.API.Documents.CreateDocument;
 using Sphera.API.Documents.DeleteDocument;
+using Sphera.API.Documents.DownloadDocument;
 using Sphera.API.Documents.DTOs;
 using Sphera.API.Documents.GetDocumentById;
 using Sphera.API.Documents.GetDocuments;
@@ -87,6 +88,21 @@ public class DocumentsController : ControllerBase
 
         return response.IsSuccess
             ? Created(HttpContext.Request.GetDisplayUrl(), response.Success)
+            : BadRequest(response.Failure);
+    }
+    
+    [HttpGet("{id:guid}/download", Name = "DownloadDocument")]
+    public async Task<IActionResult> DownloadDocument([FromServices] IHandler<DownloadDocumentCommand, (Stream, string)> handler,
+        Guid id, CancellationToken cancellationToken)
+    {
+        DownloadDocumentCommand command = new();
+
+        command.SetId(id);
+
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+
+        return response.IsSuccess
+            ? File(response.Success.Item1, "application/pdf", response.Success.Item2)
             : BadRequest(response.Failure);
     }
 }
