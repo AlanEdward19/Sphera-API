@@ -59,8 +59,8 @@ public class AddInvoiceAdditionalValueCommandHandler(
                 var dto = new InvoiceDTO(
                     invoice.Id,
                     invoice.ClientId,
-                    invoice.PeriodStart,
-                    invoice.PeriodEnd,
+                    invoice.IssueDate,
+                    invoice.DueDate,
                     invoice.TotalAmount,
                     invoice.Status.ToString(),
                     invoice.Items.Select(i => new InvoiceItemDTO(

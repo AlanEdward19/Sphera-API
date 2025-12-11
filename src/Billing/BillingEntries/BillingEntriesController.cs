@@ -33,10 +33,7 @@ public class BillingEntriesController : ControllerBase
         var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
-            ? CreatedAtAction(
-                nameof(GetById),
-                new { id = response.Success!.Id },
-                response.Success)
+            ? Created($"/api/v1/billing/billingEntries/{response.Success.Id}", response.Success)
             : StatusCode(response.Failure.Code, response.Failure);
     }
 

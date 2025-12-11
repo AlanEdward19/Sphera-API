@@ -26,25 +26,25 @@ public class ListInvoicesQueryHandler(
             query = query.Where(i => i.ClientId == request.ClientId.Value);
 
         if (request.PeriodStart.HasValue)
-            query = query.Where(i => i.PeriodEnd >= request.PeriodStart.Value.Date);
+            query = query.Where(i => i.DueDate >= request.PeriodStart.Value.Date);
 
         if (request.PeriodEnd.HasValue)
-            query = query.Where(i => i.PeriodStart <= request.PeriodEnd.Value.Date);
+            query = query.Where(i => i.IssueDate <= request.PeriodEnd.Value.Date);
 
         if (request.Status.HasValue)
             query = query.Where(i => i.Status == request.Status.Value);
 
         var invoices = await query
             .OrderBy(i => i.ClientId)
-            .ThenBy(i => i.PeriodStart)
+            .ThenBy(i => i.IssueDate)
             .ToListAsync(cancellationToken);
 
         var dtos = invoices
             .Select(inv => new InvoiceDTO(
                 inv.Id,
                 inv.ClientId,
-                inv.PeriodStart,
-                inv.PeriodEnd,
+                inv.IssueDate,
+                inv.DueDate,
                 inv.TotalAmount,
                 inv.Status.ToString(),
                 inv.Items.Select(i => new InvoiceItemDTO(

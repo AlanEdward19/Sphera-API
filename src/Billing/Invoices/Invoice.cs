@@ -15,10 +15,10 @@ public class Invoice
     public Guid ClientId { get; private set; }
 
     [Required]
-    public DateTime PeriodStart { get; private set; }
+    public DateTime IssueDate { get; private set; }
 
     [Required]
-    public DateTime PeriodEnd { get; private set; }
+    public DateTime DueDate { get; private set; }
 
     [Required]
     [Column(TypeName = "decimal(18,2)")]
@@ -48,8 +48,8 @@ public class Invoice
 
         Id = Guid.NewGuid();
         ClientId = clientId;
-        PeriodStart = periodStart.Date;
-        PeriodEnd = periodEnd.Date;
+        IssueDate = periodStart.Date;
+        DueDate = periodEnd.Date;
         Status = EInvoiceStatus.Draft;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;

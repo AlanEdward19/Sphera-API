@@ -100,8 +100,8 @@ public class CloseInvoicesForPeriodCommandHandler(
                     .Select(inv => new InvoiceDTO(
                         inv.Id,
                         inv.ClientId,
-                        inv.PeriodStart,
-                        inv.PeriodEnd,
+                        inv.IssueDate,
+                        inv.DueDate,
                         inv.TotalAmount,
                         inv.Status.ToString(),
                         inv.Items.Select(i => new InvoiceItemDTO(

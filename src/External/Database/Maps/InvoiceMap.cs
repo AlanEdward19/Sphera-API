@@ -19,11 +19,11 @@ public class InvoiceMap : IEntityTypeConfiguration<Invoice>
             .HasColumnType("uniqueidentifier")
             .IsRequired();
 
-        b.Property(x => x.PeriodStart)
+        b.Property(x => x.IssueDate)
             .HasColumnType("date")
             .IsRequired();
 
-        b.Property(x => x.PeriodEnd)
+        b.Property(x => x.DueDate)
             .HasColumnType("date")
             .IsRequired();
 
@@ -52,7 +52,7 @@ public class InvoiceMap : IEntityTypeConfiguration<Invoice>
         b.HasIndex(x => x.ClientId)
             .HasDatabaseName("IX_Invoices_ClientId");
 
-        b.HasIndex(x => new { x.PeriodStart, x.PeriodEnd })
+        b.HasIndex(x => new { PeriodStart = x.IssueDate, PeriodEnd = x.DueDate })
             .HasDatabaseName("IX_Invoices_Period");
 
         b.HasOne(x => x.Client)

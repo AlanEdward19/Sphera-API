@@ -100,10 +100,7 @@ public class InvoicesController : ControllerBase
         var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess
-            ? CreatedAtAction(
-                nameof(GetById),
-                new { id = response.Success!.Id },
-                response.Success)
+            ? Created($"/api/billing/invoices/{response.Success.Id}", response.Success)
             : StatusCode(response.Failure.Code, response.Failure);
     }
 }
