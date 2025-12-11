@@ -38,6 +38,7 @@ public class Invoice
 
     public virtual Client Client { get; private set; }
     public virtual ICollection<InvoiceItem> Items { get; private set; } = new List<InvoiceItem>();
+    public virtual ICollection<InvoiceInstallment> Installments { get; private set; } = new List<InvoiceInstallment>();
 
     private Invoice() { }
 
@@ -79,5 +80,27 @@ public class Invoice
     private void RecalculateTotal()
     {
         TotalAmount = Items.Sum(i => i.TotalAmount);
+    }
+    
+    private void GenerateInstallments(int parcels, DateTime firstDueDate)
+    {
+        if (Status != EInvoiceStatus.Closed)
+            throw new DomainException("A fatura deve estar fechada antes de gerar parcelas.");
+
+        if (parcels <= 0)
+            throw new DomainException("Número de parcelas inválido.");
+
+        Installments.Clear();
+
+        decimal amountPerParcel = Math.Round(TotalAmount / parcels, 2);
+        DateTime dueDate = firstDueDate;
+
+        for (int i = 1; i <= parcels; i++)
+        {
+            var installment = new InvoiceInstallment(Id, i, amountPerParcel, dueDate);
+            Installments.Add(installment);
+
+            dueDate = dueDate.AddMonths(1);
+        }
     }
 }
