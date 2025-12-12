@@ -30,6 +30,7 @@ public class GetInvoiceByIdQueryHandler(
         var dto = new InvoiceDTO(
             invoice.Id,
             invoice.ClientId,
+            invoice.Name,
             invoice.IssueDate,
             invoice.DueDate,
             invoice.TotalAmount,

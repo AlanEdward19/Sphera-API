@@ -43,6 +43,7 @@ public class ListInvoicesQueryHandler(
             .Select(inv => new InvoiceDTO(
                 inv.Id,
                 inv.ClientId,
+                inv.Name,
                 inv.IssueDate,
                 inv.DueDate,
                 inv.TotalAmount,

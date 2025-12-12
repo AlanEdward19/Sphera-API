@@ -20,6 +20,9 @@ public class Invoice
     [Required]
     public DateTime DueDate { get; private set; }
 
+    [MaxLength(200)]
+    public string? Name { get; private set; }
+
     [Required]
     [Column(TypeName = "decimal(18,2)")]
     public decimal TotalAmount { get; private set; }
@@ -53,6 +56,17 @@ public class Invoice
         Status = EInvoiceStatus.Draft;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
+    }
+
+    public void SetName(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            Name = null;
+            return;
+        }
+
+        Name = name.Trim();
     }
 
     public void AddItem(Guid serviceId, string description, decimal quantity, decimal unitPrice)
@@ -102,5 +116,28 @@ public class Invoice
 
             dueDate = dueDate.AddMonths(1);
         }
+    }
+
+    public void SetInstallments(IEnumerable<(int Number, decimal Amount, DateTime DueDate)> installments)
+    {
+        if (installments is null) throw new DomainException("Parcelas não podem ser nulas.");
+
+        var list = installments.ToList();
+        if (!list.Any()) throw new DomainException("É necessário informar ao menos uma parcela.");
+
+        Installments.Clear();
+
+        foreach (var inst in list)
+        {
+            if (inst.Number <= 0) throw new DomainException("Número da parcela inválido.");
+            if (inst.Amount <= 0) throw new DomainException("Valor da parcela inválido.");
+
+            var entity = new InvoiceInstallment(Id, inst.Number, inst.Amount, inst.DueDate.Date);
+            Installments.Add(entity);
+        }
+
+        var lastDue = Installments.Max(i => i.DueDate);
+        if (DueDate.Date != lastDue.Date)
+            throw new DomainException("Data de vencimento da fatura deve ser igual à data da última parcela.");
     }
 }

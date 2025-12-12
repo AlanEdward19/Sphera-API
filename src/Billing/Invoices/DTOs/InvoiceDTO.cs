@@ -3,8 +3,9 @@
 public record InvoiceDTO(
     Guid Id,
     Guid ClientId,
-    DateTime PeriodStart,
-    DateTime PeriodEnd,
+    string Name,
+    DateTime IssueDate,
+    DateTime DueDate,
     decimal TotalAmount,
     string Status,
     IReadOnlyCollection<InvoiceItemDTO> Items

@@ -12,10 +12,39 @@ public class CloseInvoicesForPeriodCommand
     public DateTime PeriodEnd { get; set; }
 
     /// <summary>
-    /// Se informado, fecha só de um cliente. Se null, todos.
+    /// Cliente obrigatório para fechamento.
     /// </summary>
-    public Guid? ClientId { get; set; }
+    [Required]
+    public Guid ClientId { get; set; }
 
     [Required]
     public EMissingPriceBehavior MissingPriceBehavior { get; set; }
+
+    /// <summary>
+    /// Cenário 1: se enviado, cria uma parcela única com este valor.
+    /// </summary>
+    [Range(0.01, double.MaxValue)]
+    public decimal? TotalAmount { get; set; }
+
+    /// <summary>
+    /// Cenário 1: se enviado, define o vencimento da parcela única/da fatura.
+    /// </summary>
+    public DateTime? DueDate { get; set; }
+
+    /// <summary>
+    /// Cenário 2: lista de parcelas para a fatura.
+    /// </summary>
+    public List<CloseInvoiceInstallment> Installments { get; set; } = new();
+}
+
+public class CloseInvoiceInstallment
+{
+    [Range(1, int.MaxValue)]
+    public int Number { get; set; }
+
+    [Range(0.01, double.MaxValue)]
+    public decimal Amount { get; set; }
+
+    [Required]
+    public DateTime DueDate { get; set; }
 }

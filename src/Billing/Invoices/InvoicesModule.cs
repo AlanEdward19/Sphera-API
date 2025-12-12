@@ -1,6 +1,7 @@
 ﻿using Sphera.API.Billing.Invoices.AddInvoiceAdditionalValue;
 using Sphera.API.Billing.Invoices.CloseInvoicesForPeriod;
 using Sphera.API.Billing.Invoices.DTOs;
+using Sphera.API.Billing.Invoices.CreateInvoice;
 using Sphera.API.Billing.Invoices.GetInvoiceById;
 using Sphera.API.Billing.Invoices.ListInvoices;
 using Sphera.API.Shared.Interfaces;
@@ -23,6 +24,7 @@ public static class InvoicesModule
         services.AddScoped<IHandler<GetInvoiceByIdQuery, InvoiceDTO>, GetInvoiceByIdQueryHandler>();
         services.AddScoped<IHandler<ListInvoicesQuery, IReadOnlyCollection<InvoiceDTO>>, ListInvoicesQueryHandler>();
         services.AddScoped<IHandler<AddInvoiceAdditionalValueCommand, InvoiceDTO>, AddInvoiceAdditionalValueCommandHandler>();
+        services.AddScoped<IHandler<CreateInvoiceCommand, InvoiceDTO>, CreateInvoiceCommandHandler>();
         
         return services;
     }

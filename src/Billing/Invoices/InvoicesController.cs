@@ -5,6 +5,7 @@ using Sphera.API.Billing.Invoices.DTOs;
 using Sphera.API.Billing.Invoices.Enums;
 using Sphera.API.Billing.Invoices.GetInvoiceById;
 using Sphera.API.Billing.Invoices.ListInvoices;
+using Sphera.API.Billing.Invoices.CreateInvoice;
 using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Billing.Invoices;
@@ -97,6 +98,26 @@ public class InvoicesController : ControllerBase
     {
         command.SetInvoiceId(id);
 
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+
+        return response.IsSuccess
+            ? Created($"/api/billing/invoices/{response.Success.Id}", response.Success)
+            : StatusCode(response.Failure.Code, response.Failure);
+    }
+
+    /// <summary>
+    /// Cria uma nova fatura manualmente.
+    /// </summary>
+    /// <param name="handler">Handler CQRS responsável por criar a fatura.</param>
+    /// <param name="command">Dados para criação da fatura.</param>
+    /// <param name="cancellationToken">Token de cancelamento.</param>
+    /// <returns>201 com a fatura criada ou erro.</returns>
+    [HttpPost]
+    public async Task<IActionResult> Create(
+        [FromServices] IHandler<CreateInvoiceCommand, InvoiceDTO> handler,
+        [FromBody] CreateInvoiceCommand command,
+        CancellationToken cancellationToken)
+    {
         var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
 
         return response.IsSuccess

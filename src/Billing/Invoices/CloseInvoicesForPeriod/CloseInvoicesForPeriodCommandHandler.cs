@@ -46,8 +46,14 @@ public class CloseInvoicesForPeriodCommandHandler(
                         e.ServiceDate >= periodStart &&
                         e.ServiceDate <= periodEnd);
 
-                if (request.ClientId.HasValue)
-                    query = query.Where(e => e.ClientId == request.ClientId.Value);
+                if (request.ClientId == Guid.Empty)
+                {
+                    await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                    return ResultDTO<IReadOnlyCollection<InvoiceDTO>>.AsFailure(
+                        new FailureDTO(400, "ClientId é obrigatório."));
+                }
+
+                query = query.Where(e => e.ClientId == request.ClientId);
 
                 var entries = await query.ToListAsync(cancellationToken);
 
@@ -58,40 +64,62 @@ public class CloseInvoicesForPeriodCommandHandler(
                         new FailureDTO(400, "Nenhum lançamento encontrado para o período."));
                 }
 
-                // 2) Agrupar por cliente
+                // 2) Construir fatura para o cliente informado
                 var invoices = new List<Invoice>();
 
-                var groups = entries.GroupBy(e => e.ClientId);
+                var clientId = request.ClientId;
 
-                foreach (var group in groups)
+                // Definir DueDate conforme cenários
+                DateTime invoiceDueDate;
+                if (request.Installments.Any())
                 {
-                    var clientId = group.Key;
-                    var invoice = new Invoice(clientId, periodStart, periodEnd, actor);
+                    invoiceDueDate = request.Installments.Max(i => i.DueDate).Date;
+                }
+                else if (request.TotalAmount.HasValue && request.DueDate.HasValue)
+                {
+                    invoiceDueDate = request.DueDate.Value.Date;
+                }
+                else
+                {
+                    invoiceDueDate = periodEnd;
+                }
 
-                    foreach (var entry in group)
+                var invoice = new Invoice(clientId, periodStart, invoiceDueDate, actor);
+
+                foreach (var entry in entries)
+                {
+                    var price = await GetUnitPriceAsync(clientId, entry.ServiceId, entry.ServiceDate, cancellationToken);
+
+                    if (price == null)
                     {
-                        var price = await GetUnitPriceAsync(clientId, entry.ServiceId, entry.ServiceDate, cancellationToken);
+                        if (request.MissingPriceBehavior == EMissingPriceBehavior.Block)
+                            throw new DomainException($"Não há preço configurado para cliente {clientId}, serviço {entry.ServiceId}.");
 
-                        if (price == null)
-                        {
-                            if (request.MissingPriceBehavior == EMissingPriceBehavior.Block)
-                                throw new DomainException($"Não há preço configurado para cliente {clientId}, serviço {entry.ServiceId}.");
-
-                            // AllowManual: aplicar 0 e o usuário ajusta depois
-                            price = 0m;
-                        }
-
-                        var description = entry.Service.Name;
-                        invoice.AddItem(entry.ServiceId, description, entry.Quantity, price.Value);
-
-                        entry.AttachToInvoice(invoice.Id);
+                        // AllowManual: aplicar 0 e o usuário ajusta depois
+                        price = 0m;
                     }
 
-                    invoice.Close(actor);
-                    invoices.Add(invoice);
+                    var description = entry.Service.Name;
+                    invoice.AddItem(entry.ServiceId, description, entry.Quantity, price.Value);
 
-                    await dbContext.Invoices.AddAsync(invoice, cancellationToken);
+                    entry.AttachToInvoice(invoice.Id);
                 }
+
+                invoice.Close(actor);
+
+                // Gerar parcelas conforme cenários
+                if (request.Installments.Any())
+                {
+                    invoice.SetInstallments(request.Installments
+                        .Select(i => (i.Number, i.Amount, i.DueDate)));
+                }
+                else if (request.TotalAmount.HasValue && request.DueDate.HasValue)
+                {
+                    invoice.SetInstallments(new[] { (1, request.TotalAmount.Value, request.DueDate.Value.Date) });
+                }
+
+                invoices.Add(invoice);
+                await dbContext.Invoices.AddAsync(invoice, cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
@@ -100,6 +128,7 @@ public class CloseInvoicesForPeriodCommandHandler(
                     .Select(inv => new InvoiceDTO(
                         inv.Id,
                         inv.ClientId,
+                        inv.Name,
                         inv.IssueDate,
                         inv.DueDate,
                         inv.TotalAmount,
