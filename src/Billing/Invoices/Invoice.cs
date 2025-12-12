@@ -69,16 +69,16 @@ public class Invoice
         Name = name.Trim();
     }
 
-    public void AddItem(Guid serviceId, string description, decimal quantity, decimal unitPrice)
+    public void AddItem(Guid serviceId, string description, decimal quantity, decimal unitPrice, bool isManualPriced = false)
     {
-        var item = new InvoiceItem(Id, serviceId, description, quantity, unitPrice, 0m, false);
+        var item = new InvoiceItem(Id, serviceId, description, quantity, unitPrice, 0m, false, isManualPriced);
         Items.Add(item);
         RecalculateTotal();
     }
 
     public void AddAdditionalValue(string description, decimal amount)
     {
-        var item = new InvoiceItem(Id, serviceId: Guid.Empty, description, 1, amount, 0m, true);
+        var item = new InvoiceItem(Id, serviceId: Items.First().ServiceId, description, 1, amount, 0m, true);
         Items.Add(item);
         RecalculateTotal();
     }
@@ -94,6 +94,11 @@ public class Invoice
     private void RecalculateTotal()
     {
         TotalAmount = Items.Sum(i => i.TotalAmount);
+    }
+
+    public void RecalculateTotalAmount()
+    {
+        RecalculateTotal();
     }
     
     private void GenerateInstallments(int parcels, DateTime firstDueDate)

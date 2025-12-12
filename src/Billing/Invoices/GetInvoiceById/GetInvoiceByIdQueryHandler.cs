@@ -43,7 +43,8 @@ public class GetInvoiceByIdQueryHandler(
                 i.UnitPrice,
                 i.AdditionalAmount,
                 i.TotalAmount,
-                i.IsAdditional)).ToList().AsReadOnly());
+                i.IsAdditional,
+                i.IsManualPriced)).ToList().AsReadOnly());
 
         return ResultDTO<InvoiceDTO>.AsSuccess(dto);
     }

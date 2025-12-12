@@ -1,25 +1,23 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.Billing.Invoices.DTOs;
-using Sphera.API.Billing.Invoices.Enums;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
-using Sphera.API.Shared.Utils;
 
-namespace Sphera.API.Billing.Invoices.AddInvoiceAdditionalValue;
+namespace Sphera.API.Billing.Invoices.EditInvoiceItem;
 
-public class AddInvoiceAdditionalValueCommandHandler(
+public class EditInvoiceItemCommandHandler(
     SpheraDbContext dbContext,
-    ILogger<AddInvoiceAdditionalValueCommandHandler> logger)
-    : IHandler<AddInvoiceAdditionalValueCommand, InvoiceDTO>
+    ILogger<EditInvoiceItemCommandHandler> logger)
+    : IHandler<EditInvoiceItemCommand, InvoiceDTO>
 {
     public async Task<IResultDTO<InvoiceDTO>> HandleAsync(
-        AddInvoiceAdditionalValueCommand request,
+        EditInvoiceItemCommand request,
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Adicionando valor adicional na fatura {InvoiceId}", request.GetInvoiceId());
+        logger.LogInformation("Editando item {ItemId} da fatura {InvoiceId}", request.GetItemId(), request.GetInvoiceId());
 
         var strategy = dbContext.Database.CreateExecutionStrategy();
 
@@ -36,22 +34,21 @@ public class AddInvoiceAdditionalValueCommandHandler(
                 if (invoice is null)
                 {
                     await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-                    return ResultDTO<InvoiceDTO>.AsFailure(
-                        new FailureDTO(404, "Fatura não encontrada."));
+                    return ResultDTO<InvoiceDTO>.AsFailure(new FailureDTO(404, "Fatura não encontrada."));
                 }
 
-                var actor = context.User.GetUserId();
+                var item = invoice.Items.FirstOrDefault(x => x.Id == request.GetItemId());
+                if (item is null)
+                {
+                    await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                    return ResultDTO<InvoiceDTO>.AsFailure(new FailureDTO(404, "Item da fatura não encontrado."));
+                }
 
-                // TODO se quiser bloquear após envio para Contas a Receber, esse é o ponto.
+                // Regras de edição
+                item.UpdateManualValues(request.Quantity, request.UnitPrice);
 
-                //if (invoice.Status == EInvoiceStatus.Closed && invoice.IsSentToReceivables)
-                //{
-                //    await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-                //    return ResultDTO<InvoiceDTO>.AsFailure(
-                //        new FailureDTO(400, "Fatura já enviada ao Contas a Receber. Não é possível adicionar valores."));
-                //}
-
-                invoice.AddAdditionalValue(request.Description, request.Amount);
+                // Recalcular total da fatura
+                invoice.RecalculateTotalAmount();
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
@@ -80,14 +77,12 @@ public class AddInvoiceAdditionalValueCommandHandler(
             catch (DomainException ex)
             {
                 await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-                return ResultDTO<InvoiceDTO>.AsFailure(
-                    new FailureDTO(400, ex.Message));
+                return ResultDTO<InvoiceDTO>.AsFailure(new FailureDTO(400, ex.Message));
             }
             catch (Exception)
             {
                 await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-                return ResultDTO<InvoiceDTO>.AsFailure(
-                    new FailureDTO(500, "Erro ao adicionar valor adicional na fatura."));
+                return ResultDTO<InvoiceDTO>.AsFailure(new FailureDTO(500, "Erro ao editar item da fatura."));
             }
         });
 

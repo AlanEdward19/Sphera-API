@@ -56,7 +56,8 @@ public class ListInvoicesQueryHandler(
                     i.UnitPrice,
                     i.AdditionalAmount,
                     i.TotalAmount,
-                    i.IsAdditional)).ToList().AsReadOnly()
+                    i.IsAdditional,
+                    i.IsManualPriced)).ToList().AsReadOnly()
             ))
             .ToList()
             .AsReadOnly();

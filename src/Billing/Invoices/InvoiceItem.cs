@@ -1,4 +1,5 @@
 ﻿using Sphera.API.Services;
+using Sphera.API.Shared;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -37,6 +38,13 @@ public class InvoiceItem
     [Required]
     public bool IsAdditional { get; private set; }
 
+    /// <summary>
+    /// Indica se o item foi criado com preço manual permitido (AllowManual),
+    /// normalmente quando não havia preço configurado no fechamento e foi aplicado 0.
+    /// </summary>
+    [Required]
+    public bool IsManualPriced { get; private set; }
+
     public virtual Invoice Invoice { get; private set; }
     public virtual Service? Service { get; private set; }
 
@@ -49,7 +57,8 @@ public class InvoiceItem
         decimal quantity,
         decimal unitPrice,
         decimal additionalAmount,
-        bool isAdditional)
+        bool isAdditional,
+        bool isManualPriced = false)
     {
         Id = Guid.NewGuid();
         InvoiceId = invoiceId;
@@ -59,6 +68,26 @@ public class InvoiceItem
         UnitPrice = unitPrice;
         AdditionalAmount = additionalAmount;
         IsAdditional = isAdditional;
+        IsManualPriced = isManualPriced;
         TotalAmount = (quantity * unitPrice) + additionalAmount;
+    }
+
+    public void UpdateManualValues(decimal quantity, decimal unitPrice)
+    {
+        if (!IsManualPriced)
+            throw new DomainException("Edição permitida apenas para itens com preço manual.");
+
+        if (IsAdditional)
+            throw new DomainException("Itens adicionais não podem ser editados por este endpoint.");
+
+        if (quantity <= 0)
+            throw new DomainException("Quantidade deve ser maior que zero.");
+
+        if (unitPrice < 0)
+            throw new DomainException("Preço unitário não pode ser negativo.");
+
+        Quantity = quantity;
+        UnitPrice = unitPrice;
+        TotalAmount = (quantity * unitPrice) + AdditionalAmount;
     }
 }

@@ -8,5 +8,6 @@ public record InvoiceItemDTO(
     decimal UnitPrice,
     decimal AdditionalAmount,
     decimal TotalAmount,
-    bool IsAdditional
+    bool IsAdditional,
+    bool IsManualPriced
 );

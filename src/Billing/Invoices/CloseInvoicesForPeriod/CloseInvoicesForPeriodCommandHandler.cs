@@ -88,21 +88,34 @@ public class CloseInvoicesForPeriodCommandHandler(
 
                 foreach (var entry in entries)
                 {
-                    var price = await GetUnitPriceAsync(clientId, entry.ServiceId, entry.ServiceDate, cancellationToken);
-
-                    if (price == null)
+                    var originalPrice = await GetUnitPriceAsync(clientId, entry.ServiceId, entry.ServiceDate, cancellationToken);
+                    var isManual = false;
+                    decimal price;
+                    if (originalPrice == null)
                     {
                         if (request.MissingPriceBehavior == EMissingPriceBehavior.Block)
                             throw new DomainException($"Não há preço configurado para cliente {clientId}, serviço {entry.ServiceId}.");
-
                         // AllowManual: aplicar 0 e o usuário ajusta depois
                         price = 0m;
+                        isManual = true;
                     }
+                    else price = originalPrice.Value;
 
                     var description = entry.Service.Name;
-                    invoice.AddItem(entry.ServiceId, description, entry.Quantity, price.Value);
+                    invoice.AddItem(entry.ServiceId, description, entry.Quantity, price, isManual);
 
                     entry.AttachToInvoice(invoice.Id);
+                }
+
+                // Ajuste opcional para TotalAmount (cenário 1)
+                if (request.TotalAmount.HasValue)
+                {
+                    var diff = request.TotalAmount.Value - invoice.TotalAmount;
+                    if (diff != 0)
+                    {
+                        var desc = diff > 0 ? "Ajuste de fechamento (acréscimo)" : "Ajuste de fechamento (desconto)";
+                        invoice.AddAdditionalValue(desc, diff);
+                    }
                 }
 
                 invoice.Close(actor);
@@ -141,7 +154,8 @@ public class CloseInvoicesForPeriodCommandHandler(
                             i.UnitPrice,
                             i.AdditionalAmount,
                             i.TotalAmount,
-                            i.IsAdditional
+                            i.IsAdditional,
+                            i.IsManualPriced
                         )).ToList().AsReadOnly()
                     ))
                     .ToList()

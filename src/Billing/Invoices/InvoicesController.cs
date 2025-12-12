@@ -6,6 +6,7 @@ using Sphera.API.Billing.Invoices.Enums;
 using Sphera.API.Billing.Invoices.GetInvoiceById;
 using Sphera.API.Billing.Invoices.ListInvoices;
 using Sphera.API.Billing.Invoices.CreateInvoice;
+using Sphera.API.Billing.Invoices.EditInvoiceItem;
 using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Billing.Invoices;
@@ -123,5 +124,30 @@ public class InvoicesController : ControllerBase
         return response.IsSuccess
             ? Created($"/api/billing/invoices/{response.Success.Id}", response.Success)
             : StatusCode(response.Failure.Code, response.Failure);
+    }
+
+    /// <summary>
+    /// Edita quantidade e preço unitário de um item da fatura marcado como manual (AllowManual).
+    /// </summary>
+    /// <param name="handler">Handler responsável por editar o item.</param>
+    /// <param name="invoiceId">Id da fatura.</param>
+    /// <param name="itemId">Id do item da fatura.</param>
+    /// <param name="command">Dados de edição: quantidade e preço unitário.</param>
+    /// <param name="cancellationToken">Token de cancelamento.</param>
+    /// <returns>200 com a fatura atualizada ou erro.</returns>
+    [HttpPut("{invoiceId:guid}/items/{itemId:guid}")]
+    public async Task<IActionResult> EditItem(
+        [FromServices] IHandler<EditInvoiceItemCommand, InvoiceDTO> handler,
+        Guid invoiceId,
+        Guid itemId,
+        [FromBody] EditInvoiceItemCommand command,
+        CancellationToken cancellationToken)
+    {
+        command.SetInvoiceId(invoiceId);
+        command.SetItemId(itemId);
+
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+
+        return response.IsSuccess ? Ok(response.Success) : StatusCode(response.Failure.Code, response.Failure);
     }
 }
