@@ -62,11 +62,6 @@ public class ClientServicePrice
         CreatedBy = createdBy;
     }
 
-    public bool IsValidOn(DateTime date) =>
-        IsActive &&
-        date.Date >= StartDate.Date &&
-        (EndDate == null || date.Date <= EndDate.Value.Date);
-
     public void UpdatePrice(decimal unitPrice, DateTime startDate, Guid actor)
     {
         if (unitPrice <= 0) throw new DomainException("Preço deve ser maior que zero.");

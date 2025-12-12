@@ -88,13 +88,15 @@ public class CloseInvoicesForPeriodCommandHandler(
 
                 foreach (var entry in entries)
                 {
-                    var originalPrice = await GetUnitPriceAsync(clientId, entry.ServiceId, entry.ServiceDate, cancellationToken);
+                    var originalPrice =
+                        await GetUnitPriceAsync(clientId, entry.ServiceId, entry.ServiceDate, cancellationToken);
                     var isManual = false;
                     decimal price;
                     if (originalPrice == null)
                     {
                         if (request.MissingPriceBehavior == EMissingPriceBehavior.Block)
-                            throw new DomainException($"Não há preço configurado para cliente {clientId}, serviço {entry.ServiceId}.");
+                            throw new DomainException(
+                                $"Não há preço configurado para cliente {clientId}, serviço {entry.ServiceId}.");
                         // AllowManual: aplicar 0 e o usuário ajusta depois
                         price = 0m;
                         isManual = true;
@@ -188,8 +190,9 @@ public class CloseInvoicesForPeriodCommandHandler(
     {
         var price = await dbContext.ClientServicePrices
             .Where(p => p.ClientId == clientId &&
-                        p.ServiceId == serviceId &&
-                        p.IsValidOn(serviceDate))
+                        p.ServiceId == serviceId && (p.IsActive &&
+                                                     serviceDate.Date >= p.StartDate.Date &&
+                                                     (p.EndDate == null || serviceDate.Date <= p.EndDate.Value.Date)))
             .OrderByDescending(p => p.StartDate)
             .FirstOrDefaultAsync(ct);
 
