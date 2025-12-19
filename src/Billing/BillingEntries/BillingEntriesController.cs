@@ -3,6 +3,10 @@ using Sphera.API.Billing.BillingEntries.CreateBillingEntry;
 using Sphera.API.Billing.BillingEntries.GetBillingEntryById;
 using Sphera.API.Billing.BillingEntries.ListBillingEntries;
 using Sphera.API.Billing.BillingEntries.UpdateBillingEntry;
+using Sphera.API.Billing.BillingEntries.MarkAsInvoicedBatch;
+using Sphera.API.Billing.BillingEntries.CancelBatch;
+using Sphera.API.Billing.BillingEntries.ReopenBatch;
+using Sphera.API.Billing.BillingEntries.Common;
 using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Billing.BillingEntries;
@@ -96,6 +100,66 @@ public class BillingEntriesController : ControllerBase
     {
         command.SetId(id);
 
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess ? Ok(response.Success) : StatusCode(response.Failure.Code, response.Failure);
+    }
+
+    /// <summary>
+    /// Marks the specified billing entries as invoiced.
+    /// </summary>
+    /// <remarks>Processes a batch of billing entries and updates their status to 'Invoiced'. Returns the result of the
+    /// operation, including the number of entries successfully updated.</remarks>
+    /// <param name="handler">The handler responsible for processing the invoiced batch command and returning the result.</param>
+    /// <param name="command">The command containing the identifiers of the billing entries to be marked as invoiced. Cannot be null.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the invoicing operation.</param>
+    /// <returns>An <see cref="IActionResult"/> indicating the result of the invoicing operation. Returns a 200 OK response with the
+    /// bulk action result on success, or an error response with the appropriate status code on failure.</returns>
+    [HttpPost("invoice")]
+    public async Task<IActionResult> MarkAsInvoiced(
+        [FromServices] IHandler<MarkAsInvoicedBatchCommand, BulkActionResultDTO> handler,
+        [FromBody] MarkAsInvoicedBatchCommand command,
+        CancellationToken cancellationToken)
+    {
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess ? Ok(response.Success) : StatusCode(response.Failure.Code, response.Failure);
+    }
+
+    /// <summary>
+    /// Cancels the specified billing entries.
+    /// </summary>
+    /// <remarks>Processes a batch of billing entries and updates their status to 'Cancelled'. Returns the result of the
+    /// operation, including the number of entries successfully updated.</remarks>
+    /// <param name="handler">The handler responsible for processing the cancel command and returning the result.</param>
+    /// <param name="command">The command containing the identifiers of the billing entries to be cancelled. Cannot be null.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the cancellation operation.</param>
+    /// <returns>An <see cref="IActionResult"/> indicating the result of the cancellation operation. Returns a 200 OK response with the
+    /// bulk action result on success, or an error response with the appropriate status code on failure.</returns>
+    [HttpPost("cancel")]
+    public async Task<IActionResult> Cancel(
+        [FromServices] IHandler<CancelBillingEntriesCommand, BulkActionResultDTO> handler,
+        [FromBody] CancelBillingEntriesCommand command,
+        CancellationToken cancellationToken)
+    {
+        var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
+        return response.IsSuccess ? Ok(response.Success) : StatusCode(response.Failure.Code, response.Failure);
+    }
+
+    /// <summary>
+    /// Reopens the specified billing entries.
+    /// </summary>
+    /// <remarks>Processes a batch of billing entries and updates their status to 'Open'. Returns the result of the
+    /// operation, including the number of entries successfully updated.</remarks>
+    /// <param name="handler">The handler responsible for processing the reopen command and returning the result.</param>
+    /// <param name="command">The command containing the identifiers of the billing entries to be reopened. Cannot be null.</param>
+    /// <param name="cancellationToken">A token that can be used to cancel the reopening operation.</param>
+    /// <returns>An <see cref="IActionResult"/> indicating the result of the reopening operation. Returns a 200 OK response with the
+    /// bulk action result on success, or an error response with the appropriate status code on failure.</returns>
+    [HttpPost("reopen")]
+    public async Task<IActionResult> Reopen(
+        [FromServices] IHandler<ReopenBillingEntriesCommand, BulkActionResultDTO> handler,
+        [FromBody] ReopenBillingEntriesCommand command,
+        CancellationToken cancellationToken)
+    {
         var response = await handler.HandleAsync(command, HttpContext, cancellationToken);
         return response.IsSuccess ? Ok(response.Success) : StatusCode(response.Failure.Code, response.Failure);
     }

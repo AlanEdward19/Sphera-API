@@ -12,7 +12,7 @@ using Sphera.API.Shared.Interfaces;
 namespace Sphera.API.Billing.Invoices;
 
 [ApiController]
-[Route("api/billing/[controller]")]
+[Route("api/v1/billing/[controller]")]
 public class InvoicesController : ControllerBase
 {
     /// <summary>

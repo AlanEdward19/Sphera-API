@@ -6,10 +6,7 @@ namespace Sphera.API.Billing.Invoices.CloseInvoicesForPeriod;
 public class CloseInvoicesForPeriodCommand
 {
     [Required]
-    public DateTime PeriodStart { get; set; }
-
-    [Required]
-    public DateTime PeriodEnd { get; set; }
+    public DateTime IssueDate { get; set; }
 
     /// <summary>
     /// Cliente obrigatório para fechamento.

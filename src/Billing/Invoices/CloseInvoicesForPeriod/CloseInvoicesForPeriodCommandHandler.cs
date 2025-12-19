@@ -20,13 +20,6 @@ public class CloseInvoicesForPeriodCommandHandler(
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        var periodStart = request.PeriodStart.Date;
-        var periodEnd = request.PeriodEnd.Date;
-
-        if (periodEnd < periodStart)
-            return ResultDTO<IReadOnlyCollection<InvoiceDTO>>.AsFailure(
-                new FailureDTO(400, "Período inválido."));
-
         var actor = context.User.GetUserId();
 
         var strategy = dbContext.Database.CreateExecutionStrategy();
@@ -42,9 +35,7 @@ public class CloseInvoicesForPeriodCommandHandler(
                     .Include(e => e.Service)
                     .Where(e =>
                         e.IsBillable &&
-                        e.InvoiceId == null &&
-                        e.ServiceDate >= periodStart &&
-                        e.ServiceDate <= periodEnd);
+                        e.InvoiceId == null);
 
                 if (request.ClientId == Guid.Empty)
                 {
@@ -75,16 +66,12 @@ public class CloseInvoicesForPeriodCommandHandler(
                 {
                     invoiceDueDate = request.Installments.Max(i => i.DueDate).Date;
                 }
-                else if (request.TotalAmount.HasValue && request.DueDate.HasValue)
+                else
                 {
                     invoiceDueDate = request.DueDate.Value.Date;
                 }
-                else
-                {
-                    invoiceDueDate = periodEnd;
-                }
 
-                var invoice = new Invoice(clientId, periodStart, invoiceDueDate, actor);
+                var invoice = new Invoice(clientId, request.IssueDate, invoiceDueDate, actor);
 
                 foreach (var entry in entries)
                 {

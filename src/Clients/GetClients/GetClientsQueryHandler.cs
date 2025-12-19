@@ -47,9 +47,9 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
-            string searchLower = request.Search!.ToLower();
-            query = query.Where(c => EF.Functions.Like((c.LegalName ?? string.Empty).ToLower(), $"%{searchLower}%")
-                                     || EF.Functions.Like((c.TradeName ?? string.Empty).ToLower(), $"%{searchLower}%"));
+            var pattern = $"%{request.Search!.Trim()}%";
+            query = query.Where(c => EF.Functions.Like(c.LegalName, pattern)
+                                     || EF.Functions.Like(c.TradeName, pattern));
         }
 
         bool includePartner = request.IncludePartner.HasValue && request.IncludePartner.Value;

@@ -24,8 +24,7 @@ public class CreateInvoiceCommand
 public class CreateInvoiceItem
 {
     public Guid? ServiceId { get; set; }
-
-    [Required]
+    
     [MaxLength(200)]
     public string Description { get; set; } = string.Empty;
 

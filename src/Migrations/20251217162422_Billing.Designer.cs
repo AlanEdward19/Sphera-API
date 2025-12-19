@@ -12,7 +12,7 @@ using Sphera.API.External.Database;
 namespace Sphera.API.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20251212005302_Billing")]
+    [Migration("20251217162422_Billing")]
     partial class Billing
     {
         /// <inheritdoc />
@@ -109,6 +109,9 @@ namespace Sphera.API.Migrations
 
                     b.Property<Guid>("ServiceId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime2");

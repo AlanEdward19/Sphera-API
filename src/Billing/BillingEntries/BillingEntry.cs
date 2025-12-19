@@ -3,6 +3,7 @@ using Sphera.API.Services;
 using Sphera.API.Shared;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sphera.API.Billing.BillingEntries.Common.Enums;
 
 namespace Sphera.API.Billing.BillingEntries;
 
@@ -29,6 +30,9 @@ public class BillingEntry
 
     [MaxLength(500)]
     public string? Notes { get; private set; }
+    
+    [Required]
+    public EBillingEntryStatus Status { get; private set; }
 
     public Guid? InvoiceId { get; private set; }
 
@@ -62,6 +66,7 @@ public class BillingEntry
         ServiceDate = serviceDate.Date;
         Notes = notes;
         IsBillable = true; // regra: padrão faturável
+        Status = EBillingEntryStatus.Pending;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
     }
@@ -91,5 +96,43 @@ public class BillingEntry
     public void AttachToInvoice(Guid invoiceId)
     {
         InvoiceId = invoiceId;
+    }
+    
+    public void MarkAsInvoiced(Guid invoiceId, Guid actor)
+    {
+        if (Status != EBillingEntryStatus.Pending)
+            throw new DomainException("Apenas lançamentos pendentes podem ser faturados.");
+
+        if (!IsBillable)
+            throw new DomainException("Lançamento não faturável não pode ser faturado.");
+
+        Status = EBillingEntryStatus.Invoiced;
+        InvoiceId = invoiceId;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
+    }
+    
+    public void Cancel(Guid actor)
+    {
+        if (Status == EBillingEntryStatus.Invoiced)
+            throw new DomainException("Lançamento já faturado não pode ser cancelado.");
+
+        if (Status == EBillingEntryStatus.Canceled)
+            throw new DomainException("Lançamento já está cancelado.");
+
+        Status = EBillingEntryStatus.Canceled;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
+    }
+    
+    public void Reopen(Guid actor)
+    {
+        if (Status != EBillingEntryStatus.Canceled)
+            throw new DomainException("Apenas lançamentos cancelados podem ser reabertos.");
+
+        Status = EBillingEntryStatus.Pending;
+        InvoiceId = null;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
     }
 }

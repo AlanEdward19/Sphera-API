@@ -45,14 +45,14 @@ public class Invoice
 
     private Invoice() { }
 
-    public Invoice(Guid clientId, DateTime periodStart, DateTime periodEnd, Guid createdBy)
+    public Invoice(Guid clientId, DateTime issueDate, DateTime dueDate, Guid createdBy)
     {
         if (clientId == Guid.Empty) throw new DomainException("ClientId obrigatório.");
 
         Id = Guid.NewGuid();
         ClientId = clientId;
-        IssueDate = periodStart.Date;
-        DueDate = periodEnd.Date;
+        IssueDate = issueDate.Date;
+        DueDate = dueDate.Date;
         Status = EInvoiceStatus.Draft;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
