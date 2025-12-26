@@ -18,6 +18,9 @@ public class GetUsersQueryHandler(SpheraDbContext dbContext, ILogger<GetUsersQue
             .Include(u => u.Role)
             .Include(c => c.Contacts);
         
+        if(!string.IsNullOrWhiteSpace(request.Name))
+            query = query.Where(u => EF.Functions.Like(u.Name.ToLower(), $"%{request.Name.ToLower()}%"));
+        
         if(!string.IsNullOrWhiteSpace(request.Email))
             query = query.Where(u => u.Email.Address == request.Email);
         
