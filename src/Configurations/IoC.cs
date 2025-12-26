@@ -6,6 +6,7 @@ using Sphera.API.Partners;
 using Sphera.API.Users;
 using Sphera.API.Roles;
 using Sphera.API.Auths;
+using Sphera.API.Billing;
 using Sphera.API.Contacts;
 using Sphera.API.Documents;
 using Sphera.API.Schedules;
@@ -45,7 +46,8 @@ public static class IoC
             .ConfigureDocumentsRelatedDependencies()
             .ConfigureAuditoryRelatedDependencies()
             .ConfigureSchedulesRelatedDependencies()
-            .ConfigureContactsRelatedDependencies();
+            .ConfigureContactsRelatedDependencies()
+            .ConfigureBillingRelatedDependencies();
 
         return services;
     }
