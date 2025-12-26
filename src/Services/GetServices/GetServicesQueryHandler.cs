@@ -37,6 +37,8 @@ public class GetServicesQueryHandler(SpheraDbContext dbContext, ILogger<GetServi
             services = services.Where(s => s.IsActive == request.IsActive.Value);
 
         var serviceDTOs = await services
+            .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
+            .Take(request.PageSize)
             .Select(s => s.ToDTO())
             .ToListAsync(cancellationToken);
 
