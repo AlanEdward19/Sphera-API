@@ -19,4 +19,14 @@ public class GetServicesQuery
     /// Gets or sets a value indicating whether the entity is active.
     /// </summary>
     public bool? IsActive { get; set; }
+    
+    /// <summary>
+    /// Specifies the current page number for paginated document queries.
+    /// </summary>
+    public int Page { get; set; } = 1;
+
+    /// <summary>
+    /// Specifies the maximum number of documents to be retrieved per page in a paginated query.
+    /// </summary>
+    public int PageSize { get; set; } = 10;
 }
