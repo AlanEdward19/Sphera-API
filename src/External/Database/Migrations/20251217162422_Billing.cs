@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Sphera.API.Migrations
+namespace Sphera.API.External.Database.Migrations
 {
     /// <inheritdoc />
     public partial class Billing : Migration

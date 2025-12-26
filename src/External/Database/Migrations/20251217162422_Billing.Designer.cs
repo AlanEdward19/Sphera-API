@@ -9,7 +9,7 @@ using Sphera.API.External.Database;
 
 #nullable disable
 
-namespace Sphera.API.Migrations
+namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
     [Migration("20251217162422_Billing")]
