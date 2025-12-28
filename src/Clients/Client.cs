@@ -83,7 +83,7 @@ public class Client
     public DateTime? ContractDate { get; private set; }
 
     /// <summary>
-    /// Gets the current status of the document.
+    /// Gets the expiration status of the entity based on the contract date and current date.
     /// </summary>
     public EExpirationStatus? ExpirationStatus => ComputeStatus();
 
