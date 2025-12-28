@@ -1,4 +1,4 @@
-using Sphera.API.Documents.Common.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Documents.DTOs;
 
@@ -16,9 +16,9 @@ public class DocumentDTO
     public Guid CreatedBy { get; private set; }
     public DateTime? UpdatedAt { get; private set; }
     public Guid? UpdatedBy { get; private set; }
-    public EDocumentStatus Status { get; private set; }
+    public EExpirationStatus Status { get; private set; }
     
-    public DocumentDTO(Guid id, string fileName, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate, DateTime dueDate, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, EDocumentStatus status)
+    public DocumentDTO(Guid id, string fileName, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate, DateTime dueDate, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, EExpirationStatus status)
     {
         Id = id;
         FileName = fileName;

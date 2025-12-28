@@ -1,4 +1,4 @@
-using Sphera.API.Documents.Common.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Documents.DTOs;
 
@@ -15,7 +15,7 @@ public class DocumentWithMetadataDTO(
     Guid createdBy,
     DateTime? updatedAt,
     Guid? updatedBy,
-    EDocumentStatus status,
+    EExpirationStatus status,
     string partnerName,
     string clientName,
     string serviceName,

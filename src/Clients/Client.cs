@@ -7,6 +7,7 @@ using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Clients;
 
@@ -75,11 +76,16 @@ public class Client
     /// </summary>
     [Range(1, 31)]
     public short? BillingDueDay { get; private set; }
-    
+
     /// <summary>
     /// Gets the date when the contract was established, if applicable.
     /// </summary>
     public DateTime? ContractDate { get; private set; }
+
+    /// <summary>
+    /// Gets the expiration status of the entity based on the contract date and current date.
+    /// </summary>
+    public EExpirationStatus? ExpirationStatus => ComputeStatus();
 
     /// <summary>
     /// Gets a value indicating whether the current operation or entity is in an active or successful state.
@@ -130,7 +136,9 @@ public class Client
     /// <summary>
     /// EF Core parameterless constructor.
     /// </summary>
-    private Client() { }
+    private Client()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the Client class with the specified identifiers, names, CNPJ, address, creator,
@@ -147,12 +155,14 @@ public class Client
     /// <param name="billingDueDay">The day of the month when billing is due, or null if not specified.</param>
     /// <exception cref="DomainException">Thrown if partnerId is Guid.Empty.</exception>
     public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate, short? billingDueDay = null)
+        string municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate,
+        short? billingDueDay = null)
     {
         Id = Guid.NewGuid();
         if (partnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = partnerId;
-        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
+            billingDueDay);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -194,7 +204,7 @@ public class Client
     /// <paramref name="address"/> is null.</exception>
     private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
         string municipalRegistration, AddressValueObject? address, DateTime? contractDate,
-       short? billingDueDay)
+        short? billingDueDay)
     {
         if (string.IsNullOrWhiteSpace(tradeName)) throw new DomainException("Nome fantasia obrigatório.");
         if (string.IsNullOrWhiteSpace(legalName)) throw new DomainException("Razão social obrigatória.");
@@ -221,9 +231,11 @@ public class Client
     /// <param name="billingDueDay">The day of the month when billing is due. Must be between 1 and 31, or null if not set.</param>
     /// <param name="actor">The unique identifier of the user or process performing the update.</param>
     public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay, Guid actor)
+        string municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay,
+        Guid actor)
     {
-        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
+            billingDueDay);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
@@ -284,40 +296,60 @@ public class Client
 
     public ClientDTO ToDTO(bool includePartner)
     {
-        return includePartner ? new ClientWithPartnerDTO
-        (
-            Id,
-            TradeName,
-            LegalName,
-            Cnpj.Value,
-            StateRegistration,
-            MunicipalRegistration,
-            Address.ToDTO(),
-            BillingDueDay,
-            ContractDate,
-            Status,
-            CreatedAt,
-            CreatedBy,
-           UpdatedAt,
-            UpdatedBy,
-            Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
-            Partner.ToDTO(false)
-        ) : new ClientDTO(
-            Id,
-            TradeName,
-            LegalName,
-            Cnpj.Value,
-            StateRegistration,
-            MunicipalRegistration,
-            Address.ToDTO(),
-            BillingDueDay,
-            ContractDate,
-            Status,
-            CreatedAt,
-            CreatedBy,
-           UpdatedAt,
-            UpdatedBy,
-             Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly()
-        );
+        return includePartner
+            ? new ClientWithPartnerDTO
+            (
+                Id,
+                TradeName,
+                LegalName,
+                Cnpj.Value,
+                StateRegistration,
+                MunicipalRegistration,
+                Address.ToDTO(),
+                BillingDueDay,
+                ContractDate,
+                ExpirationStatus,
+                Status,
+                CreatedAt,
+                CreatedBy,
+                UpdatedAt,
+                UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                Partner.ToDTO(false)
+            )
+            : new ClientDTO(
+                Id,
+                TradeName,
+                LegalName,
+                Cnpj.Value,
+                StateRegistration,
+                MunicipalRegistration,
+                Address.ToDTO(),
+                BillingDueDay,
+                ContractDate,
+                ExpirationStatus,
+                Status,
+                CreatedAt,
+                CreatedBy,
+                UpdatedAt,
+                UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly()
+            );
+    }
+
+    /// <summary>
+    /// Computes the expiration status of the entity based on the contract date and current date.
+    /// </summary>
+    /// <returns></returns>
+    private EExpirationStatus? ComputeStatus()
+    {
+        if (!ContractDate.HasValue) return null;
+
+        var now = DateTime.UtcNow.Date;
+        if (ContractDate.Value.Date < now) return EExpirationStatus.Expired;
+
+        var daysLeft = (ContractDate.Value.Date - now).TotalDays;
+
+        return daysLeft <= 7 ? EExpirationStatus.AboutToExpire : EExpirationStatus.WithinDeadline;
     }
 }
