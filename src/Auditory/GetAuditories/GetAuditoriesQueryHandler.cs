@@ -20,6 +20,7 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
         Guid ActorId,
         string Action,
         string EntityType,
+        string? EntityName,
         Guid? EntityId,
         string RequestIp,
         string? ActorEmail,
@@ -32,7 +33,7 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
         logger.LogInformation("Iniciando busca de auditórios");
         
         var sql = new StringBuilder();
-        sql.AppendLine("SELECT ae.Id, ae.OccurredAt, ae.ActorId, ae.Action, ae.EntityType, ae.EntityId, ae.RequestIp, u.Email AS ActorEmail, u.Name AS ActorName");
+        sql.AppendLine("SELECT ae.Id, ae.OccurredAt, ae.ActorId, ae.Action, ae.EntityType, ae.EntityName, ae.EntityId, ae.RequestIp, u.Email AS ActorEmail, u.Name AS ActorName");
         sql.AppendLine("FROM AuditEntries ae");
         sql.AppendLine("LEFT JOIN Users u ON ae.ActorId = u.Id");
         sql.AppendLine("WHERE 1 = 1");
@@ -93,7 +94,7 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
         {
             var pattern = $"%{request.Search!.Trim()}%";
             
-            sql.AppendLine($"AND (ae.EntityType LIKE @p{pIndex} OR ae.Action LIKE @p{pIndex} OR u.Name LIKE @p{pIndex} OR u.Email LIKE @p{pIndex})");
+            sql.AppendLine($"AND (ae.EntityType LIKE @p{pIndex} OR ae.Action LIKE @p{pIndex} OR u.Name LIKE @p{pIndex} OR u.Email LIKE @p{pIndex} OR ae.EntityName LIKE @p{pIndex})");
             parameters.Add(new SqlParameter($"@p{pIndex}", pattern));
             pIndex++;
         }
@@ -119,115 +120,15 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
 
         var result = new List<AuditoryDTO>(intermediate.Count);
 
-        var clientIds = intermediate.Where(i => i.EntityType == "Client" && i.EntityId.HasValue)
-            .Select(i => i.EntityId!.Value).Distinct().ToList();
-        var partnerIds = intermediate.Where(i => i.EntityType == "Partner" && i.EntityId.HasValue)
-            .Select(i => i.EntityId!.Value).Distinct().ToList();
-        var serviceIds = intermediate.Where(i => i.EntityType == "Service" && i.EntityId.HasValue)
-            .Select(i => i.EntityId!.Value).Distinct().ToList();
-        var userIds = intermediate.Where(i => i.EntityType == "User" && i.EntityId.HasValue)
-            .Select(i => i.EntityId!.Value).Distinct().ToList();
-        var documentIds = intermediate.Where(i => i.EntityType == "Document" && i.EntityId.HasValue)
-            .Select(i => i.EntityId!.Value).Distinct().ToList();
-        var scheduleEventIds = intermediate.Where(i => i.EntityType == "ScheduleEvent" && i.EntityId.HasValue)
-            .Select(i => i.EntityId!.Value).Distinct().ToList();
-        
-        var clientMap = clientIds.Any()
-            ? (await dbContext.Clients.AsNoTracking()
-                .Where(c => clientIds.Contains(c.Id))
-                .Select(c => new { c.Id, c.LegalName })
-                .ToListAsync(cancellationToken))
-            .ToDictionary(x => (object)x.Id, x => x.LegalName)
-            : new Dictionary<object, string?>();
-
-        var partnerMap = partnerIds.Any()
-            ? (await dbContext.Partners.AsNoTracking()
-                .Where(p => partnerIds.Contains(p.Id))
-                .Select(p => new { p.Id, p.LegalName })
-                .ToListAsync(cancellationToken))
-            .ToDictionary(x => (object)x.Id, x => x.LegalName)
-            : new Dictionary<object, string?>();
-
-        var serviceMap = serviceIds.Any()
-            ? (await dbContext.Services.AsNoTracking()
-                .Where(s => serviceIds.Contains(s.Id))
-                .Select(s => new { s.Id, s.Name })
-                .ToListAsync(cancellationToken))
-            .ToDictionary(x => (object)x.Id, x => x.Name)
-            : new Dictionary<object, string?>();
-
-        var userMap = userIds.Any()
-            ? (await dbContext.Users.AsNoTracking()
-                .Where(u => userIds.Contains(u.Id))
-                .Select(u => new { u.Id, u.Name })
-                .ToListAsync(cancellationToken))
-            .ToDictionary(x => (object)x.Id, x => x.Name)
-            : new Dictionary<object, string?>();
-
-        var documentMap = documentIds.Any()
-            ? (await dbContext.Documents.AsNoTracking()
-                .Where(d => documentIds.Contains(d.Id))
-                .Select(d => new { d.Id, d.FileName })
-                .ToListAsync(cancellationToken))
-            .ToDictionary(x => (object)x.Id, x => x.FileName)
-            : new Dictionary<object, string?>();
-
-        var scheduleEventMap = scheduleEventIds.Any()
-            ? (await dbContext.ScheduleEvents.AsNoTracking()
-                .Where(se => scheduleEventIds.Contains(se.Id))
-                .Select(se => new { se.Id, se.OccurredAt })
-                .ToListAsync(cancellationToken))
-            .ToDictionary(x => (object)x.Id, x => x.OccurredAt)
-            : new Dictionary<object, DateTime>();
-
         foreach (var item in intermediate)
         {
-            string? entityName = null;
-
-            if (item.EntityId.HasValue && !string.IsNullOrEmpty(item.EntityType))
-            {
-                var key = (object)item.EntityId.Value;
-
-                switch (item.EntityType)
-                {
-                    case "Client":
-                        clientMap.TryGetValue(key, out entityName);
-                        break;
-
-                    case "Partner":
-                        partnerMap.TryGetValue(key, out entityName);
-                        break;
-
-                    case "Service":
-                        serviceMap.TryGetValue(key, out entityName);
-                        break;
-
-                    case "User":
-                        userMap.TryGetValue(key, out entityName);
-                        break;
-
-                    case "Document":
-                        documentMap.TryGetValue(key, out entityName);
-                        break;
-
-                    case "ScheduleEvent":
-                        if (scheduleEventMap.TryGetValue(key, out var occurredAt))
-                            entityName = occurredAt.ToString(CultureInfo.CurrentCulture);
-                        break;
-
-                    default:
-                        entityName = null;
-                        break;
-                }
-            }
-
             var dto = new AuditoryDTO(
                 item.Id,
                 item.OccurredAt,
                 item.ActorId,
                 item.Action,
                 item.EntityType,
-                entityName,
+                item.EntityName,
                 item.EntityId,
                 item.RequestIp,
                 item.ActorEmail,
