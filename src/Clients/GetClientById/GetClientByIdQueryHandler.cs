@@ -48,7 +48,15 @@ public class GetClientByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetCli
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(404, "Cliente não encontrado"));
 
         if (includePartner)
-            return ResultDTO<ClientWithPartnerDTO>.AsSuccess((ClientWithPartnerDTO)client.ToDTO(includePartner, documentCount));
+        {
+            int clientsCount = await dbContext.Clients
+                .Include(x => x.Partner)
+                .AsNoTracking()
+                .Where(x => x.PartnerId == client.PartnerId)
+                .CountAsync(cancellationToken);
+            
+            return ResultDTO<ClientWithPartnerDTO>.AsSuccess((ClientWithPartnerDTO)client.ToDTO(includePartner, documentCount, clientsCount));
+        }
 
         return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner, documentCount));
     }

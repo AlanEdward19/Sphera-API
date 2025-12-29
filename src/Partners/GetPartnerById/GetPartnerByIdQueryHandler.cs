@@ -65,9 +65,15 @@ public class GetPartnerByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetPa
             }
 
             return ResultDTO<PartnerWithClientsDTO>.AsSuccess(
-                (PartnerWithClientsDTO)partner.ToDTO(includeClients, clientsDocumentsCount));
+                (PartnerWithClientsDTO)partner.ToDTO(includeClients, clientIds.Count, clientsDocumentsCount));
         }
 
-        return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients));
+        int clientsCount = await dbContext.Clients
+            .Include(x => x.Partner)
+            .AsNoTracking()
+            .Where(x => x.PartnerId == partner.Id)
+            .CountAsync(cancellationToken);
+
+        return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients, clientsCount));
     }
 }

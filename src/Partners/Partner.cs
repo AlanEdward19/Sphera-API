@@ -97,7 +97,9 @@ public class Partner
     /// <summary>
     /// EF Core parameterless constructor.
     /// </summary>
-    private Partner() { }
+    private Partner()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the Partner class with the specified legal name, CNPJ, address, and creator
@@ -245,13 +247,16 @@ public class Partner
     /// to include clients; otherwise, only partner details are included.</param>
     /// <returns>A <see cref="PartnerDTO"/> instance representing the partner. If <paramref name="includeClients"/> is <see
     /// langword="true"/>, the returned object includes client data; otherwise, it does not.</returns>
-    public PartnerDTO ToDTO(bool includeClients, Dictionary<Guid, int>? clientsDocumentsCount = null)
+    public PartnerDTO ToDTO(bool includeClients, int clientsCount, Dictionary<Guid, int>? clientsDocumentsCount = null)
     {
         return includeClients
-            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy,
+                UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                clientsCount,
                 Clients.Select(c => c.ToDTO(includePartner: false, clientsDocumentsCount![c.Id])).ToList().AsReadOnly())
-            : new PartnerDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
-                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly());
+            : new PartnerDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt,
+                UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(), clientsCount);
     }
 }

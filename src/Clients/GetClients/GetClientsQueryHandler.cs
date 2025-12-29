@@ -65,7 +65,7 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
             .ToListAsync(cancellationToken);
 
         var clientIds = clients.Select(x => x.Id);
-        
+
         var docsCounts = await dbContext.Documents
             .AsNoTracking()
             .Where(d => clientIds.Contains(d.ClientId))
@@ -76,9 +76,25 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
             clientIds.ToDictionary(id => id, id => docsCounts.TryGetValue(id, out var c) ? c : 0);
 
         if (includePartner)
-            return ResultDTO<IEnumerable<ClientWithPartnerDTO>>.AsSuccess(clients.Select(c =>
-                (ClientWithPartnerDTO)c.ToDTO(includePartner, documentsCount[c.Id])));
+        {
+            var partnersIds = clients.Select(x => x.PartnerId).Distinct();
 
-        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clients.Select(c => c.ToDTO(includePartner, documentsCount[c.Id])));
+            var clientsCount = await dbContext.Clients
+                .AsNoTracking()
+                .Where(x => partnersIds.Contains(x.PartnerId))
+                .GroupBy(x => x.PartnerId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
+
+            var partnersClientsCount =
+                partnersIds.ToDictionary(id => id, id => clientsCount.TryGetValue(id, out var c) ? c : 0);
+
+            return ResultDTO<IEnumerable<ClientWithPartnerDTO>>.AsSuccess(clients.Select(c =>
+                (ClientWithPartnerDTO)c.ToDTO(includePartner, documentsCount[c.Id],
+                    partnersClientsCount[c.PartnerId])));
+        }
+
+
+        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clients.Select(c =>
+            c.ToDTO(includePartner, documentsCount[c.Id])));
     }
 }
