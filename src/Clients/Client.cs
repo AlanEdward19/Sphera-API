@@ -294,7 +294,7 @@ public class Client
             Contacts.Remove(contact);
     }
 
-    public ClientDTO ToDTO(bool includePartner, int documentCount)
+    public ClientDTO ToDTO(bool includePartner, int documentCount, int? clientsCount = null)
     {
         return includePartner
             ? new ClientWithPartnerDTO
@@ -316,7 +316,7 @@ public class Client
                 UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
                 documentCount,
-                Partner.ToDTO(false)
+                Partner.ToDTO(false, clientsCount!.Value)
             )
             : new ClientDTO(
                 Id,

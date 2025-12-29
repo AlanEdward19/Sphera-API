@@ -63,7 +63,7 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
 
         if (includeClients)
         {
-            var clientIds = partners.SelectMany(p => p.Clients.Select(c => c.Id)).Distinct().ToList();
+            var clientIds = partners.SelectMany(p => p.Clients.Select(c => c.Id)).ToList();
 
             Dictionary<Guid, int>? clientsDocumentsCount = null;
 
@@ -74,14 +74,25 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
                     .Where(d => clientIds.Contains(d.ClientId))
                     .GroupBy(d => d.ClientId)
                     .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
-                
-                clientsDocumentsCount = clientIds.ToDictionary(id => id, id => docsCounts.TryGetValue(id, out var c) ? c : 0);
+
+                clientsDocumentsCount =
+                    clientIds.ToDictionary(id => id, id => docsCounts.TryGetValue(id, out var c) ? c : 0);
             }
 
             return ResultDTO<IEnumerable<PartnerWithClientsDTO>>.AsSuccess(partners.Select(p =>
-                (PartnerWithClientsDTO)p.ToDTO(includeClients, clientsDocumentsCount)));
+                (PartnerWithClientsDTO)p.ToDTO(includeClients, clientIds.Count, clientsDocumentsCount)));
         }
 
-        return ResultDTO<IEnumerable<PartnerDTO>>.AsSuccess(partners.Select(p => p.ToDTO(includeClients)));
+        var clientsCount = await dbContext.Clients
+            .AsNoTracking()
+            .Where(x => partners.Select(p => p.Id).Contains(x.PartnerId))
+            .GroupBy(x => x.PartnerId)
+            .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
+
+        var partnersWithClientsCount =
+            partners.ToDictionary(p => p.Id, p => clientsCount.TryGetValue(p.Id, out var c) ? c : 0);
+
+        return ResultDTO<IEnumerable<PartnerDTO>>.AsSuccess(partners.Select(p =>
+            p.ToDTO(includeClients, partnersWithClientsCount[p.Id])));
     }
 }

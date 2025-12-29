@@ -16,9 +16,10 @@ public class PartnerDTO
     public DateTime? UpdatedAt { get; private set; }
     public Guid? UpdatedBy { get; private set; }
     public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
+    public int ClientsCount { get; private set; }
 
     public PartnerDTO(Guid id, string legalName, string cnpj, AddressDTO? address, bool status,
-        DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, ReadOnlyCollection<ContactDTO> contacts)
+        DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, ReadOnlyCollection<ContactDTO> contacts, int clientsCount)
     {
         Id = id;
         LegalName = legalName;
@@ -30,5 +31,6 @@ public class PartnerDTO
         UpdatedAt = updatedAt;
         UpdatedBy = updatedBy;
         Contacts = contacts;
+        ClientsCount = clientsCount;
     }
 }

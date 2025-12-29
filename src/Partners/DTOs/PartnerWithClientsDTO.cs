@@ -10,9 +10,9 @@ public class PartnerWithClientsDTO : PartnerDTO
     public ReadOnlyCollection<ClientDTO> Clients { get; private set; }
 
     public PartnerWithClientsDTO(Guid id, string legalName, string cnpj, AddressDTO address, bool status,
-        DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, ReadOnlyCollection<ContactDTO> contacts,
+        DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, ReadOnlyCollection<ContactDTO> contacts, int clientsCount,
         ReadOnlyCollection<ClientDTO> clients)
-        : base(id, legalName, cnpj, address, status, createdAt, createdBy, updatedAt, updatedBy, contacts)
+        : base(id, legalName, cnpj, address, status, createdAt, createdBy, updatedAt, updatedBy, contacts, clientsCount)
     {
         Clients = clients;
     }

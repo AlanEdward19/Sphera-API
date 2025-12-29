@@ -48,7 +48,7 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-                return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false));
+                return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false, 0));
             }
             catch (DomainException ex)
             {
