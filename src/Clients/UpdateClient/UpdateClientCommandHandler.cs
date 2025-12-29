@@ -64,8 +64,12 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                
+                int documentCount = await dbContext.Documents
+                    .AsNoTracking()
+                    .CountAsync(d => d.ClientId == client.Id, cancellationToken);
 
-                return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
+                return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false, documentCount));
             }
             catch (DomainException ex)
             {

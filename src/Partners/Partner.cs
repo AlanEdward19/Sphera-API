@@ -245,12 +245,12 @@ public class Partner
     /// to include clients; otherwise, only partner details are included.</param>
     /// <returns>A <see cref="PartnerDTO"/> instance representing the partner. If <paramref name="includeClients"/> is <see
     /// langword="true"/>, the returned object includes client data; otherwise, it does not.</returns>
-    public PartnerDTO ToDTO(bool includeClients)
+    public PartnerDTO ToDTO(bool includeClients, Dictionary<Guid, int>? clientsDocumentsCount = null)
     {
         return includeClients
             ? new PartnerWithClientsDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
-                Clients.Select(c => c.ToDTO(includePartner: false)).ToList().AsReadOnly())
+                Clients.Select(c => c.ToDTO(includePartner: false, clientsDocumentsCount![c.Id])).ToList().AsReadOnly())
             : new PartnerDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly());
     }

@@ -14,7 +14,8 @@ namespace Sphera.API.Partners.GetPartners;
 /// Related client data can be included in the results if requested by the query parameters.</remarks>
 /// <param name="dbContext">The database context used to access partner and related data.</param>
 /// <param name="logger">The logger instance used for logging query handling operations.</param>
-public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClientsQueryHandler> logger) : IHandler<GetPartnersQuery, IEnumerable<PartnerDTO>>
+public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClientsQueryHandler> logger)
+    : IHandler<GetPartnersQuery, IEnumerable<PartnerDTO>>
 {
     /// <summary>
     /// Asynchronously retrieves a paginated list of partners matching the specified query criteria.
@@ -27,7 +28,8 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains a successful result with an
     /// enumerable collection of partner data transfer objects matching the query.</returns>
-    public async Task<IResultDTO<IEnumerable<PartnerDTO>>> HandleAsync(GetPartnersQuery request, HttpContext context, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<PartnerDTO>>> HandleAsync(GetPartnersQuery request, HttpContext context,
+        CancellationToken cancellationToken)
     {
         //TODO: Colocar Logs
         IQueryable<Partner> query = dbContext
@@ -60,8 +62,25 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
             .ToListAsync(cancellationToken);
 
         if (includeClients)
+        {
+            var clientIds = partners.SelectMany(p => p.Clients.Select(c => c.Id)).Distinct().ToList();
+
+            Dictionary<Guid, int>? clientsDocumentsCount = null;
+
+            if (clientIds.Any())
+            {
+                var docsCounts = await dbContext.Documents
+                    .AsNoTracking()
+                    .Where(d => clientIds.Contains(d.ClientId))
+                    .GroupBy(d => d.ClientId)
+                    .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
+                
+                clientsDocumentsCount = clientIds.ToDictionary(id => id, id => docsCounts.TryGetValue(id, out var c) ? c : 0);
+            }
+
             return ResultDTO<IEnumerable<PartnerWithClientsDTO>>.AsSuccess(partners.Select(p =>
-                (PartnerWithClientsDTO)p.ToDTO(includeClients)));
+                (PartnerWithClientsDTO)p.ToDTO(includeClients, clientsDocumentsCount)));
+        }
 
         return ResultDTO<IEnumerable<PartnerDTO>>.AsSuccess(partners.Select(p => p.ToDTO(includeClients)));
     }
