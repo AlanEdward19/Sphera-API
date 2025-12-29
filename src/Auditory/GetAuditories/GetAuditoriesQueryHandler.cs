@@ -41,6 +41,10 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
 
         query = query.Where(x => !x.EntityType.Contains("ValueObject") && !x.EntityType.Equals("Contact"));
 
+        query = query
+            .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
+            .Take(request.PageSize);
+
         var intermediate = await query
             .Select(a => new
             {
