@@ -1,8 +1,10 @@
 using System.Globalization;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Shared.ValueObjects;
 
 namespace Sphera.API.Auditory.GetAuditories;
 
@@ -38,6 +40,15 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
 
         if (request.EntityId.HasValue)
             query = query.Where(a => a.EntityId == request.EntityId.Value);
+
+        if (!string.IsNullOrEmpty(request.Search))
+        {
+            var pattern = $"%{request.Search!.Trim()}%";
+
+            query = query.Where(a =>
+                EF.Functions.Like(a.EntityType, pattern) || EF.Functions.Like(a.Action, pattern) ||
+                EF.Functions.Like(a.Actor.Name, pattern) || EF.Functions.Like(a.Actor.Email.Address, pattern));
+        }
 
         query = query.Where(x => !x.EntityType.Contains("ValueObject") && !x.EntityType.Equals("Contact"));
 

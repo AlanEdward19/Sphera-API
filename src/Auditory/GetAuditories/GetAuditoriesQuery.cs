@@ -46,4 +46,9 @@ public class GetAuditoriesQuery
     /// Specifies the maximum number of documents to be retrieved per page in a paginated query.
     /// </summary>
     public int PageSize { get; set; } = 10;
+    
+    /// <summary>
+    /// Text input utilized for searching and filtering auditories based on their content or associated metadata.
+    /// </summary>
+    public string? Search { get; set; }
 }
