@@ -23,12 +23,13 @@ public class ClientDTO
     public DateTime? UpdatedAt { get; private set; }
     public Guid? UpdatedBy { get; private set; }
     public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
+    public int DocumentsCount { get; private set; }
 
     public ClientDTO(Guid id, string tradeName, string legalName, string cnpj, string stateRegistration,
         string municipalRegistration, AddressDTO address, short? billingDueDay, DateTime? contractDate,
         EExpirationStatus? expirationStatus, bool status,
         DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy,
-        ReadOnlyCollection<ContactDTO> contacts)
+        ReadOnlyCollection<ContactDTO> contacts, int documentsCount)
     {
         Id = id;
         TradeName = tradeName;
@@ -46,5 +47,6 @@ public class ClientDTO
         UpdatedAt = updatedAt;
         UpdatedBy = updatedBy;
         Contacts = contacts;
+        DocumentsCount = documentsCount;
     }
 }

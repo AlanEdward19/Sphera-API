@@ -294,7 +294,7 @@ public class Client
             Contacts.Remove(contact);
     }
 
-    public ClientDTO ToDTO(bool includePartner)
+    public ClientDTO ToDTO(bool includePartner, int documentCount)
     {
         return includePartner
             ? new ClientWithPartnerDTO
@@ -315,6 +315,7 @@ public class Client
                 UpdatedAt,
                 UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                documentCount,
                 Partner.ToDTO(false)
             )
             : new ClientDTO(
@@ -333,7 +334,8 @@ public class Client
                 CreatedBy,
                 UpdatedAt,
                 UpdatedBy,
-                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly()
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                documentCount
             );
     }
 

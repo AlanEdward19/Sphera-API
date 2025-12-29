@@ -64,10 +64,21 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
 
+        var clientIds = clients.Select(x => x.Id);
+        
+        var docsCounts = await dbContext.Documents
+            .AsNoTracking()
+            .Where(d => clientIds.Contains(d.ClientId))
+            .GroupBy(d => d.ClientId)
+            .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
+
+        Dictionary<Guid, int> documentsCount =
+            clientIds.ToDictionary(id => id, id => docsCounts.TryGetValue(id, out var c) ? c : 0);
+
         if (includePartner)
             return ResultDTO<IEnumerable<ClientWithPartnerDTO>>.AsSuccess(clients.Select(c =>
-                (ClientWithPartnerDTO)c.ToDTO(includePartner)));
+                (ClientWithPartnerDTO)c.ToDTO(includePartner, documentsCount[c.Id])));
 
-        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clients.Select(c => c.ToDTO(includePartner)));
+        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clients.Select(c => c.ToDTO(includePartner, documentsCount[c.Id])));
     }
 }
