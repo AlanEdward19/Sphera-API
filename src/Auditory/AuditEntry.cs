@@ -12,6 +12,7 @@ public class AuditEntry
     public Guid ActorId { get; private set; }
     public string Action { get; private set; } // Create/Update/Delete
     public string EntityType { get; private set; }
+    public string? EntityName { get; private set; }
     public Guid? EntityId { get; private set; }
     public string RequestIp { get; private set; }
     
@@ -19,8 +20,8 @@ public class AuditEntry
     public virtual User Actor { get; private set; }
 
     private AuditEntry() { }
-
-    public AuditEntry(Guid actorId, string action, string entityType, Guid? entityId, string requestIp)
+    
+    public AuditEntry(Guid actorId, string action, string entityType, Guid? entityId, string requestIp, string? entityName = null)
     {
         OccurredAt = DateTime.UtcNow;
         ActorId = actorId;
@@ -28,5 +29,6 @@ public class AuditEntry
         EntityType = entityType;
         EntityId = entityId;
         RequestIp = requestIp;
+        EntityName = entityName;
     }
 }
