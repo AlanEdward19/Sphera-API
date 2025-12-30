@@ -271,14 +271,16 @@ public class Client
     /// <param name="contactRole">The role associated with the contact. Determines the contact's relationship or function.</param>
     /// <param name="value">The contact information value, such as an email address or phone number. Cannot be null.</param>
     /// <param name="actorId">The unique identifier of the actor associated with the contact.</param>
+    /// <param name="contactName">The contact name.</param>
     /// <returns>The newly created Contact instance representing the added contact.</returns>
     public Contact AddContact(
         EContactType contactType,
         EContactRole contactRole,
         string value,
-        Guid actorId)
+        Guid actorId,
+        string contactName)
     {
-        var contact = new Contact(contactType, contactRole, value, actorId, null, Id);
+        var contact = new Contact(contactType, contactRole, value, actorId, null, Id, contactName);
         Contacts.Add(contact);
         return contact;
     }

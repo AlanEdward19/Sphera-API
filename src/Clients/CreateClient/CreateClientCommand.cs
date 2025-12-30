@@ -64,6 +64,12 @@ public class CreateClientCommand
     /// Gets or sets the address information associated with the entity.
     /// </summary>
     public AddressDTO Address { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the name of the financial contact.
+    /// </summary>
+    [Required]
+    public string FinancialContactName { get; set; }
 
     /// <summary>
     /// Gets or sets the email address used for financial communications.
@@ -78,6 +84,12 @@ public class CreateClientCommand
     [Required]
     [Phone]
     public string FinancialPhone { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the name of the contact person.
+    /// </summary>
+    [Required]
+    public string ContactName { get; set; }
 
     /// <summary>
     /// Gets or sets the email address associated with the entity.

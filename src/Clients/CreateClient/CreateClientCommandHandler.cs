@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using NuGet.Configuration;
 using Sphera.API.Clients.DTOs;
+using Sphera.API.Contacts;
+using Sphera.API.Contacts.Enums;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
@@ -52,7 +55,12 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
                 Client client = new(request, actor);
-
+                
+                client.AddContact(EContactType.Email, EContactRole.Financial, request.FinancialEmail, actor, request.FinancialContactName);
+                client.AddContact(EContactType.Email, EContactRole.Personal, request.Email, actor, request.ContactName);
+                client.AddContact(EContactType.Phone, EContactRole.Financial, request.FinancialPhone, actor, request.FinancialContactName);
+                client.AddContact(EContactType.Phone, EContactRole.Personal, request.Phone, actor, request.ContactName);
+                
                 await dbContext.AddAsync(client, cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
@@ -65,7 +73,7 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
                 await dbContext.Database.RollbackTransactionAsync(cancellationToken);
                 return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, ex.Message));
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 await dbContext.Database.RollbackTransactionAsync(cancellationToken);
                 return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(500, "Erro ao criar cliente."));
