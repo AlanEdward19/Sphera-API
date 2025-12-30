@@ -80,7 +80,7 @@ public class GetPartnersQueryHandler(SpheraDbContext dbContext, ILogger<GetClien
             }
 
             return ResultDTO<IEnumerable<PartnerWithClientsDTO>>.AsSuccess(partners.Select(p =>
-                (PartnerWithClientsDTO)p.ToDTO(includeClients, clientIds.Count, clientsDocumentsCount)));
+                (PartnerWithClientsDTO)p.ToDTO(includeClients, p.Clients.Count, clientsDocumentsCount)));
         }
 
         var clientsCount = await dbContext.Clients
