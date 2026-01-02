@@ -27,4 +27,10 @@ public class CreateServiceCommand
     /// Gets or sets the default number of days until an item is due.
     /// </summary>
     public short? DefaultDueInDays { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; set; }
 }

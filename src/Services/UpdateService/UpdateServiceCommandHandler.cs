@@ -26,7 +26,7 @@ public class UpdateServiceCommandHandler(SpheraDbContext dbContext, ILogger<Upda
 
                 DateTime? dueDate = request.DefaultDueInDays.HasValue ? DateTime.Today.AddDays(request.DefaultDueInDays.Value) : null;
 
-                service.Update(request.Name, dueDate, actor);
+                service.Update(request.Name, dueDate, request.Notes, actor);
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
 

@@ -27,6 +27,12 @@ public class UpdateServiceCommand
     public short? DefaultDueInDays { get; set; }
 
     /// <summary>
+    /// Gets or sets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; set; }
+
+    /// <summary>
     /// Gets the unique identifier for the current instance.
     /// </summary>
     /// <returns>A <see cref="Guid"/> representing the unique identifier of this instance.</returns>
