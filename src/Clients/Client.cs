@@ -52,18 +52,25 @@ public class Client
     /// <summary>
     /// Gets the state registration identifier associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string StateRegistration { get; private set; }
+    public string? StateRegistration { get; private set; }
 
     /// <summary>
     /// Gets the municipal registration number associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string MunicipalRegistration { get; private set; }
+    public string? MunicipalRegistration { get; private set; }
+
+    /// <summary>
+    /// Gets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; private set; }
+
+    /// <summary>
+    /// Gets the expiration date of the eCac, if specified.
+    /// </summary>
+    public DateTime? EcacExpirationDate { get; private set; }
 
     /// <summary>
     /// Gets the address associated with the entity.
@@ -149,20 +156,24 @@ public class Client
     /// <param name="tradeName">The trade name of the client.</param>
     /// <param name="legalName">The legal name of the client.</param>
     /// <param name="cnpj">The CNPJ value object representing the client's tax identification number, or null if not applicable.</param>
+    /// <param name="stateRegistration"></param>
+    /// <param name="municipalRegistration"></param>
     /// <param name="address">The address value object representing the client's address, or null if not provided.</param>
     /// <param name="createdBy">The unique identifier of the user who created the client.</param>
     /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month when billing is due, or null if not specified.</param>
+    /// <param name="notes"></param>
+    /// <param name="ecacExpirationDate"></param>
     /// <exception cref="DomainException">Thrown if partnerId is Guid.Empty.</exception>
-    public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate,
-        short? billingDueDay = null)
+    public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
+        string? municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate,
+        short? billingDueDay = null, string? notes = null, DateTime? ecacExpirationDate = null)
     {
         Id = Guid.NewGuid();
         if (partnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = partnerId;
         SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
-            billingDueDay);
+            billingDueDay, notes, ecacExpirationDate);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -182,7 +193,9 @@ public class Client
             command.MunicipalRegistration,
             command.Address.ToValueObject(),
             contractDate,
-            command.BillingDueDay);
+            command.BillingDueDay,
+            command.Notes,
+            command.EcacExpirationDate);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -200,11 +213,13 @@ public class Client
     /// <param name="address">The address value object representing the entity's address. Cannot be null.</param>
     /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month on which billing is due. May be null if not applicable.</param>
+    /// <param name="notes"></param>
+    /// <param name="ecacExpirationDate"></param>
     /// <exception cref="DomainException">Thrown if <paramref name="tradeName"/> is null, empty, or white space; or if <paramref name="cnpj"/> or
     /// <paramref name="address"/> is null.</exception>
-    private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, DateTime? contractDate,
-        short? billingDueDay)
+    private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
+        string? municipalRegistration, AddressValueObject? address, DateTime? contractDate,
+        short? billingDueDay, string? notes, DateTime? ecacExpirationDate)
     {
         if (string.IsNullOrWhiteSpace(tradeName)) throw new DomainException("Nome fantasia obrigatório.");
         if (string.IsNullOrWhiteSpace(legalName)) throw new DomainException("Razão social obrigatória.");
@@ -217,6 +232,8 @@ public class Client
         Address = address ?? throw new DomainException("Endereço obrigatório.");
         BillingDueDay = billingDueDay;
         ContractDate = contractDate;
+        Notes = notes;
+        EcacExpirationDate = ecacExpirationDate;
     }
 
     /// <summary>
@@ -226,16 +243,20 @@ public class Client
     /// <param name="tradeName">The trade name to assign to the company. Cannot be null or empty.</param>
     /// <param name="legalName">The legal name to assign to the company. Cannot be null or empty.</param>
     /// <param name="cnpj">The CNPJ value object representing the company's registration number. Can be null if not applicable.</param>
+    /// <param name="stateRegistration"></param>
+    /// <param name="municipalRegistration"></param>
     /// <param name="address">The address value object representing the company's location. Can be null if not applicable.</param>
     /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month when billing is due. Must be between 1 and 31, or null if not set.</param>
+    /// <param name="notes"></param>
+    /// <param name="ecacExpirationDate"></param>
     /// <param name="actor">The unique identifier of the user or process performing the update.</param>
-    public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay,
-        Guid actor)
+    public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
+        string? municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay,
+        string? notes, DateTime? ecacExpirationDate, Guid actor)
     {
         SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
-            billingDueDay);
+            billingDueDay, notes, ecacExpirationDate);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
@@ -318,6 +339,8 @@ public class Client
                 UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
                 documentCount,
+                Notes,
+                EcacExpirationDate,
                 Partner.ToDTO(false, clientsCount!.Value)
             )
             : new ClientDTO(
@@ -337,7 +360,9 @@ public class Client
                 UpdatedAt,
                 UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
-                documentCount
+                documentCount,
+                Notes,
+                EcacExpirationDate
             );
     }
 

@@ -9,10 +9,10 @@ namespace Sphera.API.Clients.DTOs;
 public class ClientWithPartnerDTO : ClientDTO
 {
     public PartnerDTO Partner { get; private set; }
-    public ClientWithPartnerDTO(Guid id, string tradeName, string legalName, string cnpj, string stateRegistration, string municipalRegistration, 
+    public ClientWithPartnerDTO(Guid id, string tradeName, string legalName, string cnpj, string? stateRegistration, string? municipalRegistration, 
         AddressDTO address, short? billingDueDay, DateTime? contractDate, EExpirationStatus? expirationStatus, bool status, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, 
-        ReadOnlyCollection<ContactDTO> contacts, int documentCount, PartnerDTO partner) : base(id, tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, 
-            billingDueDay, contractDate, expirationStatus, status, createdAt, createdBy, updatedAt, updatedBy, contacts, documentCount)
+        ReadOnlyCollection<ContactDTO> contacts, int documentCount, string? notes, DateTime? ecacExpirationDate, PartnerDTO partner) : base(id, tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, 
+            billingDueDay, contractDate, expirationStatus, status, createdAt, createdBy, updatedAt, updatedBy, contacts, documentCount, notes, ecacExpirationDate)
     {
         Partner = partner;
     }

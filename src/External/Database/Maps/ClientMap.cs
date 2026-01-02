@@ -57,6 +57,8 @@ public class ClientMap : IEntityTypeConfiguration<Client>
 
         b.Property(x => x.StateRegistration).HasMaxLength(50);
         b.Property(x => x.MunicipalRegistration).HasMaxLength(50);
+        b.Property(x => x.Notes).HasMaxLength(500);
+        b.Property(x => x.EcacExpirationDate).HasColumnType("datetime2");
         b.Property(x => x.BillingDueDay).HasColumnType("smallint");
         b.Property(x => x.ContractDate).HasColumnType("datetime2");
         b.Property(x => x.Status).IsRequired();

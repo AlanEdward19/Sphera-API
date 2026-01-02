@@ -11,8 +11,10 @@ public class ClientDTO
     public string TradeName { get; private set; }
     public string LegalName { get; private set; }
     public string Cnpj { get; private set; }
-    public string StateRegistration { get; private set; }
-    public string MunicipalRegistration { get; private set; }
+    public string? StateRegistration { get; private set; }
+    public string? MunicipalRegistration { get; private set; }
+    public string? Notes { get; private set; }
+    public DateTime? EcacExpirationDate { get; private set; }
     public AddressDTO Address { get; private set; }
     public short? BillingDueDay { get; private set; }
     public DateTime? ContractDate { get; private set; }
@@ -25,11 +27,12 @@ public class ClientDTO
     public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
     public int DocumentsCount { get; private set; }
 
-    public ClientDTO(Guid id, string tradeName, string legalName, string cnpj, string stateRegistration,
-        string municipalRegistration, AddressDTO address, short? billingDueDay, DateTime? contractDate,
+    public ClientDTO(Guid id, string tradeName, string legalName, string cnpj, string? stateRegistration,
+        string? municipalRegistration, AddressDTO address, short? billingDueDay, DateTime? contractDate,
         EExpirationStatus? expirationStatus, bool status,
         DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy,
-        ReadOnlyCollection<ContactDTO> contacts, int documentsCount)
+        ReadOnlyCollection<ContactDTO> contacts, int documentsCount, string? notes = null,
+        DateTime? ecacExpirationDate = null)
     {
         Id = id;
         TradeName = tradeName;
@@ -37,6 +40,8 @@ public class ClientDTO
         Cnpj = cnpj;
         StateRegistration = stateRegistration;
         MunicipalRegistration = municipalRegistration;
+        Notes = notes;
+        EcacExpirationDate = ecacExpirationDate;
         Address = address;
         BillingDueDay = billingDueDay;
         ContractDate = contractDate;
