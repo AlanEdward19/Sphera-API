@@ -53,6 +53,7 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
 
         cnpjProp.Metadata.SetValueComparer(cnpjComparer);
 
+        b.Property(x => x.Notes).HasMaxLength(500);
         b.Property(x => x.Status).IsRequired();
         b.Property(x => x.CreatedAt).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.CreatedBy).HasColumnType("uniqueidentifier").IsRequired();
