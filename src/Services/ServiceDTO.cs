@@ -60,6 +60,11 @@ public class ServiceDTO
     public Guid? UpdatedBy { get; private set; }
 
     /// <summary>
+    /// Gets the optional notes or comments associated with this instance.
+    /// </summary>
+    public string? Notes { get; private set; }
+
+    /// <summary>
     /// Initializes a new instance of the ServiceDTO class with the specified service details.
     /// </summary>
     /// <param name="id">The unique identifier for the service.</param>
@@ -72,7 +77,8 @@ public class ServiceDTO
     /// <param name="createdBy">The unique identifier of the user who created the service.</param>
     /// <param name="updatedAt">The date and time when the service was last updated, or null if it has not been updated.</param>
     /// <param name="updatedBy">The unique identifier of the user who last updated the service, or null if it has not been updated.</param>
-    public ServiceDTO(Guid id, string name, string code, DateTime? dueDate, int? remainingDays, bool isActive, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy)
+    /// <param name="notes"></param>
+    public ServiceDTO(Guid id, string name, string code, DateTime? dueDate, int? remainingDays, bool isActive, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, string? notes = null)
     {
         Id = id;
         Name = name;
@@ -84,5 +90,6 @@ public class ServiceDTO
         CreatedBy = createdBy;
         UpdatedAt = updatedAt;
         UpdatedBy = updatedBy;
+        Notes = notes;
     }
 }

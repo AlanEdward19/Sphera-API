@@ -28,8 +28,11 @@ public class EditContactCommandHandler(SpheraDbContext dbContext, ILogger<EditCo
                 var actor = user.GetUserId();
                 
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
+                
+                if(!string.IsNullOrWhiteSpace(request.Name))
+                    contact.UpdateName(request.Name, actor);
 
-                if (string.IsNullOrWhiteSpace(request.Value))
+                if (!string.IsNullOrWhiteSpace(request.Value))
                     contact.UpdateValue(request.Value, actor);
 
                 if (request.Type is not null)

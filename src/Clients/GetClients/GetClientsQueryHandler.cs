@@ -45,6 +45,12 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
         if (!string.IsNullOrWhiteSpace(request.Cnpj))
             query = query.Where(c => c.Cnpj.Value == request.Cnpj);
 
+        if (request.DueDateFrom.HasValue)
+            query = query.Where(d => d.EcacExpirationDate >= request.DueDateFrom.Value);
+
+        if (request.DueDateTo.HasValue)
+            query = query.Where(d => d.EcacExpirationDate <= request.DueDateTo.Value);
+
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var pattern = $"%{request.Search!.Trim()}%";
@@ -63,6 +69,9 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
             .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
+        
+        if (request is { ExpirationStatus: not null })
+            clients = clients.Where(d => d.ExpirationStatus == request.ExpirationStatus.Value).ToList();
 
         var clientIds = clients.Select(x => x.Id);
 

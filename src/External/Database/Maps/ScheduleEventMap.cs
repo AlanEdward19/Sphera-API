@@ -20,6 +20,10 @@ public class ScheduleEventMap : IEntityTypeConfiguration<ScheduleEvent>
             .HasColumnType("datetime2")
             .IsRequired();
 
+        b.Property(x => x.EventType)
+            .HasConversion<int>()
+            .IsRequired();
+
         b.Property(x => x.UserId)
             .HasColumnType("uniqueidentifier");
 

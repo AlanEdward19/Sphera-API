@@ -39,7 +39,7 @@ public class CreateServiceCommandHandler(SpheraDbContext dbContext, ILogger<Crea
 
                 DateTime? dueDate = request.DefaultDueInDays.HasValue ? DateTime.Today.AddDays(request.DefaultDueInDays.Value) : null;
 
-                Service service = new(request.Name, request.Code, dueDate, actor);
+                Service service = new(request.Name, request.Code, dueDate, actor, request.Notes);
 
                 await dbContext.Services.AddAsync(service, cancellationToken);
 
