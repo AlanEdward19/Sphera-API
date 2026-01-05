@@ -29,6 +29,7 @@ public class AuditEntryMap : IEntityTypeConfiguration<AuditEntry>
         b.Property(x => x.ActorId).HasColumnType("uniqueidentifier").IsRequired();
         b.Property(x => x.Action).HasMaxLength(80).IsRequired();
         b.Property(x => x.EntityType).HasMaxLength(120).IsRequired();
+        b.Property(x => x.EntityName).HasMaxLength(250);
         b.Property(x => x.EntityId).HasColumnType("uniqueidentifier");
         b.Property(x => x.RequestIp).HasMaxLength(45).IsRequired();
         

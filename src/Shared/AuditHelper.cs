@@ -18,9 +18,11 @@ public static class AuditHelper
             Guid? entityId = TryGetPrimaryKey(entry);
 
             var action = entry.State.ToString(); // Added/Modified/Deleted
+            
+            string? entityName = ResolveEntityName(entry);
 
             var audit = new AuditEntry(actorId, action, entityType,
-                entityId, requestIp);
+                entityId, requestIp, entityName);
 
             result.Add(audit);
         }
@@ -49,7 +51,56 @@ public static class AuditHelper
         return null;
     }
 
-    private static string GetPathIfDocument(EntityEntry entry)
+    private static string? ResolveEntityName(EntityEntry entry)
+    {
+        try
+        {
+            var typeName = entry.Entity.GetType().Name;
+
+            switch (typeName)
+            {
+                case "Client":
+                    return GetStringProperty(entry, "LegalName") ?? GetStringProperty(entry, "TradeName");
+                case "Partner":
+                    return GetStringProperty(entry, "LegalName") ?? "";
+                case "Service":
+                    return GetStringProperty(entry, "Name");
+                case "User":
+                    return GetStringProperty(entry, "Name") ?? GetStringProperty(entry, "Email");
+                case "Document":
+                    return GetStringProperty(entry, "FileName") ?? GetPathIfDocument(entry);
+                case "ScheduleEvent":
+                    var occurred = entry.Property("OccurredAt").CurrentValue ?? entry.Property("OccurredAt").OriginalValue;
+                    if (occurred is DateTime dt) return dt.ToString(System.Globalization.CultureInfo.CurrentCulture);
+                    return occurred?.ToString();
+                default:
+                    return null;
+            }
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private static string? GetStringProperty(EntityEntry entry, string propertyName)
+    {
+        var prop = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, propertyName, StringComparison.InvariantCultureIgnoreCase));
+        var val = prop?.CurrentValue ?? prop?.OriginalValue;
+        
+        //gets string value, if the length is greater than 250, it will be truncated and added ...
+        if (val is string strVal)
+        {
+            if (strVal.Length > 250)
+                return strVal.Substring(0, 247) + "...";
+            
+            return strVal;
+        }
+        
+        return "";
+    }
+
+    private static string? GetPathIfDocument(EntityEntry entry)
     {
         if (entry.Entity.GetType().Name == "Document")
         {
@@ -61,7 +112,7 @@ public static class AuditHelper
         return null;
     }
 
-    private static string GetFolderIfDocument(EntityEntry entry)
+    private static string? GetFolderIfDocument(EntityEntry entry)
     {
         if (entry.Entity.GetType().Name == "Document")
         {

@@ -37,12 +37,14 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
                 CnpjValueObject? cnpj = string.IsNullOrWhiteSpace(request.Cnpj) ? null : new(request.Cnpj);
                 AddressValueObject? address = request.Address?.ToValueObject();
 
-                partner.UpdateBasicInfo(request.LegalName, cnpj, address, actor);
+                partner.UpdateBasicInfo(request.LegalName, cnpj, address, request.Notes, actor);
+                
+                int clientsCount = await dbContext.Clients.CountAsync(x => x.PartnerId == partner.Id, cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-                return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false));
+                return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false, clientsCount));
             }
             catch (DomainException ex)
             {

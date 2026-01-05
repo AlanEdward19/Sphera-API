@@ -7,6 +7,7 @@ using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Clients;
 
@@ -51,18 +52,25 @@ public class Client
     /// <summary>
     /// Gets the state registration identifier associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string StateRegistration { get; private set; }
+    public string? StateRegistration { get; private set; }
 
     /// <summary>
     /// Gets the municipal registration number associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string MunicipalRegistration { get; private set; }
+    public string? MunicipalRegistration { get; private set; }
+
+    /// <summary>
+    /// Gets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; private set; }
+
+    /// <summary>
+    /// Gets the expiration date of the eCac, if specified.
+    /// </summary>
+    public DateTime? EcacExpirationDate { get; private set; }
 
     /// <summary>
     /// Gets the address associated with the entity.
@@ -75,11 +83,16 @@ public class Client
     /// </summary>
     [Range(1, 31)]
     public short? BillingDueDay { get; private set; }
-    
+
     /// <summary>
     /// Gets the date when the contract was established, if applicable.
     /// </summary>
     public DateTime? ContractDate { get; private set; }
+
+    /// <summary>
+    /// Gets the expiration status of the entity based on the contract date and current date.
+    /// </summary>
+    public EExpirationStatus? ExpirationStatus => ComputeStatus();
 
     /// <summary>
     /// Gets a value indicating whether the current operation or entity is in an active or successful state.
@@ -130,7 +143,9 @@ public class Client
     /// <summary>
     /// EF Core parameterless constructor.
     /// </summary>
-    private Client() { }
+    private Client()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the Client class with the specified identifiers, names, CNPJ, address, creator,
@@ -141,18 +156,24 @@ public class Client
     /// <param name="tradeName">The trade name of the client.</param>
     /// <param name="legalName">The legal name of the client.</param>
     /// <param name="cnpj">The CNPJ value object representing the client's tax identification number, or null if not applicable.</param>
+    /// <param name="stateRegistration"></param>
+    /// <param name="municipalRegistration"></param>
     /// <param name="address">The address value object representing the client's address, or null if not provided.</param>
     /// <param name="createdBy">The unique identifier of the user who created the client.</param>
     /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month when billing is due, or null if not specified.</param>
+    /// <param name="notes"></param>
+    /// <param name="ecacExpirationDate"></param>
     /// <exception cref="DomainException">Thrown if partnerId is Guid.Empty.</exception>
-    public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate, short? billingDueDay = null)
+    public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
+        string? municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate,
+        short? billingDueDay = null, string? notes = null, DateTime? ecacExpirationDate = null)
     {
         Id = Guid.NewGuid();
         if (partnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = partnerId;
-        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
+            billingDueDay, notes, ecacExpirationDate);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -172,7 +193,9 @@ public class Client
             command.MunicipalRegistration,
             command.Address.ToValueObject(),
             contractDate,
-            command.BillingDueDay);
+            command.BillingDueDay,
+            command.Notes,
+            command.EcacExpirationDate);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -190,11 +213,13 @@ public class Client
     /// <param name="address">The address value object representing the entity's address. Cannot be null.</param>
     /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month on which billing is due. May be null if not applicable.</param>
+    /// <param name="notes"></param>
+    /// <param name="ecacExpirationDate"></param>
     /// <exception cref="DomainException">Thrown if <paramref name="tradeName"/> is null, empty, or white space; or if <paramref name="cnpj"/> or
     /// <paramref name="address"/> is null.</exception>
-    private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, DateTime? contractDate,
-       short? billingDueDay)
+    private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
+        string? municipalRegistration, AddressValueObject? address, DateTime? contractDate,
+        short? billingDueDay, string? notes, DateTime? ecacExpirationDate)
     {
         if (string.IsNullOrWhiteSpace(tradeName)) throw new DomainException("Nome fantasia obrigatório.");
         if (string.IsNullOrWhiteSpace(legalName)) throw new DomainException("Razão social obrigatória.");
@@ -207,6 +232,8 @@ public class Client
         Address = address ?? throw new DomainException("Endereço obrigatório.");
         BillingDueDay = billingDueDay;
         ContractDate = contractDate;
+        Notes = notes;
+        EcacExpirationDate = ecacExpirationDate;
     }
 
     /// <summary>
@@ -216,14 +243,20 @@ public class Client
     /// <param name="tradeName">The trade name to assign to the company. Cannot be null or empty.</param>
     /// <param name="legalName">The legal name to assign to the company. Cannot be null or empty.</param>
     /// <param name="cnpj">The CNPJ value object representing the company's registration number. Can be null if not applicable.</param>
+    /// <param name="stateRegistration"></param>
+    /// <param name="municipalRegistration"></param>
     /// <param name="address">The address value object representing the company's location. Can be null if not applicable.</param>
     /// <param name="contractDate"></param>
     /// <param name="billingDueDay">The day of the month when billing is due. Must be between 1 and 31, or null if not set.</param>
+    /// <param name="notes"></param>
+    /// <param name="ecacExpirationDate"></param>
     /// <param name="actor">The unique identifier of the user or process performing the update.</param>
-    public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string stateRegistration,
-        string municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay, Guid actor)
+    public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
+        string? municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay,
+        string? notes, DateTime? ecacExpirationDate, Guid actor)
     {
-        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate, billingDueDay);
+        SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
+            billingDueDay, notes, ecacExpirationDate);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
@@ -259,14 +292,16 @@ public class Client
     /// <param name="contactRole">The role associated with the contact. Determines the contact's relationship or function.</param>
     /// <param name="value">The contact information value, such as an email address or phone number. Cannot be null.</param>
     /// <param name="actorId">The unique identifier of the actor associated with the contact.</param>
+    /// <param name="contactName">The contact name.</param>
     /// <returns>The newly created Contact instance representing the added contact.</returns>
     public Contact AddContact(
         EContactType contactType,
         EContactRole contactRole,
         string value,
-        Guid actorId)
+        Guid actorId,
+        string contactName)
     {
-        var contact = new Contact(contactType, contactRole, value, actorId, null, Id);
+        var contact = new Contact(contactType, contactRole, value, actorId, null, Id, contactName);
         Contacts.Add(contact);
         return contact;
     }
@@ -282,42 +317,68 @@ public class Client
             Contacts.Remove(contact);
     }
 
-    public ClientDTO ToDTO(bool includePartner)
+    public ClientDTO ToDTO(bool includePartner, int documentCount, int? clientsCount = null)
     {
-        return includePartner ? new ClientWithPartnerDTO
-        (
-            Id,
-            TradeName,
-            LegalName,
-            Cnpj.Value,
-            StateRegistration,
-            MunicipalRegistration,
-            Address.ToDTO(),
-            BillingDueDay,
-            ContractDate,
-            Status,
-            CreatedAt,
-            CreatedBy,
-           UpdatedAt,
-            UpdatedBy,
-            Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
-            Partner.ToDTO(false)
-        ) : new ClientDTO(
-            Id,
-            TradeName,
-            LegalName,
-            Cnpj.Value,
-            StateRegistration,
-            MunicipalRegistration,
-            Address.ToDTO(),
-            BillingDueDay,
-            ContractDate,
-            Status,
-            CreatedAt,
-            CreatedBy,
-           UpdatedAt,
-            UpdatedBy,
-             Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly()
-        );
+        return includePartner
+            ? new ClientWithPartnerDTO
+            (
+                Id,
+                TradeName,
+                LegalName,
+                Cnpj.Value,
+                StateRegistration,
+                MunicipalRegistration,
+                Address.ToDTO(),
+                BillingDueDay,
+                ContractDate,
+                ExpirationStatus,
+                Status,
+                CreatedAt,
+                CreatedBy,
+                UpdatedAt,
+                UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                documentCount,
+                Notes,
+                EcacExpirationDate,
+                Partner.ToDTO(false, clientsCount!.Value)
+            )
+            : new ClientDTO(
+                Id,
+                TradeName,
+                LegalName,
+                Cnpj.Value,
+                StateRegistration,
+                MunicipalRegistration,
+                Address.ToDTO(),
+                BillingDueDay,
+                ContractDate,
+                ExpirationStatus,
+                Status,
+                CreatedAt,
+                CreatedBy,
+                UpdatedAt,
+                UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
+                documentCount,
+                Notes,
+                EcacExpirationDate
+            );
+    }
+
+    /// <summary>
+    /// Computes the expiration status of the entity based on the contract date and current date.
+    /// </summary>
+    /// <returns></returns>
+    private EExpirationStatus? ComputeStatus()
+    {
+        if (!ContractDate.HasValue) return null;
+
+        var now = DateTime.UtcNow.Date;
+        if (ContractDate.Value.Date < now) return EExpirationStatus.Expired;
+
+        var daysLeft = (ContractDate.Value.Date - now).TotalDays;
+
+        return daysLeft <= 7 ? EExpirationStatus.AboutToExpire : EExpirationStatus.WithinDeadline;
     }
 }

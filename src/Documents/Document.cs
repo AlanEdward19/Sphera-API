@@ -1,11 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Sphera.API.Clients;
-using Sphera.API.Documents.Common.Enums;
 using Sphera.API.Documents.CreateDocument;
 using Sphera.API.Documents.DTOs;
 using Sphera.API.Services;
 using Sphera.API.Shared;
+using Sphera.API.Shared.Enums;
 using Sphera.API.Shared.ValueObjects;
 using Sphera.API.Users;
 
@@ -89,7 +89,7 @@ public class Document
     /// <summary>
     /// Gets the current status of the document.
     /// </summary>
-    public EDocumentStatus Status => ComputeStatus();
+    public EExpirationStatus Status => ComputeStatus();
 
     /// <summary>
     /// Gets the related service entity associated with this instance.
@@ -187,14 +187,14 @@ public class Document
     /// date has passed, the status is Expired. If the due date is within the default due period, the status is
     /// AboutToExpire; otherwise, it is WithinDeadline.</remarks>
     /// <returns>An EDocumentStatus value indicating whether the document is expired, about to expire, or within the deadline.</returns>
-    private EDocumentStatus ComputeStatus()
+    private EExpirationStatus ComputeStatus()
     {
         var now = DateTime.UtcNow.Date;
-        if (DueDate.Date < now) return EDocumentStatus.Expired;
+        if (DueDate.Date < now) return EExpirationStatus.Expired;
 
         var daysLeft = (DueDate.Date - now).TotalDays;
 
-        return daysLeft <= 7 ? EDocumentStatus.AboutToExpire : EDocumentStatus.WithinDeadline;
+        return daysLeft <= 7 ? EExpirationStatus.AboutToExpire : EExpirationStatus.WithinDeadline;
     }
 
     /// <summary>

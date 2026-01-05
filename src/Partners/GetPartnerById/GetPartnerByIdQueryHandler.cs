@@ -13,7 +13,8 @@ namespace Sphera.API.Partners.GetPartnerById;
 /// The returned PartnerDTO includes associated client information if the query specifies to include clients.</remarks>
 /// <param name="dbContext">The database context used to access partner and related client data.</param>
 /// <param name="logger">The logger instance used for logging query handling operations and errors.</param>
-public class GetPartnerByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetPartnerByIdQueryHandler> logger) : IHandler<GetPartnerByIdQuery, PartnerDTO>
+public class GetPartnerByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetPartnerByIdQueryHandler> logger)
+    : IHandler<GetPartnerByIdQuery, PartnerDTO>
 {
     /// <summary>
     /// Asynchronously retrieves partner information by ID and returns the result as a data transfer object (DTO).
@@ -26,7 +27,8 @@ public class GetPartnerByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetPa
     /// <param name="cancellationToken">A cancellation token that can be used to cancel the asynchronous operation.</param>
     /// <returns>A result object containing the partner data as a PartnerDTO if found; otherwise, a failure result with a 404
     /// error code.</returns>
-    public async Task<IResultDTO<PartnerDTO>> HandleAsync(GetPartnerByIdQuery request, HttpContext context, CancellationToken cancellationToken)
+    public async Task<IResultDTO<PartnerDTO>> HandleAsync(GetPartnerByIdQuery request, HttpContext context,
+        CancellationToken cancellationToken)
     {
         IQueryable<Partner> query = dbContext.Partners
             .AsNoTracking()
@@ -36,8 +38,8 @@ public class GetPartnerByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetPa
 
         if (includeClients)
             query = query
-                    .Include(x => x.Clients)
-                    .ThenInclude(c => c.Contacts);
+                .Include(x => x.Clients)
+                .ThenInclude(c => c.Contacts);
 
         Partner? partner = await query.FirstOrDefaultAsync(p => p.Id == request.Id, cancellationToken);
 
@@ -45,8 +47,33 @@ public class GetPartnerByIdQueryHandler(SpheraDbContext dbContext, ILogger<GetPa
             return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(404, "Parceiro não encontrado"));
 
         if (includeClients)
-            return ResultDTO<PartnerWithClientsDTO>.AsSuccess((PartnerWithClientsDTO)partner.ToDTO(includeClients));
+        {
+            var clientIds = partner.Clients.Select(c => c.Id).Distinct().ToList();
 
-        return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients));
+            Dictionary<Guid, int>? clientsDocumentsCount = null;
+
+            if (clientIds.Any())
+            {
+                var docsCounts = await dbContext.Documents
+                    .AsNoTracking()
+                    .Where(d => clientIds.Contains(d.ClientId))
+                    .GroupBy(d => d.ClientId)
+                    .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
+
+                clientsDocumentsCount =
+                    clientIds.ToDictionary(id => id, id => docsCounts.TryGetValue(id, out var c) ? c : 0);
+            }
+
+            return ResultDTO<PartnerWithClientsDTO>.AsSuccess(
+                (PartnerWithClientsDTO)partner.ToDTO(includeClients, clientIds.Count, clientsDocumentsCount));
+        }
+
+        int clientsCount = await dbContext.Clients
+            .Include(x => x.Partner)
+            .AsNoTracking()
+            .Where(x => x.PartnerId == partner.Id)
+            .CountAsync(cancellationToken);
+
+        return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients, clientsCount));
     }
 }

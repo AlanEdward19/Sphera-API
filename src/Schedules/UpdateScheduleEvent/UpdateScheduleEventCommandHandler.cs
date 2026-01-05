@@ -24,7 +24,7 @@ public class UpdateScheduleEventCommandHandler(SpheraDbContext dbContext, ILogge
                 var actor = context.User.GetUserId();
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-                entity.Update(request.OccurredAt, request.UserId, request.ClientId, request.Notes, actor);
+                entity.Update(request.OccurredAt, request.EventType, request.UserId, request.ClientId, request.Notes, actor);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);

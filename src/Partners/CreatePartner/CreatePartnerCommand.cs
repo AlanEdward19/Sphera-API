@@ -35,4 +35,10 @@ public class CreatePartnerCommand
     /// Gets or sets the address information associated with the entity.
     /// </summary>
     public AddressDTO? Address { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; set; }
 }

@@ -45,6 +45,12 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
         if (!string.IsNullOrWhiteSpace(request.Cnpj))
             query = query.Where(c => c.Cnpj.Value == request.Cnpj);
 
+        if (request.DueDateFrom.HasValue)
+            query = query.Where(d => d.EcacExpirationDate >= request.DueDateFrom.Value);
+
+        if (request.DueDateTo.HasValue)
+            query = query.Where(d => d.EcacExpirationDate <= request.DueDateTo.Value);
+
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var pattern = $"%{request.Search!.Trim()}%";
@@ -63,11 +69,41 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
             .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
+        
+        if (request is { ExpirationStatus: not null })
+            clients = clients.Where(d => d.ExpirationStatus == request.ExpirationStatus.Value).ToList();
+
+        var clientIds = clients.Select(x => x.Id);
+
+        var docsCounts = await dbContext.Documents
+            .AsNoTracking()
+            .Where(d => clientIds.Contains(d.ClientId))
+            .GroupBy(d => d.ClientId)
+            .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
+
+        Dictionary<Guid, int> documentsCount =
+            clientIds.ToDictionary(id => id, id => docsCounts.TryGetValue(id, out var c) ? c : 0);
 
         if (includePartner)
-            return ResultDTO<IEnumerable<ClientWithPartnerDTO>>.AsSuccess(clients.Select(c =>
-                (ClientWithPartnerDTO)c.ToDTO(includePartner)));
+        {
+            var partnersIds = clients.Select(x => x.PartnerId).Distinct();
 
-        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clients.Select(c => c.ToDTO(includePartner)));
+            var clientsCount = await dbContext.Clients
+                .AsNoTracking()
+                .Where(x => partnersIds.Contains(x.PartnerId))
+                .GroupBy(x => x.PartnerId)
+                .ToDictionaryAsync(g => g.Key, g => g.Count(), cancellationToken);
+
+            var partnersClientsCount =
+                partnersIds.ToDictionary(id => id, id => clientsCount.TryGetValue(id, out var c) ? c : 0);
+
+            return ResultDTO<IEnumerable<ClientWithPartnerDTO>>.AsSuccess(clients.Select(c =>
+                (ClientWithPartnerDTO)c.ToDTO(includePartner, documentsCount[c.Id],
+                    partnersClientsCount[c.PartnerId])));
+        }
+
+
+        return ResultDTO<IEnumerable<ClientDTO>>.AsSuccess(clients.Select(c =>
+            c.ToDTO(includePartner, documentsCount[c.Id])));
     }
 }

@@ -41,6 +41,12 @@ public class Service
     public DateTime? DueDate { get; private set; }
 
     /// <summary>
+    /// Gets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; private set; }
+
+    /// <summary>
     /// Gets a value indicating whether the entity is active.
     /// </summary>
     [Required]
@@ -87,8 +93,9 @@ public class Service
     /// <param name="code">The unique code identifying the service. Cannot be null, empty, or consist only of white-space characters.</param>
     /// <param name="dueDate">The due date for the service.</param>
     /// <param name="createdBy">The unique identifier of the user who created the service.</param>
+    /// <param name="notes"></param>
     /// <exception cref="DomainException">Thrown if name or code is null, empty, or consists only of white-space characters.</exception>
-    public Service(string name, string code, DateTime? dueDate, Guid createdBy)
+    public Service(string name, string code, DateTime? dueDate, Guid createdBy, string? notes = null)
     {
         Id = Guid.NewGuid();
         if (string.IsNullOrWhiteSpace(name)) throw new DomainException("Nome do serviço obrigatório.");
@@ -97,6 +104,7 @@ public class Service
         Name = name;
         Code = code;
         DueDate = dueDate;
+        Notes = notes;
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
@@ -110,12 +118,14 @@ public class Service
     /// name or due date are changed.</remarks>
     /// <param name="name">The new name to assign to the item. If null or whitespace, the name is not changed.</param>
     /// <param name="dueDate">The new due date to assign to the item. If null, the due date is not changed.</param>
+    /// <param name="notes"></param>
     /// <param name="actor">The unique identifier of the actor performing the update. This value is recorded as the updater.</param>
-    public void Update(string? name, DateTime? dueDate, Guid actor)
+    public void Update(string? name, DateTime? dueDate, string? notes, Guid actor)
     {
         if (!string.IsNullOrWhiteSpace(name)) Name = name;
 
         DueDate = dueDate;
+        Notes = notes;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
@@ -141,6 +151,6 @@ public class Service
     public ServiceDTO ToDTO()
     {
         return new ServiceDTO(Id, Name, Code, DueDate, DueDate.HasValue ? (DueDate.Value - DateTime.Today).Days : null,
-            IsActive, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy);
+            IsActive, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy, Notes);
     }
 }

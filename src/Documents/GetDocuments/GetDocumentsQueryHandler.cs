@@ -34,9 +34,6 @@ public class GetDocumentsQueryHandler(
         if (request.ServiceId.HasValue)
             query = query.Where(d => d.ServiceId == request.ServiceId.Value);
 
-        if (request.Status.HasValue)
-            query = query.Where(d => d.Status == request.Status.Value);
-
         if (request.DueDateFrom.HasValue)
             query = query.Where(d => d.DueDate >= request.DueDateFrom.Value);
 
@@ -63,6 +60,9 @@ public class GetDocumentsQueryHandler(
             .Skip(request.PageSize * (request.Page > 0 ? request.Page - 1 : 0))
             .Take(request.PageSize)
             .ToListAsync(cancellationToken);
+        
+        if (request.Status.HasValue)
+            documents = documents.Where(d => d.Status == request.Status.Value).ToList();
 
         List<DocumentWithMetadataDTO> result = [];
 

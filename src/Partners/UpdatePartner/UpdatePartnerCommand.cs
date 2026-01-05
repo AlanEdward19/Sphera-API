@@ -42,6 +42,12 @@ public class UpdatePartnerCommand
     public AddressDTO? Address { get; set; }
 
     /// <summary>
+    /// Gets or sets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; set; }
+
+    /// <summary>
     /// Gets or sets a value indicating whether the current entity is active.
     /// </summary>
     public bool Status { get; set; } = true;
