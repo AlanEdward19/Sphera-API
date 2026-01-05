@@ -6,9 +6,32 @@ using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Reports.GenerateFilesReport;
 
+/// <summary>
+/// Handles the generation of a files report based on the specified query parameters.
+/// </summary>
+/// <remarks>
+/// This class processes a <see cref="GenerateFilesReportQuery"/> and retrieves a list of documents
+/// matching the query criteria. The results are returned as a collection of <see cref="FilesReportDTO"/> objects.
+/// </remarks>
+/// <param name="dbContext">
+/// An instance of <see cref="SpheraDbContext"/> used to access the database.
+/// </param>
+/// <param name="logger">
+/// An instance of <see cref="ILogger{TCategoryName}"/> used to log operational details during execution.
+/// </param>
+/// <seealso cref="GenerateFilesReportQuery"/>
+/// <seealso cref="FilesReportDTO"/>
 public class GenerateFilesReportQueryHandler(SpheraDbContext dbContext, ILogger<GenerateFilesReportQueryHandler> logger) : IHandler<GenerateFilesReportQuery, FilesReportDTO[]>
 {
-    public async Task<IResultDTO<FilesReportDTO[]>> HandleAsync(GenerateFilesReportQuery request, HttpContext context, CancellationToken cancellationToken)
+    /// <summary>
+    /// Handles the request to generate a report of files based on the provided query parameters.
+    /// </summary>
+    /// <param name="request">The query parameters for generating the files report.</param>
+    /// <param name="context">The current HTTP context associated with the request.</param>
+    /// <param name="cancellationToken">A token to monitor for cancellation requests.</param>
+    /// <returns>An object containing the result of the file report, which may include success or failure details.</returns>
+    public async Task<IResultDTO<FilesReportDTO[]>> HandleAsync(GenerateFilesReportQuery request, HttpContext context,
+        CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação de relatório de arquivos.");
         
