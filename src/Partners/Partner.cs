@@ -228,14 +228,16 @@ public class Partner
     /// <param name="contactRole">The role associated with the contact. Determines the contact's function or relationship within the context.</param>
     /// <param name="value">The contact information value, such as an email address or phone number. Cannot be null.</param>
     /// <param name="actorId">The unique identifier of the actor to associate with the new contact.</param>
+    /// <param name="type">The type of phone number. Optional; may be null if not applicable.</param>
     /// <returns>The newly created Contact instance that was added to the collection.</returns>
     public Contact AddContact(
         EContactType contactType,
         EContactRole contactRole,
         string value,
-        Guid actorId)
+        Guid actorId,
+        EPhoneType? type = null)
     {
-        var contact = new Contact(contactType, contactRole, value, actorId, Id);
+        var contact = new Contact(contactType, contactRole, value, actorId, Id, phoneType: type);
         Contacts.Add(contact);
         return contact;
     }
