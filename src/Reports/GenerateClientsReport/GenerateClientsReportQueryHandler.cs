@@ -13,19 +13,24 @@ public class GenerateClientsReportQueryHandler(
         HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação do relatório de clientes.");
-        
+
         var query = dbContext.Clients
             .Include(x => x.Partner)
-            .AsNoTracking()
-            .Where(x =>
-                x.EcacExpirationDate >= request.FromDate && x.EcacExpirationDate <= request.ToDate);
+            .AsNoTracking();
 
+        if (request.FromDate.HasValue)
+            query = query.Where(x =>
+                x.EcacExpirationDate >= request.FromDate);
+
+        if (request.ToDate.HasValue)
+            query = query.Where(x => x.EcacExpirationDate <= request.ToDate);
+        
         if (request.PartnerId != null)
             query = query.Where(x => x.PartnerId == request.PartnerId);
 
         var clients = await query.ToListAsync(cancellationToken);
-        
-        if(!clients.Any())
+
+        if (!clients.Any())
             return ResultDTO<ClientsReportDTO[]>.AsFailure(new FailureDTO(404, "Nenhum cliente encontrado"));
 
         var result = clients.Select(x => new ClientsReportDTO(x.TradeName, x.LegalName, x.Cnpj.Value, x.PartnerId,
