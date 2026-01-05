@@ -2,6 +2,14 @@
 
 namespace Sphera.API.Reports.GenerateFilesReport;
 
+/// <summary>
+/// Represents a data transfer object for encapsulating details about a files report.
+/// </summary>
+/// <remarks>
+/// This class is designed to transfer data related to files reports, including information about the
+/// associated partner, client, service, responsible party, due date, and the report expiration status.
+/// It is primarily used to communicate relevant information between layers in the application.
+/// </remarks>
 public class FilesReportDTO
 {
     /// <summary>
