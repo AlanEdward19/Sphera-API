@@ -41,4 +41,47 @@ public class CreatePartnerCommand
     /// </summary>
     [MaxLength(500)]
     public string? Notes { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the email address used for financial communications.
+    /// </summary>
+    [EmailAddress]
+    public string? FinancialEmail { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the phone number for financial contacts.
+    /// </summary>
+    [Phone]
+    public string? FinancialPhone { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the email address associated with the responsible party.
+    /// </summary>
+    [EmailAddress]
+    public string? ResponsibleEmail { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the phone number associated with the responsible party.
+    /// </summary>
+    [Phone]
+    public string? ResponsiblePhone { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the landline phone number associated with the entity.
+    /// </summary>
+    [Phone]
+    public string? LandLine { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the phone number associated with the entity.
+    /// </summary>
+    [Required]
+    [Phone]
+    public string Phone { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the backup phone number associated with the entity.
+    /// </summary>
+    [Phone]
+    public string? BackupPhone { get; set; }
 }
