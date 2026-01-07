@@ -1,8 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.Auditory;
+using Sphera.API.Billing.BilletConfigurations;
 using Sphera.API.Billing.BillingEntries;
 using Sphera.API.Billing.ClientServicePrices;
 using Sphera.API.Billing.Invoices;
+using Sphera.API.Billing.Billets;
+using Sphera.API.Billing.Remittances;
 using Sphera.API.Clients;
 using Sphera.API.Contacts;
 using Sphera.API.Documents;
@@ -32,6 +35,9 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
     public DbSet<BillingEntry> BillingEntries { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
+    public DbSet<Billet> Billets { get; set; }
+    public DbSet<BilletConfiguration> BilletConfigurations { get; set; }
+    public DbSet<Remittance> Remittances { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -50,6 +56,9 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
         modelBuilder.ApplyConfiguration(new BillingEntryMap());
         modelBuilder.ApplyConfiguration(new InvoiceMap());
         modelBuilder.ApplyConfiguration(new InvoiceItemMap());
+        modelBuilder.ApplyConfiguration(new BilletMap());
+        modelBuilder.ApplyConfiguration(new BilletConfigurationMap());
+        modelBuilder.ApplyConfiguration(new RemittanceMap());
 
         #region Seed
 
