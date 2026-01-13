@@ -7,7 +7,7 @@ using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Billing.Remittances.DownloadRemittanceFile;
 
-public class DownloadRemittanceFileCommandHandler(SpheraDbContext dbContext, [FromKeyedServices("billing")] IStorage storage, Logger<DownloadRemittanceFileCommandHandler> logger) : IHandler<DownloadRemittanceFileCommand, (Stream, string)>
+public class DownloadRemittanceFileCommandHandler(SpheraDbContext dbContext, [FromKeyedServices("billing")] IStorage storage, ILogger<DownloadRemittanceFileCommandHandler> logger) : IHandler<DownloadRemittanceFileCommand, (Stream, string)>
 {
     public async Task<IResultDTO<(Stream, string)>> HandleAsync(DownloadRemittanceFileCommand request, HttpContext context, CancellationToken cancellationToken)
     {

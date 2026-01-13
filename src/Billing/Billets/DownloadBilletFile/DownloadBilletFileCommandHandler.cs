@@ -7,7 +7,7 @@ using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Billing.Billets.DownloadBilletFile;
 
-public class DownloadBilletFileCommandHandler(SpheraDbContext dbContext, [FromKeyedServices("billing")] IStorage storage, Logger<DownloadBilletFileCommandHandler> logger) : IHandler<DownloadBilletFileCommand, (Stream, string)>
+public class DownloadBilletFileCommandHandler(SpheraDbContext dbContext, [FromKeyedServices("billing")] IStorage storage, ILogger<DownloadBilletFileCommandHandler> logger) : IHandler<DownloadBilletFileCommand, (Stream, string)>
 {
     public async Task<IResultDTO<(Stream, string)>> HandleAsync(DownloadBilletFileCommand request, HttpContext context, CancellationToken cancellationToken)
     {
