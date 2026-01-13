@@ -20,6 +20,7 @@ public class BilletConfigurationDTO
     public decimal RebateAmount { get; set; }
     public string? FirstMessage { get; set; }
     public string? SecondMessage { get; set; }
+    public int StartingSequentialNumber { get; set; }
     public Guid CreatedBy { get; set; }
     public DateTime CreatedAt { get; set; }
     public Guid? UpdatedBy { get; set; }
@@ -46,6 +47,7 @@ public class BilletConfigurationDTO
             RebateAmount = entity.RebateAmount,
             FirstMessage = entity.FirstMessage,
             SecondMessage = entity.SecondMessage,
+            StartingSequentialNumber = entity.StartingSequentialNumber,
             
             CreatedBy = entity.CreatedBy,
             CreatedAt = entity.CreatedAt,

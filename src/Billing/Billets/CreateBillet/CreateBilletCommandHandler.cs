@@ -18,8 +18,8 @@ public class CreateBilletCommandHandler(
         HttpContext context,
         CancellationToken cancellationToken)
     {
-        logger.LogInformation("Criando billet InstallmentId={InstallmentId} ConfigurationId={ConfigurationId} ClientId={ClientId} ", 
-            request.InstallmentId, request.ConfigurationId, request.ClientId);
+        logger.LogInformation("Criando billet Bank={Bank} InstallmentId={InstallmentId} ConfigurationId={ConfigurationId} ClientId={ClientId} ", 
+            request.Bank, request.InstallmentId, request.ConfigurationId, request.ClientId);
 
         var userId = context.User.GetUserId();
         if (userId == Guid.Empty)
@@ -33,7 +33,7 @@ public class CreateBilletCommandHandler(
             {
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-                var entity = new Billet(userId, request.InstallmentId, request.ConfigurationId, request.ClientId);
+                var entity = new Billet(request.Bank, userId, request.InstallmentId, request.ConfigurationId, request.ClientId);
 
                 dbContext.Billets.Add(entity);
                 await dbContext.SaveChangesAsync(cancellationToken);

@@ -6,6 +6,8 @@ using Sphera.API.Billing.Remittances.GetRemittanceById;
 using Sphera.API.Billing.Remittances.ListRemittances;
 using Sphera.API.Billing.Remittances.SubmitRemittance;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Billing.Remittances.GenerateRemittanceFile;
+using Sphera.API.Billing.Remittances.DownloadRemittanceFile;
 
 namespace Sphera.API.Billing.Remittances;
 
@@ -62,6 +64,28 @@ public class RemittancesController : ControllerBase
 
         return response.IsSuccess
             ? Ok(response.Success)
+            : StatusCode(response.Failure!.Code, response.Failure);
+    }
+
+    [HttpPost("{id:guid}/generate-file", Name = "GenerateRemittanceFile")]
+    public async Task<IActionResult> GenerateFile(
+        [FromServices] IHandler<GenerateRemittanceFileCommand, bool> handler,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await handler.HandleAsync(new GenerateRemittanceFileCommand { Id = id }, HttpContext, cancellationToken);
+        return response.IsSuccess ? Ok(response.Success) : StatusCode(response.Failure!.Code, response.Failure);
+    }
+
+    [HttpGet("{id:guid}/download-file", Name = "DownloadRemittanceFile")]
+    public async Task<IActionResult> DownloadFile(
+        [FromServices] IHandler<DownloadRemittanceFileCommand, (Stream, string)> handler,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await handler.HandleAsync(new DownloadRemittanceFileCommand { Id = id }, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? File(response.Success.Item1, "application/octet-stream", response.Success.Item2)
             : StatusCode(response.Failure!.Code, response.Failure);
     }
 

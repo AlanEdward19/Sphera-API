@@ -5,6 +5,8 @@ using Sphera.API.Billing.Billets.DTOs;
 using Sphera.API.Billing.Billets.GetBilletById;
 using Sphera.API.Billing.Billets.ListBillets;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Billing.Billets.GenerateBilletFile;
+using Sphera.API.Billing.Billets.DownloadBilletFile;
 
 namespace Sphera.API.Billing.Billets;
 
@@ -63,4 +65,25 @@ public class BilletsController : ControllerBase
             : StatusCode(response.Failure!.Code, response.Failure);
     }
 
+    [HttpPost("{id:guid}/generate-file", Name = "GenerateBilletFile")]
+    public async Task<IActionResult> GenerateFile(
+        [FromServices] IHandler<GenerateBilletFileCommand, bool> handler,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await handler.HandleAsync(new GenerateBilletFileCommand { Id = id }, HttpContext, cancellationToken);
+        return response.IsSuccess ? Ok(response.Success) : StatusCode(response.Failure!.Code, response.Failure);
+    }
+
+    [HttpGet("{id:guid}/download-file", Name = "DownloadBilletFile")]
+    public async Task<IActionResult> DownloadFile(
+        [FromServices] IHandler<DownloadBilletFileCommand, (Stream, string)> handler,
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var response = await handler.HandleAsync(new DownloadBilletFileCommand { Id = id }, HttpContext, cancellationToken);
+        return response.IsSuccess
+            ? File(response.Success.Item1, "application/pdf", response.Success.Item2)
+            : StatusCode(response.Failure!.Code, response.Failure);
+    }
 }

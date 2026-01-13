@@ -66,6 +66,148 @@ namespace Sphera.API.External.Database.Migrations
                     b.ToTable("AuditEntries", "dbo");
                 });
 
+            modelBuilder.Entity("Sphera.API.Billing.BilletConfigurations.BilletConfiguration", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<string>("AccountDigit")
+                        .IsRequired()
+                        .HasMaxLength(1)
+                        .HasColumnType("nvarchar(1)");
+
+                    b.Property<string>("AccountNumber")
+                        .IsRequired()
+                        .HasMaxLength(7)
+                        .HasColumnType("nvarchar(7)");
+
+                    b.Property<string>("AgencyNumber")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("nvarchar(5)");
+
+                    b.Property<string>("BankCode")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.Property<string>("CompanyCode")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)");
+
+                    b.Property<string>("CompanyName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("DailyDiscount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DailyInterest")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("DiscountAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("DiscountLimitDate")
+                        .HasColumnType("date");
+
+                    b.Property<decimal?>("FinePercentage")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("FirstMessage")
+                        .IsRequired()
+                        .HasMaxLength(12)
+                        .HasColumnType("nvarchar(12)");
+
+                    b.Property<bool>("HasFine")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal>("RebateAmount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("SecondMessage")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("StartingSequentialNumber")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("WalletNumber")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("nvarchar(3)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("BilletConfigurations", "dbo");
+                });
+
+            modelBuilder.Entity("Sphera.API.Billing.Billets.Billet", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<int>("Bank")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("ConfigurationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InstallmentId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("RemittanceId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClientId");
+
+                    b.HasIndex("ConfigurationId");
+
+                    b.HasIndex("InstallmentId")
+                        .HasDatabaseName("IX_Billets_InstallmentId");
+
+                    b.HasIndex("RemittanceId")
+                        .HasDatabaseName("IX_Billets_RemittanceId");
+
+                    b.ToTable("Billets", "dbo");
+                });
+
             modelBuilder.Entity("Sphera.API.Billing.BillingEntries.BillingEntry", b =>
                 {
                     b.Property<Guid>("Id")
@@ -299,6 +441,46 @@ namespace Sphera.API.External.Database.Migrations
                         .HasDatabaseName("IX_InvoiceItems_ServiceId");
 
                     b.ToTable("InvoiceItems", "dbo");
+                });
+
+            modelBuilder.Entity("Sphera.API.Billing.Remittances.Remittance", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
+
+                    b.Property<int?>("Bank")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("ConfigurationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(260)
+                        .HasColumnType("nvarchar(260)");
+
+                    b.Property<bool>("IsSubmitted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConfigurationId");
+
+                    b.ToTable("Remittances", "dbo");
                 });
 
             modelBuilder.Entity("Sphera.API.Clients.Client", b =>
@@ -758,6 +940,42 @@ namespace Sphera.API.External.Database.Migrations
                     b.Navigation("Actor");
                 });
 
+            modelBuilder.Entity("Sphera.API.Billing.Billets.Billet", b =>
+                {
+                    b.HasOne("Sphera.API.Clients.Client", "Client")
+                        .WithMany()
+                        .HasForeignKey("ClientId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Billets_Clients");
+
+                    b.HasOne("Sphera.API.Billing.BilletConfigurations.BilletConfiguration", "Configuration")
+                        .WithMany()
+                        .HasForeignKey("ConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Billets_BilletConfigurations");
+
+                    b.HasOne("Sphera.API.Billing.Invoices.InvoiceInstallment", "Installment")
+                        .WithMany()
+                        .HasForeignKey("InstallmentId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("FK_Billets_InvoiceInstallments");
+
+                    b.HasOne("Sphera.API.Billing.Remittances.Remittance", null)
+                        .WithMany("Billets")
+                        .HasForeignKey("RemittanceId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("FK_Billets_Remittances");
+
+                    b.Navigation("Client");
+
+                    b.Navigation("Configuration");
+
+                    b.Navigation("Installment");
+                });
+
             modelBuilder.Entity("Sphera.API.Billing.BillingEntries.BillingEntry", b =>
                 {
                     b.HasOne("Sphera.API.Clients.Client", "Client")
@@ -841,6 +1059,15 @@ namespace Sphera.API.External.Database.Migrations
                     b.Navigation("Invoice");
 
                     b.Navigation("Service");
+                });
+
+            modelBuilder.Entity("Sphera.API.Billing.Remittances.Remittance", b =>
+                {
+                    b.HasOne("Sphera.API.Billing.BilletConfigurations.BilletConfiguration", "Configuration")
+                        .WithMany()
+                        .HasForeignKey("ConfigurationId");
+
+                    b.Navigation("Configuration");
                 });
 
             modelBuilder.Entity("Sphera.API.Clients.Client", b =>
@@ -1067,6 +1294,11 @@ namespace Sphera.API.External.Database.Migrations
                     b.Navigation("Installments");
 
                     b.Navigation("Items");
+                });
+
+            modelBuilder.Entity("Sphera.API.Billing.Remittances.Remittance", b =>
+                {
+                    b.Navigation("Billets");
                 });
 
             modelBuilder.Entity("Sphera.API.Clients.Client", b =>

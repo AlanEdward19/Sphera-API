@@ -66,6 +66,8 @@ public class BilletConfiguration
     [MaxLength(60)]
     public string SecondMessage { get; set; }
     
+    public int StartingSequentialNumber { get; set; }
+    
     /// <summary>
     /// Gets the date and time when the entity was created.
     /// </summary>
@@ -90,7 +92,7 @@ public class BilletConfiguration
 
     public BilletConfiguration() { }
 
-    public BilletConfiguration(string companyCode, string companyName, string walletNumber, string agencyNumber, string accountNumber, string accountDigit, string bankCode, bool hasFine, decimal? finePercentage, decimal dailyDiscount, decimal dailyInterest, DateTime discountLimitDate, decimal discountAmount, decimal rebateAmount, string firstMessage, string secondMessage, Guid createdBy)
+    public BilletConfiguration(string companyCode, string companyName, string walletNumber, string agencyNumber, string accountNumber, string accountDigit, string bankCode, bool hasFine, decimal? finePercentage, decimal dailyDiscount, decimal dailyInterest, DateTime discountLimitDate, decimal discountAmount, decimal rebateAmount, string firstMessage, string secondMessage, int startingSequentialNumber, Guid createdBy)
     {
         Id = Guid.NewGuid();
         CompanyCode = companyCode;
@@ -109,6 +111,7 @@ public class BilletConfiguration
         RebateAmount = rebateAmount;
         FirstMessage = firstMessage;
         SecondMessage = secondMessage;
+        StartingSequentialNumber = startingSequentialNumber;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         UpdatedAt = null;
@@ -134,6 +137,7 @@ public class BilletConfiguration
         RebateAmount = command.RebateAmount;
         FirstMessage = command.FirstMessage;
         SecondMessage = command.SecondMessage;
+        StartingSequentialNumber = command.StartingSequentialNumber;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         UpdatedAt = null;
@@ -158,6 +162,7 @@ public class BilletConfiguration
         if (command.RebateAmount.HasValue) RebateAmount = command.RebateAmount.Value;
         if (command.FirstMessage is not null) FirstMessage = command.FirstMessage;
         if (command.SecondMessage is not null) SecondMessage = command.SecondMessage;
+        if (command.StartingSequentialNumber.HasValue) StartingSequentialNumber = command.StartingSequentialNumber.Value;
 
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = userId;

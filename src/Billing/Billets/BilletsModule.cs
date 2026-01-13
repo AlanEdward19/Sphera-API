@@ -4,6 +4,8 @@ using Sphera.API.Billing.Billets.GetBilletById;
 using Sphera.API.Billing.Billets.ListBillets;
 using Sphera.API.Billing.Billets.DTOs;
 using Sphera.API.Shared.Interfaces;
+using Sphera.API.Billing.Billets.GenerateBilletFile;
+using Sphera.API.Billing.Billets.DownloadBilletFile;
 
 namespace Sphera.API.Billing.Billets;
 
@@ -23,6 +25,8 @@ public static class BilletsModule
         services.AddScoped<IHandler<GetBilletByIdQuery, BilletDTO>, GetBilletByIdQueryHandler>();
         services.AddScoped<IHandler<CreateBilletCommand, BilletDTO>, CreateBilletCommandHandler>();
         services.AddScoped<IHandler<DeleteBilletCommand, bool>, DeleteBilletCommandHandler>();
+        services.AddScoped<IHandler<GenerateBilletFileCommand, bool>, GenerateBilletFileCommandHandler>();
+        services.AddScoped<IHandler<DownloadBilletFileCommand, (Stream, string)>, DownloadBilletFileCommandHandler>();
 
         return services;
     }

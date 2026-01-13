@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Sphera.API.Billing.BilletConfigurations;
+using Sphera.API.Billing.Billets.Enums;
 using Sphera.API.Billing.Invoices;
 using Sphera.API.Clients;
 
@@ -9,6 +10,8 @@ namespace Sphera.API.Billing.Billets;
 public class Billet
 {
     public Guid Id { get; private set; }
+    
+    public EBilletBank Bank { get; private set; }
     
     /// <summary>
     /// Gets the date and time when the entity was created.
@@ -49,8 +52,10 @@ public class Billet
 
     public Billet() { }
 
-    public Billet(Guid createdBy, Guid installmentId, Guid configurationId, Guid clientId)
+    public Billet(EBilletBank bank, Guid createdBy, Guid installmentId, Guid configurationId, Guid clientId)
     {
+        Id = Guid.NewGuid();
+        Bank = bank;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         UpdatedAt = null;
