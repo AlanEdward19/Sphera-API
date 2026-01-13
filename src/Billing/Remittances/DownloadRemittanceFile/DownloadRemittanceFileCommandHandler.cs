@@ -1,4 +1,4 @@
-﻿using System.Data.Entity;
+﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
@@ -27,12 +27,12 @@ public class DownloadRemittanceFileCommandHandler(SpheraDbContext dbContext, [Fr
         try
         {
             var fileName =
-                $"remittances/{entity.FileName}.rem";
+                $"remittances/{entity.FileName}";
                 
             if (await storage.ExistsAsync(fileName, cancellationToken)) 
             {
                 var result = await storage.DownloadAsync(fileName, cancellationToken);
-                return ResultDTO<(Stream, string)>.AsSuccess((result, $"{entity.FileName}.rem"));
+                return ResultDTO<(Stream, string)>.AsSuccess((result, entity.FileName));
             }
             else 
                 return ResultDTO<(Stream, string)>.AsFailure(new FailureDTO(404, "Remessa não encontrado"));
