@@ -41,7 +41,7 @@ public class GenerateRemittanceFileCommandHandler(
                 .ToListAsync(cancellationToken);
 
             var date = DateTime.Now;
-            var fileName = $"CB{date:ddMM}{(configurationRemittances.Count + 1).ToString("##").PadLeft(2, '0')}.rem";
+            var fileName = $"CB{date:ddMM}{(configurationRemittances.Count + 1).ToString("##").PadLeft(2, '0')}.REM";
             entity.UpdateFileName(fileName, userId);
             
             if (entity.Configuration == null)
