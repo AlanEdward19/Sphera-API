@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Sphera.API.Billing.BilletConfigurations.CreateBilletConfiguration;
 using Sphera.API.Billing.BilletConfigurations.UpdateBilletConfiguration;
+using Sphera.API.Billing.Billets;
 
 namespace Sphera.API.Billing.BilletConfigurations;
 
@@ -89,6 +90,8 @@ public class BilletConfiguration
     /// Gets the unique identifier of the user who last updated the entity.
     /// </summary>
     public Guid? UpdatedBy { get; private set; }
+
+    public virtual ICollection<Billet> Billets { get; set; } = new List<Billet>();
 
     public BilletConfiguration() { }
 

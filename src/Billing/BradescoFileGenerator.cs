@@ -5,27 +5,34 @@ using Sphera.API.Billing.Billets;
 
 namespace Sphera.API.Billing;
 
-public class BradescoFileGenerator()
+public class BradescoFileGenerator
 {
-    private DateTime _date = DateTime.Now;
-    
-    public void GenerateRemmitanceFile(List<Billet> billets, int remittanceSequentialNumber)
+    public static Stream GenerateRemmitanceFile(List<Billet> billets, int remittanceSequentialNumber)
     {
         string data = "";
 
         var billetConfiguration = billets.First().Configuration;
-        data += GenerateHeader(billetConfiguration, remittanceSequentialNumber);
+        data += GenerateHeader(billetConfiguration, remittanceSequentialNumber) + "\n";
 
         
         for (var i = 0; i < billets.Count; i++)
         {
             var billet = billets[i];
-            data += GenerateTitle(billet, billetConfiguration, i + 2);
+            data += GenerateTitle(billet, billetConfiguration, i + 2) + "\n";
         }
+
+        data += GenerateTrailer();
         
+        var stream = new MemoryStream();
+        var writer = new StreamWriter(stream);
+        writer.Write(data);
+        writer.Flush();
+        stream.Position = 0;
+
+        return stream;
     }
     
-    public string Text(object input, int length, char padding = ' ')
+    public static string Text(object input, int length, char padding = ' ')
     {
         var strInput = input?.ToString() ?? string.Empty;
         if (strInput.Length > length)
@@ -33,7 +40,7 @@ public class BradescoFileGenerator()
         return strInput.PadLeft(length, padding);
     }
 
-    public string GenerateHeader(BilletConfiguration billetConfiguration, int remittanceSequentialNumber)
+    public static string GenerateHeader(BilletConfiguration billetConfiguration, int remittanceSequentialNumber)
     {
         var sb = new StringBuilder();
         
@@ -65,7 +72,7 @@ public class BradescoFileGenerator()
         sb.Append(Text("BRADESCO", 15)); 
         
         // 095-100 Data da Gravação do Arquivo
-        sb.Append(_date.ToString("ddMMyy"));
+        sb.Append(DateTime.Now.ToString("ddMMyy"));
         
         // 101-108 Branco
         sb.Append(Text("", 8));
@@ -85,13 +92,12 @@ public class BradescoFileGenerator()
         return sb.ToString();
     }
 
-    public string GenerateTitle(Billet billet, BilletConfiguration billetConfiguration, int sequentialNumber)
+    public static string GenerateTitle(Billet billet, BilletConfiguration billetConfiguration, int sequentialNumber)
     {
-        var sb = new System.Text.StringBuilder();
+        var sb = new StringBuilder();
 
         var realFormattingConfigurations = new NumberFormatInfo
-            { CurrencyDecimalDigits = 2, CurrencyDecimalSeparator = "", CurrencySymbol = "" };
-        
+            { CurrencyDecimalDigits = 2, CurrencyDecimalSeparator = ".", CurrencySymbol = "" };
         
         // 00
         sb.Append("1");
@@ -187,25 +193,25 @@ public class BradescoFileGenerator()
         sb.Append("0000");                              
         
         // 161-173 Valor a ser Cobrado por Dia de Atraso
-        sb.Append(Text(billetConfiguration.DailyInterest.ToString("C", realFormattingConfigurations ), 13, '0'));
+        sb.Append(Text(billetConfiguration.DailyInterest.ToString("C", realFormattingConfigurations ).Replace(".", ""), 13, '0'));
         
         // 174-179 Data Limite P/Concessão de Desconto
         sb.Append(billetConfiguration.DiscountLimitDate.ToString("ddMMyy"));
         
         // 180-192 Valor do Desconto
-        sb.Append(Text(billetConfiguration.DiscountAmount.ToString("C", realFormattingConfigurations ), 13, '0'));
+        sb.Append(Text(billetConfiguration.DiscountAmount.ToString("C", realFormattingConfigurations ).Replace(".", ""), 13, '0'));
         
         // 193-205 Valor do IOF
         sb.Append("0000000000000");
         
         // 206-218 Valor do Abatimento
-        sb.Append(Text(billetConfiguration.RebateAmount.ToString("C", realFormattingConfigurations ), 13, '0'));
+        sb.Append(Text(billetConfiguration.RebateAmount.ToString("C", realFormattingConfigurations ).Replace(".", ""), 13, '0'));
         
         // 219-220 Identificação do Pagador
         sb.Append("02");
         
         // 221-234 Nº Inscrição do Pagador
-        var client = billet.Installment.Invoice.Client;
+        var client = billet.Client;
         sb.Append(Text(client.Cnpj, 104, '0'));
         
         // 235-274 Nome do Pagador
@@ -228,6 +234,13 @@ public class BradescoFileGenerator()
         
         // 395-400 Nº Sequencial do Registro de Um em Um
         sb.Append(Text(sequentialNumber, 6, '0'));
+        
+        return sb.ToString();
+    }
+    
+    public static string GenerateTrailer()
+    {
+        var sb = new StringBuilder();
         
         return sb.ToString();
     }

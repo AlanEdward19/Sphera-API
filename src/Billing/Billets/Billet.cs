@@ -4,6 +4,7 @@ using Sphera.API.Billing.BilletConfigurations;
 using Sphera.API.Billing.Billets.Enums;
 using Sphera.API.Billing.Invoices;
 using Sphera.API.Clients;
+using Sphera.API.Billing.Remittances;
 
 namespace Sphera.API.Billing.Billets;
 
@@ -49,6 +50,11 @@ public class Billet
     
     [ForeignKey(nameof(ClientId))]
     public virtual Client Client { get; private set; }
+
+    public Guid? RemittanceId { get; set; }
+
+    [ForeignKey(nameof(RemittanceId))]
+    public virtual Remittance? Remittance { get; set; }
 
     public Billet() { }
 
