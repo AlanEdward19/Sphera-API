@@ -58,14 +58,20 @@ public class GenerateFilesReportQueryHandler(SpheraDbContext dbContext, ILogger<
         if (request.ToDate.HasValue)
             query = query.Where(d => d.DueDate <= request.ToDate.Value);
         
+        if (request.ProgressStatus.HasValue)
+            query = query.Where(d => d.ProgressStatus == request.ProgressStatus.Value);
+        
         var documents = await query.ToListAsync(cancellationToken);
         
-        if(!documents.Any())
+        if(documents.Count == 0)
             return ResultDTO<FilesReportDTO[]>.AsFailure(new FailureDTO(404, "Nenhum documento encontrado"));
+
+        if (request.Status.HasValue)
+            documents = documents.Where(d => d.Status == request.Status.Value).ToList();
 
         var result = documents.Select(x => new FilesReportDTO(x.FileName, x.Client.PartnerId,
             x.Client.Partner.LegalName, x.ClientId, x.Client.LegalName, x.ServiceId, x.Service.Name, x.ResponsibleId,
-            x.Responsible.Name, x.DueDate, x.Status)).ToArray();
+            x.Responsible.Name, x.DueDate, x.Status, x.ProgressStatus)).ToArray();
         
         return ResultDTO<FilesReportDTO[]>.AsSuccess(result);
     }

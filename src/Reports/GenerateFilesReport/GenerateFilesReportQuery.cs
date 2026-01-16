@@ -1,4 +1,5 @@
-﻿using Sphera.API.Shared.Enums;
+﻿using Sphera.API.Documents.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Reports.GenerateFilesReport;
 
@@ -69,4 +70,6 @@ public class GenerateFilesReportQuery
     /// If left null, no upper limit will be applied to the due date filter in the query.
     /// </remarks>
     public DateTime? ToDate { get; set; }
+    
+    public EDocumentProgressStatus? ProgressStatus { get; set; }
 }

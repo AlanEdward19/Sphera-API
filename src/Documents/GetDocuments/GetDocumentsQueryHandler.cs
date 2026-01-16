@@ -39,6 +39,9 @@ public class GetDocumentsQueryHandler(
 
         if (request.DueDateTo.HasValue)
             query = query.Where(d => d.DueDate <= request.DueDateTo.Value);
+        
+        if(request.ProgressStatus.HasValue)
+            query = query.Where(d => d.ProgressStatus == request.ProgressStatus.Value);
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {

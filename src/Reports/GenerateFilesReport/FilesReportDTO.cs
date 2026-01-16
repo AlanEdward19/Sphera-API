@@ -1,4 +1,5 @@
-﻿using Sphera.API.Shared.Enums;
+﻿using Sphera.API.Documents.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Reports.GenerateFilesReport;
 
@@ -114,6 +115,8 @@ public class FilesReportDTO
     /// nearing expiration, or already expired.
     /// </remarks>
     public EExpirationStatus Status { get; private set; }
+    
+    public EDocumentProgressStatus? ProgressStatus { get; private set; }
 
     /// <summary>
     /// Represents a data transfer object designed to encapsulate information
@@ -121,7 +124,7 @@ public class FilesReportDTO
     /// </summary>
     public FilesReportDTO(string fileName, Guid partnerId, string partnerName, Guid clientId, string clientName,
         Guid serviceId, string serviceName, Guid responsibleId, string responsibleName, DateTime dueDate,
-        EExpirationStatus status)
+        EExpirationStatus status, EDocumentProgressStatus progressStatus)
     {
         FileName = fileName;
         PartnerId = partnerId;
@@ -134,5 +137,6 @@ public class FilesReportDTO
         ResponsibleName = responsibleName;
         DueDate = dueDate;
         Status = status;
+        ProgressStatus = progressStatus;
     }
 }

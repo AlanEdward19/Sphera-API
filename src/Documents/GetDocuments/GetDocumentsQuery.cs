@@ -1,4 +1,5 @@
-﻿using Sphera.API.Shared.Enums;
+﻿using Sphera.API.Documents.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Documents.GetDocuments;
 
@@ -26,6 +27,11 @@ public class GetDocumentsQuery
     /// Current status of the document, indicating whether it is within the deadline, about to expire, or expired.
     /// </summary>
     public EExpirationStatus? Status { get; set; }
+    
+    /// <summary>
+    /// Current progress status of the document, indicating its stage in the workflow or review process.
+    /// </summary>
+    public EDocumentProgressStatus? ProgressStatus { get; set; }
 
     /// <summary>
     /// The start date for filtering documents based on their due date.
