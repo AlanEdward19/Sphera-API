@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Sphera.API.Documents.Enums;
 
 namespace Sphera.API.Documents.CreateDocument;
 
@@ -49,4 +50,7 @@ public class CreateDocumentCommand
     /// </summary>
     [MaxLength(255)]
     public string? Notes { get; set; }
+    
+    [Required]
+    public EDocumentProgressStatus ProgressStatus { get; set; }
 }

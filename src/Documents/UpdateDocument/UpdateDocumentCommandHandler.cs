@@ -33,7 +33,8 @@ public class UpdateDocumentCommandHandler(SpheraDbContext dbContext,
                 document.ChangeService(request.ServiceId, actor);
                 document.ChangeResponsible(request.ResponsibleId, actor);
                 document.UpdateDates(request.IssueDate, request.DueDate, actor);
-                document.AddNotes(request.Notes, actor);
+                document.UpdateNotes(request.Notes, actor);
+                document.UpdateProgressStatus(request.ProgressStatus, actor);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
