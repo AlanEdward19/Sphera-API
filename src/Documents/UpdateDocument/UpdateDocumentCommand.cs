@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Sphera.API.Documents.Enums;
 
 namespace Sphera.API.Documents.UpdateDocument;
 
@@ -10,6 +11,8 @@ namespace Sphera.API.Documents.UpdateDocument;
 /// annotations; callers should ensure that all required fields are populated and valid.</remarks>
 public class UpdateDocumentCommand
 {
+    
+
     /// <summary>
     /// Gets or sets the unique identifier for the entity.
     /// </summary>
@@ -50,6 +53,9 @@ public class UpdateDocumentCommand
     /// </summary>
     [MaxLength(255)]
     public string? Notes { get; set; }
+    
+    [Required]
+    public EDocumentProgressStatus ProgressStatus { get; set; }
 
     /// <summary>
     /// Sets the unique identifier for the current instance.

@@ -1,3 +1,4 @@
+using Sphera.API.Documents.Enums;
 using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Documents.DTOs;
@@ -16,13 +17,14 @@ public class DocumentWithMetadataDTO(
     DateTime? updatedAt,
     Guid? updatedBy,
     EExpirationStatus status,
+    EDocumentProgressStatus progressStatus,
     string partnerName,
     string clientName,
     string serviceName,
     string responsibleName,
     FileMetadataDTO? fileMetadata)
     : DocumentDTO(id, fileName, clientId, serviceId, responsibleId, issueDate, dueDate, notes, createdAt, createdBy, updatedAt,
-        updatedBy, status)
+        updatedBy, status, progressStatus)
 {
     public string PartnerName { get; } = partnerName;
     public string ClientName { get; } = clientName;
