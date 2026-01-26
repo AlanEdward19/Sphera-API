@@ -1,6 +1,7 @@
 ﻿using Sphera.API.Contacts;
 using Sphera.API.Shared.DTOs;
 using System.Collections.ObjectModel;
+using Sphera.API.Clients.Enums;
 using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Clients.DTOs;
@@ -26,13 +27,14 @@ public class ClientDTO
     public Guid? UpdatedBy { get; private set; }
     public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
     public int DocumentsCount { get; private set; }
+    public EPaymentStatus? PaymentStatus { get; private set; }
 
     public ClientDTO(Guid id, string tradeName, string legalName, string cnpj, string? stateRegistration,
         string? municipalRegistration, AddressDTO address, short? billingDueDay, DateTime? contractDate,
         EExpirationStatus? expirationStatus, bool status,
         DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy,
         ReadOnlyCollection<ContactDTO> contacts, int documentsCount, string? notes = null,
-        DateTime? ecacExpirationDate = null)
+        DateTime? ecacExpirationDate = null, EPaymentStatus? paymentStatus = null)
     {
         Id = id;
         TradeName = tradeName;
@@ -53,5 +55,6 @@ public class ClientDTO
         UpdatedBy = updatedBy;
         Contacts = contacts;
         DocumentsCount = documentsCount;
+        PaymentStatus = paymentStatus;
     }
 }
