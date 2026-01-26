@@ -7,6 +7,7 @@ using Sphera.API.Shared;
 using Sphera.API.Shared.ValueObjects;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Sphera.API.Clients.Enums;
 using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Clients;
@@ -99,6 +100,9 @@ public class Client
     /// </summary>
     [Required]
     public bool Status { get; private set; }
+    
+    [Required]
+    public EPaymentStatus PaymentStatus { get; private set; }
 
     /// <summary>
     /// Gets the date and time when the entity was created.
@@ -177,6 +181,7 @@ public class Client
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
+        PaymentStatus = EPaymentStatus.UpToDate;
     }
 
     public Client(CreateClientCommand command, Guid createdBy)
@@ -199,6 +204,7 @@ public class Client
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
+        PaymentStatus = EPaymentStatus.UpToDate;
     }
 
     /// <summary>
@@ -251,14 +257,16 @@ public class Client
     /// <param name="notes"></param>
     /// <param name="ecacExpirationDate"></param>
     /// <param name="actor">The unique identifier of the user or process performing the update.</param>
+    /// <param name="paymentStatus"></param>
     public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
         string? municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay,
-        string? notes, DateTime? ecacExpirationDate, Guid actor)
+        string? notes, DateTime? ecacExpirationDate, Guid actor, EPaymentStatus paymentStatus)
     {
         SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
             billingDueDay, notes, ecacExpirationDate);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
+        PaymentStatus = paymentStatus;
     }
 
     /// <summary>
@@ -341,6 +349,7 @@ public class Client
                 documentCount,
                 Notes,
                 EcacExpirationDate,
+                PaymentStatus,
                 Partner.ToDTO(false, clientsCount!.Value)
             )
             : new ClientDTO(
@@ -362,7 +371,8 @@ public class Client
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
                 documentCount,
                 Notes,
-                EcacExpirationDate
+                EcacExpirationDate, 
+                PaymentStatus
             );
     }
 
