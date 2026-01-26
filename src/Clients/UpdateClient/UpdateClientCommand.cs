@@ -1,5 +1,6 @@
 ﻿using Sphera.API.Shared.DTOs;
 using System.ComponentModel.DataAnnotations;
+using Sphera.API.Clients.Enums;
 
 namespace Sphera.API.Clients.UpdateClient;
 
@@ -116,6 +117,9 @@ public class UpdateClientCommand
     /// Gets or sets a value indicating whether the current entity is active.
     /// </summary>
     public bool Status { get; set; } = true;
+    
+    [Required]
+    public EPaymentStatus  PaymentStatus { get; set; }
 
     /// <summary>
     /// Gets the unique identifier associated with this instance.

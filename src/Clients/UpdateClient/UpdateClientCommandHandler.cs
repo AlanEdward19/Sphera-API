@@ -60,7 +60,7 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
 
                 client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration,
                     request.MunicipalRegistration,
-                    address, dueDate, request.BillingDueDay, request.Notes, request.EcacExpirationDate, actor);
+                    address, dueDate, request.BillingDueDay, request.Notes, request.EcacExpirationDate, actor, request.PaymentStatus);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
