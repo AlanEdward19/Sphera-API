@@ -30,6 +30,10 @@ if (app.Environment.IsDevelopment())
 app.UseCors("Localhost8080");
 #endif
 
+#if !DEBUG
+app.UseMiddleware<LicenseMiddleware>();
+#endif
+
 app.UseAuthorization();
 app.MapControllers();
 app.UpdateMigrations();
