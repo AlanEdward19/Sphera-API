@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Sphera.API.Contacts;
 using Sphera.API.Partners;
 using Sphera.API.Shared.ValueObjects;
 

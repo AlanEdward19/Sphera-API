@@ -1,6 +1,4 @@
-﻿using Sphera.API.Billing.BillingEntries;
-using Sphera.API.Billing.BillingEntries.CreateBillingEntry;
-using Sphera.API.Billing.ClientServicePrices.CreateClientServicePrice;
+﻿using Sphera.API.Billing.ClientServicePrices.CreateClientServicePrice;
 using Sphera.API.Billing.ClientServicePrices.GetClientServicePriceById;
 using Sphera.API.Billing.ClientServicePrices.ListClientServicePrices;
 using Sphera.API.Shared.Interfaces;

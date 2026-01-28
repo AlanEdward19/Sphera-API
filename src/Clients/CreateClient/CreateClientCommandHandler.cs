@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NuGet.Configuration;
 using Sphera.API.Clients.DTOs;
-using Sphera.API.Contacts;
 using Sphera.API.Contacts.Enums;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;

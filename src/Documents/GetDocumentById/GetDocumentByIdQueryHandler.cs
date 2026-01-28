@@ -1,6 +1,5 @@
 using Microsoft.EntityFrameworkCore;
 using Sphera.API.Documents.DTOs;
-using Sphera.API.Documents.GetDocuments;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
