@@ -71,7 +71,7 @@ public class GenerateFilesReportQueryHandler(SpheraDbContext dbContext, ILogger<
 
         var result = documents.Select(x => new FilesReportDTO(x.FileName, x.Client.PartnerId,
             x.Client.Partner.LegalName, x.ClientId, x.Client.LegalName, x.ServiceId, x.Service.Name, x.ResponsibleId,
-            x.Responsible.Name, x.DueDate, x.Status, x.ProgressStatus)).ToArray();
+            x.Responsible.Name, x.DueDate, x.Status, x.ProgressStatus, x.Notes)).ToArray();
         
         return ResultDTO<FilesReportDTO[]>.AsSuccess(result);
     }
