@@ -117,6 +117,8 @@ public class FilesReportDTO
     public EExpirationStatus Status { get; private set; }
     
     public EDocumentProgressStatus? ProgressStatus { get; private set; }
+    
+    public string? Notes { get; private set; }
 
     /// <summary>
     /// Represents a data transfer object designed to encapsulate information
@@ -124,7 +126,7 @@ public class FilesReportDTO
     /// </summary>
     public FilesReportDTO(string fileName, Guid partnerId, string partnerName, Guid clientId, string clientName,
         Guid serviceId, string serviceName, Guid responsibleId, string responsibleName, DateTime dueDate,
-        EExpirationStatus status, EDocumentProgressStatus progressStatus)
+        EExpirationStatus status, EDocumentProgressStatus progressStatus, string? notes)
     {
         FileName = fileName;
         PartnerId = partnerId;
@@ -138,5 +140,6 @@ public class FilesReportDTO
         DueDate = dueDate;
         Status = status;
         ProgressStatus = progressStatus;
+        Notes = notes;
     }
 }
