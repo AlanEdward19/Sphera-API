@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Cryptography;
 using Microsoft.IdentityModel.Tokens;
+using Sphera.API.Licensing.DTOs;
 using Sphera.API.Licensing.Enums;
 
 namespace Sphera.API.Licensing;
@@ -19,6 +20,8 @@ public class LicenseService
 
         using var rsa = RSA.Create();
         rsa.ImportFromPem(publicKeyPem);
+        
+        var rsaParameters = rsa.ExportParameters(false);
 
         _validationParams = new TokenValidationParameters
         {
@@ -29,14 +32,14 @@ public class LicenseService
             ValidAudience = "urn:arqontech:onpremise",
 
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new RsaSecurityKey(rsa),
+            IssuerSigningKey = new RsaSecurityKey(rsaParameters),
 
             ValidateLifetime = false,
             ClockSkew = TimeSpan.Zero
         };
     }
 
-    private (ELicenseStatus Status, LicenseInfo? Info) Validate()
+    private (ELicenseStatus Status, LicenseInfoDTO? Info) Validate()
     {
         var licensePath = _config["License:FilePath"]!;
         if (!File.Exists(licensePath))
@@ -61,7 +64,7 @@ public class LicenseService
                         ? ELicenseStatus.Grace
                         : ELicenseStatus.Expired;
 
-            var info = new LicenseInfo(
+            var info = new LicenseInfoDTO(
                 principal.FindFirst("licenseId")!.Value,
                 principal.FindFirst("customerId")!.Value,
                 issuedAt,
@@ -76,15 +79,10 @@ public class LicenseService
             return (ELicenseStatus.Invalid, null);
         }
     }
-    
-    public LicenseCheckResult Check()
+
+    public LicenseCheckResultDTO Check()
     {
         var (status, info) = Validate();
-        return new LicenseCheckResult(status, info);
+        return new LicenseCheckResultDTO(status, info);
     }
 }
-
-public record LicenseCheckResult(
-    ELicenseStatus Status,
-    LicenseInfo? Info
-);

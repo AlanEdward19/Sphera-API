@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Sphera.API.Licensing.Enums;
 
 namespace Sphera.API.Licensing;
@@ -7,18 +8,18 @@ public class LicenseMiddleware(RequestDelegate next)
 {
     public async Task InvokeAsync(
         HttpContext context,
-        LicenseService licenseService, 
+        LicenseService licenseService,
         LicenseRenewClient renewClient)
     {
         var check = licenseService.Check();
-        
+
         if (check.Status == ELicenseStatus.Active)
         {
             await next(context);
             return;
         }
         
-        if (check.Status == ELicenseStatus.Grace && check.Info is not null)
+        if (check is { Status: ELicenseStatus.Grace, Info: not null })
         {
             _ = Task.Run(() =>
                 renewClient.TryRenewAsync(
@@ -32,7 +33,7 @@ public class LicenseMiddleware(RequestDelegate next)
             var formattedAmount = daysLeft.ToString();
             
             context.Response.Headers["X-License-Alert"] = formattedAmount;
-
+        
             await next(context);
             return;
         }
@@ -50,11 +51,21 @@ public class LicenseMiddleware(RequestDelegate next)
             }
 
             context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-            await context.Response.WriteAsync("Licença expirada");
+            context.Response.ContentType = "application/json; charset=utf-8";
+            
+            context.Response.Headers["X-License-Alert"] = "0";
+
+            var payload = new { code = 403, message = "Licença expirada" };
+            await context.Response.WriteAsync(JsonSerializer.Serialize(payload));
             return;
         }
-        
+
         context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
-        await context.Response.WriteAsync("Licença inválida");
+        context.Response.ContentType = "application/json; charset=utf-8";
+        
+        context.Response.Headers["X-License-Alert"] = "0";
+
+        var invalidPayload = new { code = 403, message = "Licença inválida" };
+        await context.Response.WriteAsync(JsonSerializer.Serialize(invalidPayload));
     }
 }

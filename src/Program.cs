@@ -1,5 +1,6 @@
 using Sphera.API.Configurations;
 using Sphera.API.External;
+using Sphera.API.Licensing;
 
 var builder = WebApplication.CreateBuilder(args);
 

@@ -1,6 +1,6 @@
-﻿namespace Sphera.API.Licensing;
+﻿namespace Sphera.API.Licensing.DTOs;
 
-public record LicenseInfo(
+public record LicenseInfoDTO(
     string LicenseId,
     string CustomerId,
     DateTime IssuedAt,
