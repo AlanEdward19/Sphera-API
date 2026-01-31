@@ -9,7 +9,8 @@ public class LicenseMiddleware(RequestDelegate next)
     public async Task InvokeAsync(
         HttpContext context,
         LicenseService licenseService,
-        LicenseRenewClient renewClient)
+        LicenseRenewClient renewClient,
+        IConfiguration configuration)
     {
         var check = licenseService.Check();
 
@@ -19,11 +20,13 @@ public class LicenseMiddleware(RequestDelegate next)
             return;
         }
         
+        var licensePath = configuration["License:FilePath"]!;
+        
         if (check is { Status: ELicenseStatus.Grace, Info: not null })
         {
             _ = Task.Run(() =>
                 renewClient.TryRenewAsync(
-                    File.ReadAllText("license.jwt")
+                    File.ReadAllText(licensePath)
                 ));
             
             int daysLeft = check.Info.ExpiresAt.AddDays(check.Info.GraceDays)
@@ -41,7 +44,7 @@ public class LicenseMiddleware(RequestDelegate next)
         if (check is { Status: ELicenseStatus.Expired, Info: not null })
         {
             var renewed = await renewClient.TryRenewAsync(
-                await File.ReadAllTextAsync("license.jwt")
+                await File.ReadAllTextAsync(licensePath)
             );
 
             if (renewed)
