@@ -1,4 +1,3 @@
-using Sphera.API.Documents.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;

@@ -1,6 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sphera.API.Billing.Invoices.DTOs;
-using Sphera.API.Billing.Invoices.Enums;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;

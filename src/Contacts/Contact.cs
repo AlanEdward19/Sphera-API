@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json.Linq;
-using Sphera.API.Clients;
+﻿using Sphera.API.Clients;
 using Sphera.API.Contacts.Enums;
 using Sphera.API.Partners;
 using Sphera.API.Shared;
