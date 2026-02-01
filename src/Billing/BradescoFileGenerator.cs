@@ -1,6 +1,8 @@
 ﻿using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
+using BoletoNetCore;
+using HtmlToPDFCore;
 using Sphera.API.Billing.BilletConfigurations;
 using Sphera.API.Billing.Billets;
 
@@ -266,4 +268,76 @@ public class BradescoFileGenerator
         
         return sb.ToString();
     }
+    
+    public static Stream GenerateBilletFile(Billet billet)
+    {
+        var configuration = billet.Configuration;
+        var client = billet.Client;
+        var banco = Banco.Instancia(237);
+        
+        banco.Beneficiario = new Beneficiario
+        {
+            Codigo = configuration.CompanyCode,
+            Nome = configuration.CompanyName,
+            ContaBancaria = new ContaBancaria
+            {
+                Agencia = configuration.AgencyNumber,
+                DigitoAgencia = "",
+                Conta = configuration.AccountNumber,
+                DigitoConta = configuration.AccountDigit,
+                CarteiraPadrao = configuration.WalletNumber
+            },
+        };
+
+        var pagador = new Pagador
+        {
+            CPFCNPJ = client.Cnpj.Value,
+            Endereco = new Endereco()
+            {
+                Bairro = client.Address.Neighborhood,
+                CEP = client.Address.ZipCode,
+                Cidade = client.Address.City,
+                LogradouroComplemento = client.Address.Complement,
+                LogradouroEndereco = client.Address.Street,
+                LogradouroNumero = client.Address.Number.ToString()
+            },
+            Nome = client.LegalName
+        };
+
+        var boleto = new Boleto(banco)
+        {
+            Banco = banco,
+            Pagador = pagador,
+            ValorTitulo = billet.Installment.Amount,
+            DataEmissao = DateTime.Now,
+            DataVencimento = billet.Installment.DueDate,
+            ValorDesconto = configuration.DiscountAmount,
+            DataDesconto = configuration.DiscountLimitDate,
+            ValorAbatimento = configuration.RebateAmount,
+            EspecieDocumento = TipoEspecieDocumento.DS,
+        };
+        
+        if (configuration.HasFine)
+        {
+            boleto.PercentualMulta = (decimal)configuration.FinePercentage!;
+            boleto.DataMulta = billet.Installment.DueDate.AddDays(1);
+        }
+        
+        var boletoBancario = new BoletoBancario
+        {
+            
+            Banco = banco,
+            Boleto = boleto
+        };
+
+        var pdfHTML = boletoBancario.MontaHtmlEmbedded(false, true, null, (string) null);
+        
+        var pdf = new HtmlToPDF();
+        var bytes = pdf.ReturnPDF(pdfHTML);
+
+        var stream = new MemoryStream(bytes);
+
+        return stream;
+    }
+ 
 }
