@@ -42,6 +42,10 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid?>("EntityId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("EntityName")
+                        .HasMaxLength(250)
+                        .HasColumnType("nvarchar(250)");
+
                     b.Property<string>("EntityType")
                         .IsRequired()
                         .HasMaxLength(120)
@@ -508,18 +512,27 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTime?>("EcacExpirationDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("LegalName")
                         .IsRequired()
                         .HasMaxLength(160)
                         .HasColumnType("nvarchar(160)");
 
                     b.Property<string>("MunicipalRegistration")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
                     b.Property<Guid>("PartnerId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("PaymentStatus")
+                        .HasColumnType("int");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -528,7 +541,6 @@ namespace Sphera.API.External.Database.Migrations
                         .HasColumnType("rowversion");
 
                     b.Property<string>("StateRegistration")
-                        .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
@@ -658,6 +670,9 @@ namespace Sphera.API.External.Database.Migrations
                         .HasMaxLength(255)
                         .HasColumnType("nvarchar(255)");
 
+                    b.Property<int>("ProgressStatus")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("ResponsibleId")
                         .HasColumnType("uniqueidentifier");
 
@@ -713,6 +728,10 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(160)
                         .HasColumnType("nvarchar(160)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -799,6 +818,9 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("EventType")
+                        .HasColumnType("int");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)");
@@ -860,6 +882,10 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(120)
                         .HasColumnType("nvarchar(120)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Sphera.API.Clients;
-using Sphera.API.Shared;
+using Sphera.API.Schedules.Enums;
 using Sphera.API.Users;
 
 namespace Sphera.API.Schedules;
@@ -19,6 +19,12 @@ public class ScheduleEvent
     /// </summary>
     [Required]
     public DateTime OccurredAt { get; private set; }
+
+    /// <summary>
+    /// Gets the type of the event (Individual or Global).
+    /// </summary>
+    [Required]
+    public EScheduleEventType EventType { get; private set; }
 
     /// <summary>
     /// Gets the unique identifier for the user. Optional.
@@ -91,15 +97,17 @@ public class ScheduleEvent
     /// optional notes.
     /// </summary>
     /// <param name="occurredAt">The date and time when the event occurred.</param>
+    /// <param name="eventType">The type of the event (Individual or Global).</param>
     /// <param name="userId">The unique identifier of the user associated with the event. Cannot be null or empty.</param>
     /// <param name="clientId">The unique identifier of the client associated with the event. Cannot be null or empty.</param>
     /// <param name="createdBy">The unique identifier of the user who created the event.</param>
     /// <param name="notes">Optional notes or comments related to the event. If null or whitespace, the value is ignored.</param>
     /// <remarks>Both <paramref name="userId"/> and <paramref name="clientId"/> are optional.</remarks>
-    public ScheduleEvent(DateTime occurredAt, Guid? userId, Guid? clientId, Guid createdBy, string? notes = null)
+    public ScheduleEvent(DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId, Guid createdBy, string? notes = null)
     {
         Id = Guid.NewGuid();
         OccurredAt = occurredAt;
+        EventType = eventType;
         UserId = userId is null || userId == Guid.Empty ? null : userId;
         ClientId = clientId is null || clientId == Guid.Empty ? null : clientId;
         Notes = string.IsNullOrWhiteSpace(notes) ? null : notes;
@@ -111,13 +119,15 @@ public class ScheduleEvent
     /// Updates the event details with the specified occurrence time, user, client, notes, and actor information.
     /// </summary>
     /// <param name="occurredAt">The date and time when the event occurred.</param>
+    /// <param name="eventType">The type of the event (Individual or Global).</param>
     /// <param name="userId">The unique identifier of the user associated with the event. Cannot be null or empty.</param>
     /// <param name="clientId">The unique identifier of the client associated with the event. Cannot be null or empty.</param>
     /// <param name="notes">Optional notes or comments related to the event. If null or whitespace, notes will be cleared.</param>
     /// <param name="actor">The unique identifier of the user performing the update.</param>
-    public void Update(DateTime occurredAt, Guid? userId, Guid? clientId, string? notes, Guid actor)
+    public void Update(DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId, string? notes, Guid actor)
     {
         OccurredAt = occurredAt;
+        EventType = eventType;
         UserId = userId is null || userId == Guid.Empty ? null : userId;
         ClientId = clientId is null || clientId == Guid.Empty ? null : clientId;
         Notes = string.IsNullOrWhiteSpace(notes) ? null : notes;
@@ -130,6 +140,7 @@ public class ScheduleEvent
         return new ScheduleEventDTO(
             Id,
             OccurredAt,
+            EventType,
             UserId,
             ClientId,
             Notes,

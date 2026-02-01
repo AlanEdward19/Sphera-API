@@ -1,21 +1,8 @@
 using Sphera.API.Configurations;
 using Sphera.API.External;
+using Sphera.API.Licensing;
 
 var builder = WebApplication.CreateBuilder(args);
-
-var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
-
-builder.Services.AddCors(options =>
-{
-    options.AddPolicy(name: MyAllowSpecificOrigins,
-        policy  =>
-        {
-            policy
-                .WithOrigins("http://localhost:8080") // endereço do seu front
-                .AllowAnyHeader()
-                .AllowAnyMethod();
-        });
-});
 
 builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 builder.Services.AddIoC(builder.Configuration);
@@ -23,11 +10,30 @@ builder.Services.ConfigureEndpoints();
 
 builder.Services.AddOpenApi();
 
+#if DEBUG
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("Localhost8080", policy =>
+    {
+        policy.WithOrigins("http://localhost:8080")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+#endif
+
 var app = builder.Build();
 if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 
-app.UseCors(MyAllowSpecificOrigins);
+#if DEBUG
+app.UseCors("Localhost8080");
+#endif
+
+#if !DEBUG
+app.UseMiddleware<LicenseMiddleware>();
+#endif
 
 app.UseAuthorization();
 app.MapControllers();

@@ -47,23 +47,36 @@ public class CreateClientCommand
     /// <summary>
     /// Gets or sets the state registration identifier associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string StateRegistration { get; set; }
+    public string? StateRegistration { get; set; }
 
     /// <summary>
     /// Gets or sets the municipal registration number associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string MunicipalRegistration { get; set; }
+    public string? MunicipalRegistration { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the expiration date of the eCac, if specified.
+    /// </summary>
+    public DateTime? EcacExpirationDate { get; set; }
     
     /// <summary>
     /// Gets or sets the address information associated with the entity.
     /// </summary>
     public AddressDTO Address { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the name of the financial contact.
+    /// </summary>
+    [Required]
+    public string FinancialContactName { get; set; }
 
     /// <summary>
     /// Gets or sets the email address used for financial communications.
@@ -78,6 +91,12 @@ public class CreateClientCommand
     [Required]
     [Phone]
     public string FinancialPhone { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the name of the contact person.
+    /// </summary>
+    [Required]
+    public string ContactName { get; set; }
 
     /// <summary>
     /// Gets or sets the email address associated with the entity.

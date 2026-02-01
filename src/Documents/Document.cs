@@ -1,12 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Sphera.API.Clients;
-using Sphera.API.Documents.Common.Enums;
 using Sphera.API.Documents.CreateDocument;
 using Sphera.API.Documents.DTOs;
+using Sphera.API.Documents.Enums;
 using Sphera.API.Services;
 using Sphera.API.Shared;
-using Sphera.API.Shared.ValueObjects;
+using Sphera.API.Shared.Enums;
 using Sphera.API.Users;
 
 namespace Sphera.API.Documents;
@@ -89,7 +89,9 @@ public class Document
     /// <summary>
     /// Gets the current status of the document.
     /// </summary>
-    public EDocumentStatus Status => ComputeStatus();
+    public EExpirationStatus Status => ComputeStatus();
+    
+    public EDocumentProgressStatus ProgressStatus { get; private set; }
 
     /// <summary>
     /// Gets the related service entity associated with this instance.
@@ -123,6 +125,7 @@ public class Document
     /// and optional notes.
     /// </summary>
     /// <param name="id">The unique identifier for the document. If Guid.Empty is provided, a new identifier is generated.</param>
+    /// <param name="fileName"></param>
     /// <param name="clientId">The unique identifier of the client associated with the document. Cannot be Guid.Empty.</param>
     /// <param name="serviceId">The unique identifier of the service related to the document. Cannot be Guid.Empty.</param>
     /// <param name="responsibleId">The unique identifier of the person responsible for the document. Cannot be Guid.Empty.</param>
@@ -130,11 +133,12 @@ public class Document
     /// <param name="dueDate">The date by which the document is due. Must not be earlier than the issue date.</param>
     /// <param name="file">The file metadata associated with the document. Cannot be null.</param>
     /// <param name="createdBy">The unique identifier of the user who created the document.</param>
+    /// <param name="progressStatus"></param>
     /// <param name="notes">Optional notes or comments related to the document. Can be null.</param>
     /// <exception cref="DomainException">Thrown if any required parameter is missing or invalid, such as when clientId, serviceId, or responsibleId is
     /// Guid.Empty, file is null, or issueDate is after dueDate.</exception>
     public Document(Guid id, string fileName, Guid clientId, Guid serviceId, Guid responsibleId, DateTime issueDate,
-        DateTime dueDate, Guid createdBy, string? notes = null)
+        DateTime dueDate, Guid createdBy, EDocumentProgressStatus progressStatus, string? notes = null)
     {
         Id = id == Guid.Empty ? Guid.NewGuid() : id;
         if (string.IsNullOrWhiteSpace(fileName)) throw new DomainException("Nome do arquivo obrigatório.");
@@ -155,6 +159,7 @@ public class Document
         Notes = notes;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
+        ProgressStatus = progressStatus;
     }
 
     public Document(CreateDocumentCommand command, Guid createdBy)
@@ -178,6 +183,7 @@ public class Document
         Notes = command.Notes;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
+        ProgressStatus = command.ProgressStatus;
     }
 
     /// <summary>
@@ -187,14 +193,14 @@ public class Document
     /// date has passed, the status is Expired. If the due date is within the default due period, the status is
     /// AboutToExpire; otherwise, it is WithinDeadline.</remarks>
     /// <returns>An EDocumentStatus value indicating whether the document is expired, about to expire, or within the deadline.</returns>
-    private EDocumentStatus ComputeStatus()
+    private EExpirationStatus ComputeStatus()
     {
         var now = DateTime.UtcNow.Date;
-        if (DueDate.Date < now) return EDocumentStatus.Expired;
+        if (DueDate.Date < now) return EExpirationStatus.Expired;
 
         var daysLeft = (DueDate.Date - now).TotalDays;
 
-        return daysLeft <= 7 ? EDocumentStatus.AboutToExpire : EDocumentStatus.WithinDeadline;
+        return daysLeft <= 7 ? EExpirationStatus.AboutToExpire : EExpirationStatus.WithinDeadline;
     }
 
     /// <summary>
@@ -253,11 +259,18 @@ public class Document
     /// </summary>
     /// <param name="note">The note text to add. If the existing notes are not empty, the new note is appended on a new line.</param>
     /// <param name="actor">The unique identifier of the actor adding the note. Used to update the record of who last modified the notes.</param>
-    public void AddNotes(string? note, Guid actor)
+    public void UpdateNotes(string? note, Guid actor)
     {
         if (string.IsNullOrWhiteSpace(note)) return;
 
-        Notes = string.IsNullOrWhiteSpace(Notes) ? note : $"{Notes}\n{note}";
+        Notes = note;
+        UpdatedAt = DateTime.UtcNow;
+        UpdatedBy = actor;
+    }
+    
+    public void UpdateProgressStatus(EDocumentProgressStatus newStatus, Guid actor)
+    {
+        ProgressStatus = newStatus;
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
     }
@@ -291,7 +304,8 @@ public class Document
             CreatedBy,
             UpdatedAt,
             UpdatedBy,
-            Status
+            Status,
+            ProgressStatus
         );
     }
 
@@ -311,6 +325,7 @@ public class Document
             UpdatedAt,
             UpdatedBy,
             Status,
+            ProgressStatus,
             Client.Partner.LegalName,
             Client.LegalName,
             Service.Name,

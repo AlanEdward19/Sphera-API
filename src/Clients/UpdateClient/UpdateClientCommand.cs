@@ -1,5 +1,6 @@
 ﻿using Sphera.API.Shared.DTOs;
 using System.ComponentModel.DataAnnotations;
+using Sphera.API.Clients.Enums;
 
 namespace Sphera.API.Clients.UpdateClient;
 
@@ -49,18 +50,25 @@ public class UpdateClientCommand
     /// <summary>
     /// Gets or sets the state registration identifier associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string StateRegistration { get; set; }
+    public string? StateRegistration { get; set; }
 
     /// <summary>
     /// Gets or sets the municipal registration number associated with the entity.
     /// </summary>
-    [Required]
-    [MinLength(1)]
     [MaxLength(50)]
-    public string MunicipalRegistration { get; set; }
+    public string? MunicipalRegistration { get; set; }
+
+    /// <summary>
+    /// Gets or sets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; set; }
+
+    /// <summary>
+    /// Gets or sets the expiration date of the eCac, if specified.
+    /// </summary>
+    public DateTime? EcacExpirationDate { get; set; }
 
     /// <summary>
     /// Gets or sets the address information associated with the entity.
@@ -109,6 +117,9 @@ public class UpdateClientCommand
     /// Gets or sets a value indicating whether the current entity is active.
     /// </summary>
     public bool Status { get; set; } = true;
+    
+    [Required]
+    public EPaymentStatus  PaymentStatus { get; set; }
 
     /// <summary>
     /// Gets the unique identifier associated with this instance.

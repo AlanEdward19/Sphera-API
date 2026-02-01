@@ -60,12 +60,16 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
 
                 client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration,
                     request.MunicipalRegistration,
-                    address, dueDate, request.BillingDueDay, actor);
+                    address, dueDate, request.BillingDueDay, request.Notes, request.EcacExpirationDate, actor, request.PaymentStatus);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
+                
+                int documentCount = await dbContext.Documents
+                    .AsNoTracking()
+                    .CountAsync(d => d.ClientId == client.Id, cancellationToken);
 
-                return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false));
+                return ResultDTO<ClientDTO>.AsSuccess(client.ToDTO(includePartner: false, documentCount));
             }
             catch (DomainException ex)
             {

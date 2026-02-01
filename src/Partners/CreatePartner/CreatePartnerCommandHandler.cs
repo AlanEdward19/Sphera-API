@@ -1,9 +1,9 @@
-﻿using Sphera.API.External.Database;
+﻿using Sphera.API.Contacts.Enums;
+using Sphera.API.External.Database;
 using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
-using Sphera.API.Shared.Utils;
 using Sphera.API.Shared.Utils;
 
 namespace Sphera.API.Partners.CreatePartner;
@@ -43,12 +43,34 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
 
                 Partner partner = new(request, actor);
 
+                if (!string.IsNullOrWhiteSpace(request.FinancialEmail))
+                    partner.AddContact(EContactType.Email, EContactRole.Financial, request.FinancialEmail, actor);
+                
+                if (!string.IsNullOrWhiteSpace(request.FinancialPhone))
+                    partner.AddContact(EContactType.Phone, EContactRole.Financial, request.FinancialPhone, actor);
+                
+                if (!string.IsNullOrWhiteSpace(request.ResponsibleEmail))
+                    partner.AddContact(EContactType.Email, EContactRole.Personal, request.ResponsibleEmail, actor);
+                
+                if (!string.IsNullOrWhiteSpace(request.ResponsiblePhone))
+                    partner.AddContact(EContactType.Phone, EContactRole.Personal, request.ResponsiblePhone, actor);
+
+                if (!string.IsNullOrWhiteSpace(request.LandLine))
+                    partner.AddContact(EContactType.Phone, EContactRole.General, request.LandLine, actor,
+                        EPhoneType.Landline);
+
+                if (!string.IsNullOrWhiteSpace(request.BackupPhone))
+                    partner.AddContact(EContactType.Phone, EContactRole.General, request.BackupPhone, actor,
+                        EPhoneType.Backup);
+                
+                partner.AddContact(EContactType.Phone, EContactRole.General, request.Phone, actor, EPhoneType.Mobile);
+
                 await dbContext.AddAsync(partner, cancellationToken);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
 
-                return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false));
+                return ResultDTO<PartnerDTO>.AsSuccess(partner.ToDTO(includeClients: false, 0));
             }
             catch (DomainException ex)
             {

@@ -24,7 +24,7 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
         b.ToTable("Documents");
         b.HasKey(x => x.Id);
         b.Property(x => x.Id).HasColumnType("uniqueidentifier").HasDefaultValueSql("NEWID()");
-        
+
         b.Property(f => f.FileName).HasMaxLength(260).IsRequired();
         b.Property(x => x.ClientId).HasColumnType("uniqueidentifier").IsRequired();
         b.Property(x => x.ServiceId).HasColumnType("uniqueidentifier").IsRequired();
@@ -32,6 +32,7 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
         b.Property(x => x.IssueDate).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.DueDate).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.Notes).HasMaxLength(255);
+        b.Property(x => x.ProgressStatus).HasConversion<int>().IsRequired();
         b.Property(x => x.CreatedAt).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.CreatedBy).HasColumnType("uniqueidentifier").IsRequired();
         b.Property(x => x.UpdatedAt).HasColumnType("datetime2");
@@ -42,21 +43,21 @@ public class DocumentMap : IEntityTypeConfiguration<Document>
         b.HasIndex(x => x.DueDate).HasDatabaseName("IX_Documents_DueDate");
 
         b.HasOne(x => x.Client)
-         .WithMany()
-         .HasForeignKey(x => x.ClientId)
-         .OnDelete(DeleteBehavior.Restrict)
-         .HasConstraintName("FK_Documents_Client");
+            .WithMany()
+            .HasForeignKey(x => x.ClientId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_Documents_Client");
 
         b.HasOne(x => x.Service)
-         .WithMany()
-         .HasForeignKey(x => x.ServiceId)
-         .OnDelete(DeleteBehavior.Restrict)
-         .HasConstraintName("FK_Documents_Service");
+            .WithMany()
+            .HasForeignKey(x => x.ServiceId)
+            .OnDelete(DeleteBehavior.Restrict)
+            .HasConstraintName("FK_Documents_Service");
 
         b.HasOne(x => x.Responsible)
             .WithMany()
             .HasForeignKey(x => x.ResponsibleId)
-            .HasPrincipalKey(u => u.Id)  
+            .HasPrincipalKey(u => u.Id)
             .OnDelete(DeleteBehavior.Restrict)
             .HasConstraintName("FK_Documents_Responsible");
     }

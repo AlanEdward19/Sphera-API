@@ -41,7 +41,7 @@ public class CreateScheduleEventCommandHandler(
 
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
-                var entity = new ScheduleEvent(request.OccurredAt, request.UserId, request.ClientId, actor, request.Notes);
+                var entity = new ScheduleEvent(request.OccurredAt, request.EventType, request.UserId, request.ClientId, actor, request.Notes);
 
                 await dbContext.ScheduleEvents.AddAsync(entity, cancellationToken);
                 await dbContext.SaveChangesAsync(cancellationToken);

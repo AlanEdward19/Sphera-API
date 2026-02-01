@@ -20,6 +20,12 @@ public class GetScheduleEventsQueryHandler(SpheraDbContext dbContext, ILogger<Ge
         if (request.EndAt.HasValue)
             query = query.Where(s => s.OccurredAt <= request.EndAt.Value);
 
+        if (request.EventType.HasValue)
+            query = query.Where(s => s.EventType == request.EventType.Value);
+        
+        if (request.CreatedBy.HasValue)
+            query = query.Where(s => s.CreatedBy == request.CreatedBy.Value);
+
         var list = await query.OrderBy(s => s.OccurredAt)
             .Select(s => s.ToDTO())
             .ToListAsync(cancellationToken);

@@ -47,6 +47,12 @@ public class Partner
     public AddressValueObject? Address { get; private set; }
 
     /// <summary>
+    /// Gets the optional notes or comments associated with this instance.
+    /// </summary>
+    [MaxLength(500)]
+    public string? Notes { get; private set; }
+
+    /// <summary>
     /// Gets a value indicating whether the current operation or entity is in an active or successful state.
     /// </summary>
     [Required]
@@ -97,7 +103,9 @@ public class Partner
     /// <summary>
     /// EF Core parameterless constructor.
     /// </summary>
-    private Partner() { }
+    private Partner()
+    {
+    }
 
     /// <summary>
     /// Initializes a new instance of the Partner class with the specified legal name, CNPJ, address, and creator
@@ -108,16 +116,18 @@ public class Partner
     /// valid CNPJ format if provided.</param>
     /// <param name="address">The address information for the partner, or null if not specified.</param>
     /// <param name="createdBy">The unique identifier of the user who created the partner record.</param>
+    /// <param name="notes"></param>
     public Partner(
         string legalName,
         string? cnpj,
         AddressValueObject? address,
-        Guid createdBy)
+        Guid createdBy,
+        string? notes = null)
     {
         Id = Guid.NewGuid();
         CnpjValueObject? cnpjVo = string.IsNullOrWhiteSpace(cnpj) ? null : new(cnpj);
 
-        SetBasicInfo(legalName, cnpjVo, address);
+        SetBasicInfo(legalName, cnpjVo, address, notes);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -136,7 +146,7 @@ public class Partner
 
         CnpjValueObject? cnpj = string.IsNullOrWhiteSpace(command.Cnpj) ? null : new(command.Cnpj);
 
-        SetBasicInfo(command.LegalName, cnpj, command.Address?.ToValueObject());
+        SetBasicInfo(command.LegalName, cnpj, command.Address?.ToValueObject(), command.Notes);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -151,11 +161,13 @@ public class Partner
     /// <param name="cnpj">The CNPJ value object representing the company's registration number. Cannot be null.</param>
     /// <param name="address">The address value object representing the company's location. Cannot be null.</param>
     /// <param name="billingDueDay">The day of the month on which billing is due. Optional; may be null if not applicable.</param>
+    /// <param name="notes"></param>
     /// <exception cref="DomainException">Thrown if any required parameter is null, empty, or invalid.</exception>
     public void SetBasicInfo(
         string legalName,
         CnpjValueObject? cnpj,
-        AddressValueObject? address)
+        AddressValueObject? address,
+        string? notes)
     {
         if (string.IsNullOrWhiteSpace(legalName))
             throw new DomainException("Razão social obrigatória.");
@@ -163,6 +175,7 @@ public class Partner
         LegalName = legalName;
         Cnpj = cnpj;
         Address = address;
+        Notes = notes;
     }
 
     /// <summary>
@@ -172,14 +185,16 @@ public class Partner
     /// <param name="legalName">The new legal name to assign to the entity. Cannot be null or empty.</param>
     /// <param name="cnpj">The CNPJ value to associate with the entity, or null to clear the existing CNPJ.</param>
     /// <param name="address">The address information to assign to the entity, or null to clear the existing address.</param>
+    /// <param name="notes"></param>
     /// <param name="actorId">The unique identifier of the actor performing the update. Used to track who made the change.</param>
     public void UpdateBasicInfo(
         string legalName,
         CnpjValueObject? cnpj,
         AddressValueObject? address,
+        string? notes,
         Guid actorId)
     {
-        SetBasicInfo(legalName, cnpj, address);
+        SetBasicInfo(legalName, cnpj, address, notes);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actorId;
     }
@@ -213,14 +228,16 @@ public class Partner
     /// <param name="contactRole">The role associated with the contact. Determines the contact's function or relationship within the context.</param>
     /// <param name="value">The contact information value, such as an email address or phone number. Cannot be null.</param>
     /// <param name="actorId">The unique identifier of the actor to associate with the new contact.</param>
+    /// <param name="type">The type of phone number. Optional; may be null if not applicable.</param>
     /// <returns>The newly created Contact instance that was added to the collection.</returns>
     public Contact AddContact(
         EContactType contactType,
         EContactRole contactRole,
         string value,
-        Guid actorId)
+        Guid actorId,
+        EPhoneType? type = null)
     {
-        var contact = new Contact(contactType, contactRole, value, actorId, Id);
+        var contact = new Contact(contactType, contactRole, value, actorId, Id, phoneType: type);
         Contacts.Add(contact);
         return contact;
     }
@@ -245,13 +262,17 @@ public class Partner
     /// to include clients; otherwise, only partner details are included.</param>
     /// <returns>A <see cref="PartnerDTO"/> instance representing the partner. If <paramref name="includeClients"/> is <see
     /// langword="true"/>, the returned object includes client data; otherwise, it does not.</returns>
-    public PartnerDTO ToDTO(bool includeClients)
+    public PartnerDTO ToDTO(bool includeClients, int clientsCount, Dictionary<Guid, int>? clientsDocumentsCount = null)
     {
         return includeClients
-            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
+            ? new PartnerWithClientsDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy,
+                UpdatedAt, UpdatedBy,
                 Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(),
-                Clients.Select(c => c.ToDTO(includePartner: false)).ToList().AsReadOnly())
-            : new PartnerDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt, UpdatedBy,
-                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly());
+                clientsCount,
+                Clients.Select(c => c.ToDTO(includePartner: false, clientsDocumentsCount![c.Id])).ToList().AsReadOnly(),
+                Notes)
+            : new PartnerDTO(Id, LegalName, Cnpj?.Value, Address?.ToDTO(), Status, CreatedAt, CreatedBy, UpdatedAt,
+                UpdatedBy,
+                Contacts.Select(c => c.ToDTO()).ToList().AsReadOnly(), clientsCount, Notes);
     }
 }

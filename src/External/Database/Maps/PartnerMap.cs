@@ -2,7 +2,6 @@
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
-using Sphera.API.Contacts;
 using Sphera.API.Partners;
 using Sphera.API.Shared.ValueObjects;
 
@@ -53,6 +52,7 @@ public class PartnerMap : IEntityTypeConfiguration<Partner>
 
         cnpjProp.Metadata.SetValueComparer(cnpjComparer);
 
+        b.Property(x => x.Notes).HasMaxLength(500);
         b.Property(x => x.Status).IsRequired();
         b.Property(x => x.CreatedAt).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.CreatedBy).HasColumnType("uniqueidentifier").IsRequired();
