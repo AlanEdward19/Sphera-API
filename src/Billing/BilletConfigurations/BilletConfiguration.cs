@@ -69,6 +69,8 @@ public class BilletConfiguration
     
     public int StartingSequentialNumber { get; set; }
     
+    public int StartingNossoNumero { get; set; }
+    
     /// <summary>
     /// Gets the date and time when the entity was created.
     /// </summary>
@@ -95,7 +97,7 @@ public class BilletConfiguration
 
     public BilletConfiguration() { }
 
-    public BilletConfiguration(string companyCode, string companyName, string walletNumber, string agencyNumber, string accountNumber, string accountDigit, string bankCode, bool hasFine, decimal? finePercentage, decimal dailyDiscount, decimal dailyInterest, DateTime discountLimitDate, decimal discountAmount, decimal rebateAmount, string firstMessage, string secondMessage, int startingSequentialNumber, Guid createdBy)
+    public BilletConfiguration(string companyCode, string companyName, string walletNumber, string agencyNumber, string accountNumber, string accountDigit, string bankCode, bool hasFine, decimal? finePercentage, decimal dailyDiscount, decimal dailyInterest, DateTime discountLimitDate, decimal discountAmount, decimal rebateAmount, string firstMessage, string secondMessage, int startingSequentialNumber, int startingNossoNumero, Guid createdBy)
     {
         Id = Guid.NewGuid();
         CompanyCode = companyCode;
@@ -115,6 +117,7 @@ public class BilletConfiguration
         FirstMessage = firstMessage;
         SecondMessage = secondMessage;
         StartingSequentialNumber = startingSequentialNumber;
+        StartingNossoNumero = startingNossoNumero;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         UpdatedAt = null;
@@ -141,6 +144,7 @@ public class BilletConfiguration
         FirstMessage = command.FirstMessage;
         SecondMessage = command.SecondMessage;
         StartingSequentialNumber = command.StartingSequentialNumber;
+        StartingNossoNumero = command.StartingNossoNumero;
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         UpdatedAt = null;
@@ -165,7 +169,6 @@ public class BilletConfiguration
         if (command.RebateAmount.HasValue) RebateAmount = command.RebateAmount.Value;
         if (command.FirstMessage is not null) FirstMessage = command.FirstMessage;
         if (command.SecondMessage is not null) SecondMessage = command.SecondMessage;
-        if (command.StartingSequentialNumber.HasValue) StartingSequentialNumber = command.StartingSequentialNumber.Value;
 
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = userId;

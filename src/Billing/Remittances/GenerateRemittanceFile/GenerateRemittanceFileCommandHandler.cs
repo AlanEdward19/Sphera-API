@@ -33,6 +33,9 @@ public class GenerateRemittanceFileCommandHandler(
         if (entity is null)
             return ResultDTO<bool>.AsFailure(new FailureDTO(404, "Remittance not found"));
         
+        if (entity.IsSubmitted)
+            return ResultDTO<bool>.AsFailure(new FailureDTO(400, "Remessa já enviada. Não é possível gerar o arquivo."));
+        
         try
         {
             var configurationRemittances = await dbContext.Remittances
@@ -48,7 +51,7 @@ public class GenerateRemittanceFileCommandHandler(
                 return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao gerar arquivo de remessa."));
 
             var fileData = entity.Bank == EBilletBank.Bradesco 
-                ? BradescoFileGenerator.GenerateRemmitanceFile(entity.Billets.ToList(), entity.Configuration.StartingSequentialNumber + configurationRemittances.Count + 1)
+                ? BradescoFileGenerator.GenerateRemmitanceFile(entity.Billets.ToList(), entity.Configuration.StartingSequentialNumber + configurationRemittances.Count + 1, entity.Configuration.StartingNossoNumero + configurationRemittances.Count + 1)
                 : SicoobFileGenerator.GenerateRemmitanceFile(entity.Billets.ToList());
             var storageFileName = $"remittances/{fileName}";
 

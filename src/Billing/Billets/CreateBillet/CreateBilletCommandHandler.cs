@@ -35,6 +35,15 @@ public class CreateBilletCommandHandler(
 
                 var entity = new Billet(request.Bank, userId, request.InstallmentId, request.ConfigurationId, request.ClientId);
 
+                var invoice = await dbContext.Invoices
+                    .Include(i => i.Installments)
+                    .FirstOrDefaultAsync(i => i.Installments.Any((x => x.Id == request.InstallmentId)), cancellationToken);
+                if (invoice is null)
+                    throw new DomainException("Invoice for the given installment not found.");
+                        
+                if (!(invoice.IsSentToReceivables ?? false))
+                    invoice.ToggleSentToReceivables();
+                
                 dbContext.Billets.Add(entity);
                 await dbContext.SaveChangesAsync(cancellationToken);
 

@@ -144,6 +144,9 @@ namespace Sphera.API.External.Database.Migrations
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
 
+                    b.Property<int>("StartingNossoNumero")
+                        .HasColumnType("int");
+
                     b.Property<int>("StartingSequentialNumber")
                         .HasColumnType("int");
 
@@ -348,6 +351,9 @@ namespace Sphera.API.External.Database.Migrations
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("date");
 
+                    b.Property<bool?>("IsSentToReceivables")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("date");
 
@@ -376,13 +382,14 @@ namespace Sphera.API.External.Database.Migrations
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uniqueidentifier")
+                        .HasDefaultValueSql("NEWID()");
 
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<DateTime>("DueDate")
-                        .HasColumnType("datetime2");
+                        .HasColumnType("date");
 
                     b.Property<Guid>("InvoiceId")
                         .HasColumnType("uniqueidentifier");
@@ -395,7 +402,8 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InvoiceId");
+                    b.HasIndex("InvoiceId")
+                        .HasDatabaseName("IX_InvoiceInstallments_InvoiceId");
 
                     b.ToTable("InvoiceInstallment", "dbo");
                 });
@@ -482,7 +490,8 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConfigurationId");
+                    b.HasIndex("ConfigurationId")
+                        .HasDatabaseName("IX_Remittances_ConfigurationId");
 
                     b.ToTable("Remittances", "dbo");
                 });
@@ -976,7 +985,7 @@ namespace Sphera.API.External.Database.Migrations
                         .HasConstraintName("FK_Billets_Clients");
 
                     b.HasOne("Sphera.API.Billing.BilletConfigurations.BilletConfiguration", "Configuration")
-                        .WithMany()
+                        .WithMany("Billets")
                         .HasForeignKey("ConfigurationId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired()
@@ -989,7 +998,7 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasConstraintName("FK_Billets_InvoiceInstallments");
 
-                    b.HasOne("Sphera.API.Billing.Remittances.Remittance", null)
+                    b.HasOne("Sphera.API.Billing.Remittances.Remittance", "Remittance")
                         .WithMany("Billets")
                         .HasForeignKey("RemittanceId")
                         .OnDelete(DeleteBehavior.SetNull)
@@ -1000,6 +1009,8 @@ namespace Sphera.API.External.Database.Migrations
                     b.Navigation("Configuration");
 
                     b.Navigation("Installment");
+
+                    b.Navigation("Remittance");
                 });
 
             modelBuilder.Entity("Sphera.API.Billing.BillingEntries.BillingEntry", b =>
@@ -1062,7 +1073,8 @@ namespace Sphera.API.External.Database.Migrations
                         .WithMany("Installments")
                         .HasForeignKey("InvoiceId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .IsRequired()
+                        .HasConstraintName("FK_InvoiceInstallments_Invoices");
 
                     b.Navigation("Invoice");
                 });
@@ -1091,7 +1103,9 @@ namespace Sphera.API.External.Database.Migrations
                 {
                     b.HasOne("Sphera.API.Billing.BilletConfigurations.BilletConfiguration", "Configuration")
                         .WithMany()
-                        .HasForeignKey("ConfigurationId");
+                        .HasForeignKey("ConfigurationId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("FK_Remittances_BilletConfigurations");
 
                     b.Navigation("Configuration");
                 });
@@ -1313,6 +1327,11 @@ namespace Sphera.API.External.Database.Migrations
                         .HasConstraintName("FK_User_Role");
 
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Sphera.API.Billing.BilletConfigurations.BilletConfiguration", b =>
+                {
+                    b.Navigation("Billets");
                 });
 
             modelBuilder.Entity("Sphera.API.Billing.Invoices.Invoice", b =>

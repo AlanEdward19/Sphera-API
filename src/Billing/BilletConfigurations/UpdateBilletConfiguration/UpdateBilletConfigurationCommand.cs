@@ -34,6 +34,5 @@ public class UpdateBilletConfigurationCommand
     public string? FirstMessage { get; set; }
     [MaxLength(60)]
     public string? SecondMessage { get; set; }
-    public int? StartingSequentialNumber { get; set; }
 }
 

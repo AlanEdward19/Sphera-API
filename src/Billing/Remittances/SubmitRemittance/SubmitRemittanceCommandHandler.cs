@@ -10,6 +10,7 @@ namespace Sphera.API.Billing.Remittances.SubmitRemittance;
 
 public class SubmitRemittanceCommandHandler(
     SpheraDbContext dbContext,
+    [FromKeyedServices("billing")] IStorage storage,
     ILogger<SubmitRemittanceCommandHandler> logger)
     : IHandler<SubmitRemittanceCommand, RemittanceDTO>
 {
@@ -45,6 +46,12 @@ public class SubmitRemittanceCommandHandler(
                 {
                     await dbContext.Database.RollbackTransactionAsync(cancellationToken);
                     return ResultDTO<RemittanceDTO>.AsFailure(new FailureDTO(409, "Remittance already submitted"));
+                }
+
+                if (string.IsNullOrEmpty(entity.FileName) || !(await storage.ExistsAsync(entity.FileName, cancellationToken)))
+                {
+                    await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                    return ResultDTO<RemittanceDTO>.AsFailure(new FailureDTO(404, "Remittance file not generated or not found"));
                 }
 
                 entity.MarkAsSubmitted(context.User.GetUserId());

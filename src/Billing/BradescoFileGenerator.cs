@@ -10,7 +10,7 @@ namespace Sphera.API.Billing;
 
 public class BradescoFileGenerator
 {
-    public static Stream GenerateRemmitanceFile(List<Billet> billets, int remittanceSequentialNumber)
+    public static Stream GenerateRemmitanceFile(List<Billet> billets, int remittanceSequentialNumber, int nossoNumero)
     {
         string data = "";
 
@@ -18,11 +18,13 @@ public class BradescoFileGenerator
         data += GenerateHeader(billetConfiguration, remittanceSequentialNumber) + "\r\n";
 
         var registerSequentialNumber = 1;
+        var currentNossoNumero = nossoNumero;
         for (var i = 0; i < billets.Count; i++)
         {
             registerSequentialNumber++;
             var billet = billets[i];
-            data += GenerateTitle(billet, billetConfiguration, registerSequentialNumber) + "\r\n";
+            data += GenerateTitle(billet, billetConfiguration, registerSequentialNumber, currentNossoNumero) + "\r\n";
+            currentNossoNumero++;
         }
         registerSequentialNumber++;
         
@@ -110,7 +112,7 @@ public class BradescoFileGenerator
         return sb.ToString();
     }
 
-    public static string GenerateTitle(Billet billet, BilletConfiguration billetConfiguration, int sequentialNumber)
+    public static string GenerateTitle(Billet billet, BilletConfiguration billetConfiguration, int sequentialNumber, int nossoNumero)
     {
         var sb = new StringBuilder();
 
@@ -152,12 +154,26 @@ public class BradescoFileGenerator
             ? (billetConfiguration.FinePercentage!.Value * 100).ToString("0000").Replace(".", "")
             : "0000", 4, '0'));
         
-        // TODO: decifrar dps
-        // 071-081 Identificação do Título no Banco
-        sb.Append("00000000000");
         
-        // 082 Dígito de Autoconferência do Número Bancário 
-        sb.Append("0");
+        // 071-081 Identificação do Título no Banco
+        var nossoNumeroString = Text(nossoNumero, 10, '0');
+        sb.Append(nossoNumeroString);
+        
+        // 082 Dígito de Autoconferência do Número Bancário
+        var somaNossoNumero = 0;
+        int[] valoresMultiplicacao = [2, 7, 6, 5, 4, 3, 2, 7, 6, 5, 4, 3, 2];
+        for (var i = 0; i < 11; i++)
+        {
+            somaNossoNumero += int.Parse(nossoNumeroString[i].ToString()) * valoresMultiplicacao[i];
+        }
+        var restoDivisao = somaNossoNumero % 11;
+        var digitoAutoconferencia = restoDivisao switch
+        {
+            0 => "0",
+            1 => "P",
+            _ => (11 - restoDivisao).ToString()
+        };
+        sb.Append(digitoAutoconferencia);
         
         // 083-092 Desconto Bonificação por dia
         sb.Append(Text(billetConfiguration.DailyDiscount.ToString("C", realFormattingConfigurations ).Replace(".", ""), 10, '0'));
@@ -190,9 +206,9 @@ public class BradescoFileGenerator
         sb.Append(billet.Installment.DueDate.ToString("ddMMyy"));                             
         
         // 127-139 Valor do Título 
-        sb.Append(Text(billet.Installment.Amount.ToString("C", realFormattingConfigurations ), 13, '0'));
+        sb.Append(Text(billet.Installment.Amount.ToString("C", realFormattingConfigurations).Replace(".", ""), 13, '0'));
         
-        // 140-142 Banco Encarregado da Cobrança 
+        // 140-142 Banco Encarregado da Cobrança
         sb.Append("000");
         
         // 143-147 Agência Depositária

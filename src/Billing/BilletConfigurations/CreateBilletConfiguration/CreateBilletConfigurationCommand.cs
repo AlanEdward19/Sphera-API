@@ -51,5 +51,7 @@ public class CreateBilletConfigurationCommand
     public string? SecondMessage { get; set; }
     
     public int StartingSequentialNumber { get; set; }
+    
+    public int StartingNossoNumero { get; set; }
 }
 

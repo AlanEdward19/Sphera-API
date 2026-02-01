@@ -34,6 +34,7 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
     public DbSet<ClientServicePrice> ClientServicePrices { get; set; }
     public DbSet<BillingEntry> BillingEntries { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<InvoiceInstallment> InvoiceInstallments { get; set; }
     public DbSet<InvoiceItem> InvoiceItems { get; set; }
     public DbSet<Billet> Billets { get; set; }
     public DbSet<BilletConfiguration> BilletConfigurations { get; set; }
@@ -55,6 +56,7 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
         modelBuilder.ApplyConfiguration(new ClientServicePriceMap());
         modelBuilder.ApplyConfiguration(new BillingEntryMap());
         modelBuilder.ApplyConfiguration(new InvoiceMap());
+        modelBuilder.ApplyConfiguration(new InvoiceInstallmentMap());
         modelBuilder.ApplyConfiguration(new InvoiceItemMap());
         modelBuilder.ApplyConfiguration(new BilletMap());
         modelBuilder.ApplyConfiguration(new BilletConfigurationMap());
