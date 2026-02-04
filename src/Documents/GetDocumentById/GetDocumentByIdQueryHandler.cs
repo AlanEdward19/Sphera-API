@@ -9,7 +9,7 @@ namespace Sphera.API.Documents.GetDocumentById;
 
 public class GetDocumentByIdQueryHandler(SpheraDbContext dbContext,
     ILogger<GetDocumentByIdQueryHandler> logger,
-    IStorage storage) : IHandler<GetDocumentByIdQuery, DocumentWithMetadataDTO>
+    [FromKeyedServices("documents")] IStorage storage) : IHandler<GetDocumentByIdQuery, DocumentWithMetadataDTO>
 {
     public async Task<IResultDTO<DocumentWithMetadataDTO>> HandleAsync(GetDocumentByIdQuery request, HttpContext context, CancellationToken cancellationToken)
     {
