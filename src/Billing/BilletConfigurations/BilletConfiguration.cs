@@ -19,6 +19,9 @@ public class BilletConfiguration
     [MaxLength(30)]
     public string CompanyName { get; set; }
     
+    [MaxLength(14)]
+    public string CompanyId { get; set; } // cpf ou cnpj
+    
     // Arquivo Tipo 1
     
     // 021 a 037 - Identificação da Empresa Beneficiária no Banco
@@ -28,7 +31,7 @@ public class BilletConfiguration
     [MaxLength(5)]
     public string AgencyNumber { get; set; }
     
-    [MaxLength(7)]
+    [MaxLength(8)]
     public string AccountNumber { get; set; }
     
     [MaxLength(1)]

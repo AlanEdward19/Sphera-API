@@ -24,6 +24,7 @@ public class BradescoFileGenerator
             registerSequentialNumber++;
             var billet = billets[i];
             data += GenerateTitle(billet, billetConfiguration, registerSequentialNumber, currentNossoNumero) + "\r\n";
+            billets[i].NossoNumero = billet.NossoNumero;
             currentNossoNumero++;
         }
         registerSequentialNumber++;

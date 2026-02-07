@@ -50,9 +50,16 @@ public class GenerateRemittanceFileCommandHandler(
             if (entity.Configuration == null)
                 return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao gerar arquivo de remessa."));
 
+            var billets = entity.Billets.ToList();
+            entity.Configuration.StartingSequentialNumber++;
+            entity.Configuration.StartingNossoNumero++;
             var fileData = entity.Bank == EBilletBank.Bradesco 
-                ? BradescoFileGenerator.GenerateRemmitanceFile(entity.Billets.ToList(), entity.Configuration.StartingSequentialNumber + configurationRemittances.Count + 1, entity.Configuration.StartingNossoNumero + configurationRemittances.Count + 1)
-                : SicoobFileGenerator.GenerateRemmitanceFile(entity.Billets.ToList());
+                ? BradescoFileGenerator.GenerateRemmitanceFile(billets, entity.Configuration.StartingSequentialNumber, entity.Configuration.StartingNossoNumero)
+                : SicoobFileGenerator.GenerateRemmitanceFile(billets, entity.Configuration.StartingSequentialNumber, entity.Configuration.StartingNossoNumero);
+            entity.Configuration.StartingNossoNumero += billets.Last().NossoNumero;
+            dbContext.BilletConfigurations.Update(entity.Configuration);
+            dbContext.Billets.UpdateRange(billets);
+            
             var storageFileName = $"remittances/{fileName}";
 
             if (await storage.ExistsAsync(fileName, cancellationToken))
