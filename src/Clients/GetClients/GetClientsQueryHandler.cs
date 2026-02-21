@@ -50,6 +50,9 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
 
         if (request.DueDateTo.HasValue)
             query = query.Where(d => d.EcacExpirationDate <= request.DueDateTo.Value);
+        
+        if (request.PaymentStatus.HasValue)
+            query = query.Where(d => d.PaymentStatus == request.PaymentStatus.Value);
 
         if (!string.IsNullOrWhiteSpace(request.Search))
         {

@@ -43,20 +43,23 @@ public class GenerateClientsReportQueryHandler(
 
         if (request.ToDate.HasValue)
             query = query.Where(x => x.EcacExpirationDate <= request.ToDate);
-        
+
         if (request.PartnerId != null)
             query = query.Where(x => x.PartnerId == request.PartnerId);
-        
-        if(request.Status.HasValue)
-            query = query.Where(x => x.ExpirationStatus == request.Status.Value);
+
+        if (request.PaymentStatus.HasValue)
+            query = query.Where(x => x.PaymentStatus == request.PaymentStatus.Value);
 
         var clients = await query.ToListAsync(cancellationToken);
 
         if (!clients.Any())
             return ResultDTO<ClientsReportDTO[]>.AsFailure(new FailureDTO(404, "Nenhum cliente encontrado"));
+        
+        if (request.Status.HasValue)
+            clients = clients.Where(x => x.ExpirationStatus == request.Status.Value).ToList();
 
         var result = clients.Select(x => new ClientsReportDTO(x.TradeName, x.LegalName, x.Cnpj.Value, x.PartnerId,
-            x.Partner.LegalName, x.EcacExpirationDate, x.ExpirationStatus)).ToArray();
+            x.Partner.LegalName, x.EcacExpirationDate, x.ExpirationStatus, x.PaymentStatus)).ToArray();
 
         return ResultDTO<ClientsReportDTO[]>.AsSuccess(result);
     }
