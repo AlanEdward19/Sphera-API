@@ -1,4 +1,5 @@
-﻿using Sphera.API.Shared.Enums;
+﻿using Sphera.API.Clients.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Reports.GenerateClientsReport;
 
@@ -86,10 +87,17 @@ public class ClientsReportDTO
     public EExpirationStatus? Status { get; private set; }
 
     /// <summary>
+    /// Gets the payment status of the client.
+    /// </summary> <remarks>
+    /// The payment status indicates the current state of the client's payments, such as whether they are up to date, overdue, or in a grace period. This information is crucial for financial management and decision-making processes related to client accounts.
+    /// </remarks>
+    public EPaymentStatus? PaymentStatus { get; private set; }
+
+    /// <summary>
     /// A Data Transfer Object (DTO) that represents the report of clients.
     /// </summary>
     public ClientsReportDTO(string tradeName, string legalName, string cnpj, Guid partnerId, string partnerName,
-        DateTime? ecacExpirationDate, EExpirationStatus? status)
+        DateTime? ecacExpirationDate, EExpirationStatus? status, EPaymentStatus? paymentStatus)
     {
         TradeName = tradeName;
         LegalName = legalName;
@@ -98,5 +106,6 @@ public class ClientsReportDTO
         PartnerName = partnerName;
         EcacExpirationDate = ecacExpirationDate;
         Status = status;
+        PaymentStatus = paymentStatus;
     }
 }
