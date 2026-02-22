@@ -12,8 +12,8 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20260201212803_NossoNumero")]
-    partial class NossoNumero
+    [Migration("20260222195415_BilletsAndRemittances")]
+    partial class BilletsAndRemittances
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
