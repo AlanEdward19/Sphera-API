@@ -14,6 +14,8 @@ public class Billet
     
     public EBilletBank Bank { get; private set; }
     
+    public int NossoNumero { get; set; }
+    
     /// <summary>
     /// Gets the date and time when the entity was created.
     /// </summary>

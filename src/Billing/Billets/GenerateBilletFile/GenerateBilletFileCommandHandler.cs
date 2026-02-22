@@ -33,7 +33,9 @@ public class GenerateBilletFileCommandHandler(SpheraDbContext dbContext, [FromKe
             if (entity.Configuration == null)
                 return ResultDTO<bool>.AsFailure(new FailureDTO(500, "Erro ao gerar arquivo de remessa."));
 
-            var fileData = BradescoFileGenerator.GenerateBilletFile(entity);
+            var fileData = entity.Bank == EBilletBank.Bradesco 
+                ? BradescoFileGenerator.GenerateBilletFile(entity)
+                : SicoobFileGenerator.GenerateBilletFile(entity);
             var fileName = $"billets/{entity.ClientId}/{entity.Id}.pdf";
 
             if (await storage.ExistsAsync(fileName, cancellationToken))
