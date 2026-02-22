@@ -1,10 +1,12 @@
-﻿using Sphera.API.Contacts.Enums;
+﻿using Microsoft.EntityFrameworkCore;
+using Sphera.API.Contacts.Enums;
 using Sphera.API.External.Database;
 using Sphera.API.Partners.DTOs;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.Utils;
+using Sphera.API.Shared.ValueObjects;
 
 namespace Sphera.API.Partners.CreatePartner;
 
@@ -32,6 +34,14 @@ public class CreatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Crea
     public async Task<IResultDTO<PartnerDTO>> HandleAsync(CreatePartnerCommand request, HttpContext context, CancellationToken cancellationToken)
     {
         logger.LogInformation("Iniciando criação de parceiro");
+        
+        if (!string.IsNullOrWhiteSpace(request.Cnpj))
+        {
+            var normalizedCnpj = new CnpjValueObject(request.Cnpj);
+            var cnpjExists = await dbContext.Partners.AnyAsync(p => p.Cnpj != null && p.Cnpj == normalizedCnpj, cancellationToken);
+            if (cnpjExists)
+                return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, "CNPJ já cadastrado."));
+        }
 
         return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {
