@@ -1,5 +1,6 @@
 using Sphera.API.Configurations;
 using Sphera.API.External;
+using Sphera.API.Licensing;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +29,10 @@ if (app.Environment.IsDevelopment())
 
 #if DEBUG
 app.UseCors("Localhost8080");
+#endif
+
+#if !DEBUG
+app.UseMiddleware<LicenseMiddleware>();
 #endif
 
 app.UseAuthorization();

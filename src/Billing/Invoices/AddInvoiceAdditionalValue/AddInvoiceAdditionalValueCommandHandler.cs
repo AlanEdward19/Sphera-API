@@ -41,15 +41,13 @@ public class AddInvoiceAdditionalValueCommandHandler(
                 }
 
                 var actor = context.User.GetUserId();
-
-                // TODO se quiser bloquear após envio para Contas a Receber, esse é o ponto.
-
-                //if (invoice.Status == EInvoiceStatus.Closed && invoice.IsSentToReceivables)
-                //{
-                //    await dbContext.Database.RollbackTransactionAsync(cancellationToken);
-                //    return ResultDTO<InvoiceDTO>.AsFailure(
-                //        new FailureDTO(400, "Fatura já enviada ao Contas a Receber. Não é possível adicionar valores."));
-                //}
+                
+                if (invoice.Status == EInvoiceStatus.Closed || (invoice.IsSentToReceivables ?? false))
+                {
+                    await dbContext.Database.RollbackTransactionAsync(cancellationToken);
+                    return ResultDTO<InvoiceDTO>.AsFailure(
+                        new FailureDTO(400, "Fatura já enviada ao Contas a Receber. Não é possível adicionar valores."));
+                }
 
                 invoice.AddAdditionalValue(request.Description, request.Amount);
 

@@ -10,6 +10,9 @@
     <ItemGroup>
         <PackageReference Include="Asp.Versioning.Mvc" Version="8.1.0" />
         <PackageReference Include="Azure.Storage.Blobs" Version="12.26.0" />
+        <PackageReference Include="BoletoNetCore" Version="3.0.1.519" />
+        <PackageReference Include="BoletoNetCore.PDF" Version="3.0.1.398" />
+        <PackageReference Include="HtmlToPDFCore" Version="2.0.9" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.10" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.10" />
         <PackageReference Include="Microsoft.EntityFramework.SqlServer" Version="6.5.1" />
@@ -21,6 +24,10 @@
         <PackageReference Include="Microsoft.EntityFrameworkCore.Relational" Version="9.0.10" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.10" />
         <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="9.0.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Billing\Billets\Services\" />
     </ItemGroup>
 
 </Project>
