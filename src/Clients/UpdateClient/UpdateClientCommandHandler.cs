@@ -41,6 +41,15 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
 
         if (client is null)
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, $"Cliente não encontrado"));
+        
+        var normalizedCnpj = new CnpjValueObject(request.Cnpj);
+        
+        var cnpjExists = await dbContext.Clients
+            .AsNoTracking()
+            .AnyAsync(x => x.Cnpj == normalizedCnpj && x.Id != client.Id, cancellationToken);
+
+        if (cnpjExists)
+            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "CNPJ já cadastrado."));
 
         var strategy = dbContext.Database.CreateExecutionStrategy();
 
@@ -52,19 +61,22 @@ public class UpdateClientCommandHandler(SpheraDbContext dbContext, ILogger<Updat
                 var actor = user.GetUserId();
 
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
-                
-                DateTime? dueDate = request.ContractDateInDays.HasValue ? DateTime.Today.AddDays(request.ContractDateInDays.Value) : client.ContractDate;
+
+                DateTime? dueDate = request.ContractDateInDays.HasValue
+                    ? DateTime.Today.AddDays(request.ContractDateInDays.Value)
+                    : client.ContractDate;
 
                 CnpjValueObject cnpj = new(request.Cnpj);
                 AddressValueObject address = request.Address.ToValueObject();
 
                 client.UpdateBasicInfo(request.TradeName, request.LegalName, cnpj, request.StateRegistration,
                     request.MunicipalRegistration,
-                    address, dueDate, request.BillingDueDay, request.Notes, request.EcacExpirationDate, actor, request.PaymentStatus);
+                    address, dueDate, request.BillingDueDay, request.Notes, request.EcacExpirationDate, actor,
+                    request.PaymentStatus);
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
-                
+
                 int documentCount = await dbContext.Documents
                     .AsNoTracking()
                     .CountAsync(d => d.ClientId == client.Id, cancellationToken);
