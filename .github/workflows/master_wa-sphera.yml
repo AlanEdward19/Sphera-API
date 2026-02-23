@@ -15,38 +15,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up .NET
+      - name: Set up .NET Core
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.x'
 
-      - name: Restore
-        run: dotnet restore src/Sphera.API.sln
+      - name: Build with dotnet
+        run: dotnet build src/Sphera.API.sln --configuration Release
 
-      - name: Publish
+      - name: dotnet publish
         run: dotnet publish src/Sphera.API.csproj -c Release -o ./publish
 
-      - name: Upload artifact
+      - name: Upload artifact for deployment job
         uses: actions/upload-artifact@v4
         with:
-          name: publish
+          name: .net-app
           path: ./publish
 
   deploy:
     runs-on: windows-latest
     needs: build
-
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - name: Download artifact
+      - name: Download artifact from build job
         uses: actions/download-artifact@v4
         with:
-          name: publish
+          name: .net-app
           path: ./publish
-
+      
       - name: Login to Azure
         uses: azure/login@v2
         with:
@@ -54,8 +53,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_267851B8F5F44295909FB60AE1A98B56 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD94EC564B844B60969F5254680C6ECA }}
 
-      - name: Deploy
+      - name: Deploy to Azure Web App
+        id: deploy-to-webapp
         uses: azure/webapps-deploy@v3
         with:
-          app-name: wa-sphera
+          app-name: 'wa-sphera'
+          slot-name: 'Production'
           package: ./publish
