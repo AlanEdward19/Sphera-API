@@ -9,7 +9,7 @@ namespace Sphera.API.Documents.DeleteDocument;
 public class DeleteDocumentCommandHandler(
     SpheraDbContext dbContext,
     ILogger<DeleteDocumentCommandHandler> logger,
-    IStorage storage) : IHandler<DeleteDocumentCommand, bool>
+    [FromKeyedServices("documents")] IStorage storage) : IHandler<DeleteDocumentCommand, bool>
 {
     public async Task<IResultDTO<bool>> HandleAsync(DeleteDocumentCommand request, HttpContext context,
         CancellationToken cancellationToken)

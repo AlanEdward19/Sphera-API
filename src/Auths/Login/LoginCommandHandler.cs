@@ -2,8 +2,6 @@ using Microsoft.EntityFrameworkCore;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
-using Sphera.API.Shared.Services;
-using Sphera.API.Users;
 using Sphera.API.Auths.DTOs;
 using Sphera.API.Shared.ValueObjects;
 

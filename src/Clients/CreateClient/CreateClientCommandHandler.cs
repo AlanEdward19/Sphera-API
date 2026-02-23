@@ -1,13 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using NuGet.Configuration;
 using Sphera.API.Clients.DTOs;
-using Sphera.API.Contacts;
 using Sphera.API.Contacts.Enums;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
 using Sphera.API.Shared.Utils;
+using Sphera.API.Shared.ValueObjects;
 
 namespace Sphera.API.Clients.CreateClient;
 
@@ -42,6 +41,11 @@ public class CreateClientCommandHandler(SpheraDbContext dbContext, ILogger<Creat
 
         if (await dbContext.Partners.FindAsync([request.PartnerId], cancellationToken) is null)
             return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "Parceiro não encontrado."));
+        
+        var normalizedCnpj = new CnpjValueObject(request.Cnpj);
+        var cnpjExists = await dbContext.Clients.AnyAsync(c => c.Cnpj == normalizedCnpj, cancellationToken);
+        if (cnpjExists)
+            return ResultDTO<ClientDTO>.AsFailure(new FailureDTO(400, "CNPJ já cadastrado."));
 
         var strategy = dbContext.Database.CreateExecutionStrategy();
 

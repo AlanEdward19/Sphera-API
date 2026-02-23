@@ -1,4 +1,5 @@
-﻿using Sphera.API.Shared.Enums;
+﻿using Sphera.API.Clients.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Reports.GenerateClientsReport;
 
@@ -29,6 +30,13 @@ public class GenerateClientsReportQuery
     /// when generating the client report. The value is optional and can be null.
     /// </remarks>
     public EExpirationStatus? Status { get; set; }
+    
+    /// <summary>
+    /// Gets or sets the payment status used for filtering clients in the report.
+    /// </summary> <remarks>
+    /// This property is used to filter clients based on their payment status when generating the client report. The value is optional and can be null.
+    /// </remarks>
+    public EPaymentStatus? PaymentStatus { get; set; }
 
     /// <summary>
     /// Gets or sets the starting date for filtering client records.

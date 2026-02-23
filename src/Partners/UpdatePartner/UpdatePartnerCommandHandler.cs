@@ -24,6 +24,17 @@ public class UpdatePartnerCommandHandler(SpheraDbContext dbContext, ILogger<Upda
 
         if (partner is null)
             return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, $"Parceiro não encontrado"));
+        
+        if (!string.IsNullOrWhiteSpace(request.Cnpj))
+        {
+            var normalizedCnpj = new CnpjValueObject(request.Cnpj);
+            var cnpjExists = await dbContext.Partners
+                .AnyAsync(p => 
+                    p.Cnpj != null && p.Cnpj == normalizedCnpj && p.Id != request.GetId()
+                    , cancellationToken);
+            if (cnpjExists)
+                return ResultDTO<PartnerDTO>.AsFailure(new FailureDTO(400, "CNPJ já cadastrado."));
+        }
 
         return await ExecutionStrategyHelper.ExecuteAsync(dbContext, async () =>
         {

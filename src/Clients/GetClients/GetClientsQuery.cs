@@ -1,4 +1,5 @@
-﻿using Sphera.API.Shared.Enums;
+﻿using Sphera.API.Clients.Enums;
+using Sphera.API.Shared.Enums;
 
 namespace Sphera.API.Clients.GetClients;
 
@@ -25,11 +26,16 @@ public class GetClientsQuery
     /// This property allows specifying a unique identifier for a legal entity in Brazil.
     /// </summary>
     public string? Cnpj { get; set; }
-    
+
     /// <summary>
     /// Current status of the clients, indicating whether it is within the deadline, about to expire, or expired.
     /// </summary>
     public EExpirationStatus? ExpirationStatus { get; set; }
+
+    /// <summary>
+    /// Current payment status of the clients, indicating whether it is paid, pending, or overdue.
+    /// </summary>
+    public EPaymentStatus? PaymentStatus { get; set; }
 
     /// <summary>
     /// The start date for filtering clients based on their due date.
