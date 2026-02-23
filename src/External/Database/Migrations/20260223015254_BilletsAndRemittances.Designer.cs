@@ -12,8 +12,8 @@ using Sphera.API.External.Database;
 namespace Sphera.API.External.Database.Migrations
 {
     [DbContext(typeof(SpheraDbContext))]
-    [Migration("20260201205510_AddedSentToReceivablesColumn")]
-    partial class AddedSentToReceivablesColumn
+    [Migration("20260223015254_BilletsAndRemittances")]
+    partial class BilletsAndRemittances
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -105,6 +105,11 @@ namespace Sphera.API.External.Database.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
+                    b.Property<string>("CompanyId")
+                        .IsRequired()
+                        .HasMaxLength(14)
+                        .HasColumnType("nvarchar(14)");
+
                     b.Property<string>("CompanyName")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -146,6 +151,9 @@ namespace Sphera.API.External.Database.Migrations
                         .IsRequired()
                         .HasMaxLength(60)
                         .HasColumnType("nvarchar(60)");
+
+                    b.Property<int>("StartingNossoNumero")
+                        .HasColumnType("int");
 
                     b.Property<int>("StartingSequentialNumber")
                         .HasColumnType("int");
@@ -190,6 +198,9 @@ namespace Sphera.API.External.Database.Migrations
 
                     b.Property<Guid>("InstallmentId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("NossoNumero")
+                        .HasColumnType("int");
 
                     b.Property<Guid?>("RemittanceId")
                         .HasColumnType("uniqueidentifier");
