@@ -1,4 +1,3 @@
-using Sphera.API.Documents.DTOs;
 using Sphera.API.External.Database;
 using Sphera.API.Shared;
 using Sphera.API.Shared.DTOs;
@@ -10,7 +9,7 @@ namespace Sphera.API.Documents.UploadDocument;
 public class UploadDocumentCommandHandler(
     SpheraDbContext dbContext,
     ILogger<UploadDocumentCommandHandler> logger,
-    IStorage storage)
+    [FromKeyedServices("documents")] IStorage storage)
     : IHandler<UploadDocumentCommand, bool>
 {
     public async Task<IResultDTO<bool>> HandleAsync(UploadDocumentCommand request, HttpContext context,

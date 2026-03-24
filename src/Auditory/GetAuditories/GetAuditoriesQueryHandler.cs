@@ -1,11 +1,8 @@
-using System.Globalization;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sphera.API.External.Database;
 using Sphera.API.Shared.DTOs;
 using Sphera.API.Shared.Interfaces;
-using Sphera.API.Shared.ValueObjects;
 using System.Text;
 
 namespace Sphera.API.Auditory.GetAuditories;

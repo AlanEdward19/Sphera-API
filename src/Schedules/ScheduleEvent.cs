@@ -2,7 +2,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using Sphera.API.Clients;
 using Sphera.API.Schedules.Enums;
-using Sphera.API.Shared;
 using Sphera.API.Users;
 
 namespace Sphera.API.Schedules;

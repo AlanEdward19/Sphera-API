@@ -5,10 +5,10 @@ using Sphera.API.External;
 using Sphera.API.Partners;
 using Sphera.API.Users;
 using Sphera.API.Roles;
-using Sphera.API.Auths;
 using Sphera.API.Billing;
 using Sphera.API.Contacts;
 using Sphera.API.Documents;
+using Sphera.API.Licensing;
 using Sphera.API.Reports;
 using Sphera.API.Schedules;
 using Sphera.API.Services;
@@ -50,6 +50,10 @@ public static class IoC
             .ConfigureContactsRelatedDependencies()
             .ConfigureBillingRelatedDependencies()
             .ConfigureReportsRelatedDependencies();
+
+#if !DEBUG
+        services.ConfigureLicensingModule();
+#endif
 
         return services;
     }

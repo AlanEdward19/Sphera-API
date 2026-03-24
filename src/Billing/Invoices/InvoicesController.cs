@@ -2,7 +2,6 @@
 using Sphera.API.Billing.Invoices.AddInvoiceAdditionalValue;
 using Sphera.API.Billing.Invoices.CloseInvoicesForPeriod;
 using Sphera.API.Billing.Invoices.DTOs;
-using Sphera.API.Billing.Invoices.Enums;
 using Sphera.API.Billing.Invoices.GetInvoiceById;
 using Sphera.API.Billing.Invoices.ListInvoices;
 using Sphera.API.Billing.Invoices.CreateInvoice;

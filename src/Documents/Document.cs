@@ -7,7 +7,6 @@ using Sphera.API.Documents.Enums;
 using Sphera.API.Services;
 using Sphera.API.Shared;
 using Sphera.API.Shared.Enums;
-using Sphera.API.Shared.ValueObjects;
 using Sphera.API.Users;
 
 namespace Sphera.API.Documents;

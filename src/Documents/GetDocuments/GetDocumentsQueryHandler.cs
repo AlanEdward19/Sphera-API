@@ -10,7 +10,7 @@ namespace Sphera.API.Documents.GetDocuments;
 public class GetDocumentsQueryHandler(
     SpheraDbContext dbContext,
     ILogger<GetDocumentsQueryHandler> logger,
-    IStorage storage) : IHandler<GetDocumentsQuery, IEnumerable<DocumentWithMetadataDTO>>
+    [FromKeyedServices("documents")] IStorage storage) : IHandler<GetDocumentsQuery, IEnumerable<DocumentWithMetadataDTO>>
 {
     public async Task<IResultDTO<IEnumerable<DocumentWithMetadataDTO>>> HandleAsync(GetDocumentsQuery request,
         HttpContext context, CancellationToken cancellationToken)

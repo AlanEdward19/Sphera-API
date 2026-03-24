@@ -1,5 +1,4 @@
-﻿using Sphera.API.Clients;
-using Sphera.API.Contacts.Enums;
+﻿using Sphera.API.Contacts.Enums;
 
 namespace Sphera.API.Contacts.AddContactToPartner;
 

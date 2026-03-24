@@ -39,6 +39,7 @@ public class Invoice
     public DateTime? ClosedAt { get; private set; }
     public Guid? ClosedBy { get; private set; }
 
+    public bool? IsSentToReceivables { get; private set; } = false;
     public virtual Client Client { get; private set; }
     public virtual ICollection<InvoiceItem> Items { get; private set; } = new List<InvoiceItem>();
     public virtual ICollection<InvoiceInstallment> Installments { get; private set; } = new List<InvoiceInstallment>();
@@ -144,5 +145,10 @@ public class Invoice
         var lastDue = Installments.Max(i => i.DueDate);
         if (DueDate.Date != lastDue.Date)
             throw new DomainException("Data de vencimento da fatura deve ser igual à data da última parcela.");
+    }
+    
+    public void ToggleSentToReceivables()
+    {
+        IsSentToReceivables = !IsSentToReceivables ?? true;
     }
 }

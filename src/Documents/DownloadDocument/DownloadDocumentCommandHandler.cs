@@ -10,7 +10,7 @@ namespace Sphera.API.Documents.DownloadDocument;
 public class DownloadDocumentCommandHandler(
     SpheraDbContext dbContext,
     ILogger<UploadDocumentCommandHandler> logger,
-    IStorage storage)
+    [FromKeyedServices("documents")] IStorage storage)
     : IHandler<DownloadDocumentCommand, (Stream, string)>
 {
     public async Task<IResultDTO<(Stream, string)>> HandleAsync(DownloadDocumentCommand request, HttpContext context,

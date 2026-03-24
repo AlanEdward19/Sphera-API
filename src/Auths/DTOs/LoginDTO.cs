@@ -1,5 +1,3 @@
-using Sphera.API.Shared.ValueObjects;
-
 namespace Sphera.API.Auths.DTOs;
 
 public class LoginDTO

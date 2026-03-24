@@ -78,9 +78,10 @@ public static class ExernalModule
     {
         var connectionStringStorage = configuration.GetConnectionString("Storage");
         
-        services.AddScoped<IStorage>(_ =>
+        services.AddKeyedScoped<IStorage>("documents", (_, _) =>
             new SpheraStorage(connectionStringStorage!, "documents"));
-
+        services.AddKeyedScoped<IStorage>("billing", (_, _) =>
+            new SpheraStorage(connectionStringStorage!, "billing"));
 
         return services;
     }
