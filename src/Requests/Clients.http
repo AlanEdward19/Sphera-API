@@ -45,7 +45,8 @@ Authorization: {{token}}
   "financialPhone": "+55 11 99999-0000",
   "email": "contato@acme.com",
   "phone": "+55 11 98888-0000",
-  "billingDueDay": 15
+  "billingDueDay": 15,
+  "clientType": 0
 }
 
 ###
@@ -80,7 +81,9 @@ Content-Type: {{json}}
   "email": "contato@acme.com",
   "phone": "+55 11 98888-0000",
   "billingDueDay": 20,
-  "status": true
+  "status": true,
+  "paymentStatus": 0,
+  "clientType": 0
 }
 
 ###

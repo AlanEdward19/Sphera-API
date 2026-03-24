@@ -39,6 +39,11 @@ public class GenerateClientsReportQuery
     public EPaymentStatus? PaymentStatus { get; set; }
 
     /// <summary>
+    /// Gets or sets the client type used for filtering clients in the report.
+    /// </summary>
+    public EClientType? ClientType { get; set; }
+
+    /// <summary>
     /// Gets or sets the starting date for filtering client records.
     /// </summary>
     /// <remarks>

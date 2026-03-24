@@ -1,5 +1,6 @@
 ﻿using Sphera.API.Shared.DTOs;
 using System.ComponentModel.DataAnnotations;
+using Sphera.API.Clients.Enums;
 
 namespace Sphera.API.Clients.CreateClient;
 
@@ -122,4 +123,7 @@ public class CreateClientCommand
     
     [Required]
     public short ContractDateInDays { get; set; }
+
+    [Required]
+    public EClientType ClientType { get; set; }
 }

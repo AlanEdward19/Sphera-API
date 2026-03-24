@@ -94,10 +94,15 @@ public class ClientsReportDTO
     public EPaymentStatus? PaymentStatus { get; private set; }
 
     /// <summary>
+    /// Gets the type classification of the client.
+    /// </summary>
+    public EClientType? ClientType { get; private set; }
+
+    /// <summary>
     /// A Data Transfer Object (DTO) that represents the report of clients.
     /// </summary>
     public ClientsReportDTO(string tradeName, string legalName, string cnpj, Guid partnerId, string partnerName,
-        DateTime? ecacExpirationDate, EExpirationStatus? status, EPaymentStatus? paymentStatus)
+        DateTime? ecacExpirationDate, EExpirationStatus? status, EPaymentStatus? paymentStatus, EClientType? clientType)
     {
         TradeName = tradeName;
         LegalName = legalName;
@@ -107,5 +112,6 @@ public class ClientsReportDTO
         EcacExpirationDate = ecacExpirationDate;
         Status = status;
         PaymentStatus = paymentStatus;
+        ClientType = clientType;
     }
 }
