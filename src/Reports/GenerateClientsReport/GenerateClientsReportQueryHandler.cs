@@ -50,6 +50,9 @@ public class GenerateClientsReportQueryHandler(
         if (request.PaymentStatus.HasValue)
             query = query.Where(x => x.PaymentStatus == request.PaymentStatus.Value);
 
+        if (request.ClientType.HasValue)
+            query = query.Where(x => x.ClientType == request.ClientType.Value);
+
         var clients = await query.ToListAsync(cancellationToken);
 
         if (!clients.Any())
@@ -59,7 +62,7 @@ public class GenerateClientsReportQueryHandler(
             clients = clients.Where(x => x.ExpirationStatus == request.Status.Value).ToList();
 
         var result = clients.Select(x => new ClientsReportDTO(x.TradeName, x.LegalName, x.Cnpj.Value, x.PartnerId,
-            x.Partner.LegalName, x.EcacExpirationDate, x.ExpirationStatus, x.PaymentStatus)).ToArray();
+            x.Partner.LegalName, x.EcacExpirationDate, x.ExpirationStatus, x.PaymentStatus, x.ClientType)).ToArray();
 
         return ResultDTO<ClientsReportDTO[]>.AsSuccess(result);
     }

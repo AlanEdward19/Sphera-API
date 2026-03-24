@@ -38,6 +38,11 @@ public class GetClientsQuery
     public EPaymentStatus? PaymentStatus { get; set; }
 
     /// <summary>
+    /// Type of client used to filter the list.
+    /// </summary>
+    public EClientType? ClientType { get; set; }
+
+    /// <summary>
     /// The start date for filtering clients based on their due date.
     /// </summary>
     public DateTime? DueDateFrom { get; set; }

@@ -103,6 +103,11 @@ public class Client
     
     [Required]
     public EPaymentStatus PaymentStatus { get; private set; }
+    
+    /// <summary>
+    /// Gets the type of client, which can be used to categorize or differentiate clients based on specific criteria or classifications defined in the EClientType enumeration.
+    /// </summary>
+    public EClientType? ClientType { get; private set; }
 
     /// <summary>
     /// Gets the date and time when the entity was created.
@@ -171,13 +176,13 @@ public class Client
     /// <exception cref="DomainException">Thrown if partnerId is Guid.Empty.</exception>
     public Client(Guid partnerId, string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
         string? municipalRegistration, AddressValueObject? address, Guid createdBy, DateTime contractDate,
-        short? billingDueDay = null, string? notes = null, DateTime? ecacExpirationDate = null)
+        EClientType clientType, short? billingDueDay = null, string? notes = null, DateTime? ecacExpirationDate = null)
     {
         Id = Guid.NewGuid();
         if (partnerId == Guid.Empty) throw new DomainException("PartnerId obrigatório.");
         PartnerId = partnerId;
         SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
-            billingDueDay, notes, ecacExpirationDate);
+            clientType, billingDueDay, notes, ecacExpirationDate);
         CreatedAt = DateTime.UtcNow;
         CreatedBy = createdBy;
         Status = true;
@@ -198,6 +203,7 @@ public class Client
             command.MunicipalRegistration,
             command.Address.ToValueObject(),
             contractDate,
+            command.ClientType,
             command.BillingDueDay,
             command.Notes,
             command.EcacExpirationDate);
@@ -224,7 +230,7 @@ public class Client
     /// <exception cref="DomainException">Thrown if <paramref name="tradeName"/> is null, empty, or white space; or if <paramref name="cnpj"/> or
     /// <paramref name="address"/> is null.</exception>
     private void SetBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
-        string? municipalRegistration, AddressValueObject? address, DateTime? contractDate,
+        string? municipalRegistration, AddressValueObject? address, DateTime? contractDate, EClientType clientType,
         short? billingDueDay, string? notes, DateTime? ecacExpirationDate)
     {
         if (string.IsNullOrWhiteSpace(tradeName)) throw new DomainException("Nome fantasia obrigatório.");
@@ -238,6 +244,7 @@ public class Client
         Address = address ?? throw new DomainException("Endereço obrigatório.");
         BillingDueDay = billingDueDay;
         ContractDate = contractDate;
+        ClientType = clientType;
         Notes = notes;
         EcacExpirationDate = ecacExpirationDate;
     }
@@ -260,10 +267,10 @@ public class Client
     /// <param name="paymentStatus"></param>
     public void UpdateBasicInfo(string tradeName, string legalName, CnpjValueObject? cnpj, string? stateRegistration,
         string? municipalRegistration, AddressValueObject? address, DateTime? contractDate, short? billingDueDay,
-        string? notes, DateTime? ecacExpirationDate, Guid actor, EPaymentStatus paymentStatus)
+        string? notes, DateTime? ecacExpirationDate, Guid actor, EPaymentStatus paymentStatus, EClientType clientType)
     {
         SetBasicInfo(tradeName, legalName, cnpj, stateRegistration, municipalRegistration, address, contractDate,
-            billingDueDay, notes, ecacExpirationDate);
+            clientType, billingDueDay, notes, ecacExpirationDate);
         UpdatedAt = DateTime.UtcNow;
         UpdatedBy = actor;
         PaymentStatus = paymentStatus;
@@ -350,6 +357,7 @@ public class Client
                 Notes,
                 EcacExpirationDate,
                 PaymentStatus,
+                ClientType,
                 Partner.ToDTO(false, clientsCount!.Value)
             )
             : new ClientDTO(
@@ -372,7 +380,8 @@ public class Client
                 documentCount,
                 Notes,
                 EcacExpirationDate, 
-                PaymentStatus
+                PaymentStatus,
+                ClientType
             );
     }
 

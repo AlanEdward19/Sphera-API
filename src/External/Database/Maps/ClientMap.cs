@@ -63,6 +63,7 @@ public class ClientMap : IEntityTypeConfiguration<Client>
         b.Property(x => x.ContractDate).HasColumnType("datetime2");
         b.Property(x => x.Status).IsRequired();
         b.Property(x => x.PaymentStatus).HasConversion<int>().IsRequired();
+        b.Property(x => x.ClientType).HasConversion<int>();
 
         b.Property(x => x.CreatedAt).HasColumnType("datetime2").IsRequired();
         b.Property(x => x.CreatedBy).HasColumnType("uniqueidentifier").IsRequired();
