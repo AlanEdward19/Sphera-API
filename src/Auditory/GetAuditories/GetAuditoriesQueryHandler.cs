@@ -100,7 +100,7 @@ public class GetAuditoriesQueryHandler(SpheraDbContext dbContext, ILogger<GetAud
         parameters.Add(new SqlParameter("@p_exclude_valueobject", "%ValueObject%"));
         sql.AppendLine("AND (ae.EntityType <> @p_exclude_contact)");
         parameters.Add(new SqlParameter("@p_exclude_contact", "Contact"));
-        sql.AppendLine("AND (ae.EntityType <> @p_exclude_scheduleEventInvite");
+        sql.AppendLine("AND (ae.EntityType <> @p_exclude_scheduleEventInvite)");
         parameters.Add(new SqlParameter("@p_exclude_scheduleEventInvite", "ScheduleEventInvite"));
         
         sql.AppendLine("ORDER BY ae.Id DESC");
