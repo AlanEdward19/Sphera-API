@@ -54,6 +54,9 @@ public class GetClientsQueryHandler(SpheraDbContext dbContext, ILogger<GetClient
         if (request.PaymentStatus.HasValue)
             query = query.Where(d => d.PaymentStatus == request.PaymentStatus.Value);
 
+        if (request.ClientType.HasValue)
+            query = query.Where(d => d.ClientType == request.ClientType.Value);
+
         if (!string.IsNullOrWhiteSpace(request.Search))
         {
             var pattern = $"%{request.Search!.Trim()}%";

@@ -28,13 +28,15 @@ public class ClientDTO
     public ReadOnlyCollection<ContactDTO> Contacts { get; private set; }
     public int DocumentsCount { get; private set; }
     public EPaymentStatus? PaymentStatus { get; private set; }
+    public EClientType? ClientType { get; private set; }
 
     public ClientDTO(Guid id, string tradeName, string legalName, string cnpj, string? stateRegistration,
         string? municipalRegistration, AddressDTO address, short? billingDueDay, DateTime? contractDate,
         EExpirationStatus? expirationStatus, bool status,
         DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy,
         ReadOnlyCollection<ContactDTO> contacts, int documentsCount, string? notes = null,
-        DateTime? ecacExpirationDate = null, EPaymentStatus? paymentStatus = null)
+        DateTime? ecacExpirationDate = null, EPaymentStatus? paymentStatus = null,
+        EClientType? clientType = null)
     {
         Id = id;
         TradeName = tradeName;
@@ -56,5 +58,6 @@ public class ClientDTO
         Contacts = contacts;
         DocumentsCount = documentsCount;
         PaymentStatus = paymentStatus;
+        ClientType = clientType;
     }
 }

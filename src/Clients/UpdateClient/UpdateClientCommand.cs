@@ -121,6 +121,9 @@ public class UpdateClientCommand
     [Required]
     public EPaymentStatus  PaymentStatus { get; set; }
 
+    [Required]
+    public EClientType ClientType { get; set; }
+
     /// <summary>
     /// Gets the unique identifier associated with this instance.
     /// </summary>
