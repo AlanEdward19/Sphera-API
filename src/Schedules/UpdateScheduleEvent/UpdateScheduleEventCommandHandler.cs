@@ -25,9 +25,7 @@ public class UpdateScheduleEventCommandHandler(SpheraDbContext dbContext, ILogge
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
                 entity.Update(request.OccurredAt, request.EventType, request.UserId, request.ClientId, request.Notes, actor);
-
-                // Update invited users if provided. Sem valor (null) significa não alterar a lista;
-                // lista vazia significa remover todos os convites.
+                
                 if (request.InvitedUserIds is not null)
                 {
                     var newIds = request.InvitedUserIds.Where(id => id != Guid.Empty).Distinct().ToList();
