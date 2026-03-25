@@ -35,4 +35,9 @@ public class CreateScheduleEventCommand
     /// </summary>
     [MaxLength(500)]
     public string? Notes { get; set; }
+
+    /// <summary>
+    /// Lista opcional de IDs de usuários convidados para este evento. Pode ser nulo ou vazia.
+    /// </summary>
+    public IEnumerable<Guid>? InvitedUserIds { get; set; }
 }

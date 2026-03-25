@@ -55,6 +55,11 @@ public class ScheduleEventDTO
     public Guid? UpdatedBy { get; private set; }
 
     /// <summary>
+    /// Optional invited users list.
+    /// </summary>
+    public IEnumerable<Guid>? InvitedUserIds { get; private set; }
+
+    /// <summary>
     /// Initializes a new instance of the ScheduleEventDTO class with the specified event and audit information.
     /// </summary>
     /// <param name="id">The unique identifier for the schedule event.</param>
@@ -67,7 +72,8 @@ public class ScheduleEventDTO
     /// <param name="createdBy">The unique identifier of the user who created the event record.</param>
     /// <param name="updatedAt">The date and time when the event record was last updated, or null if it has not been updated.</param>
     /// <param name="updatedBy">The unique identifier of the user who last updated the event record, or null if it has not been updated.</param>
-    public ScheduleEventDTO(Guid id, DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy)
+    /// <param name="invitedUserIds">Invited user list</param>
+    public ScheduleEventDTO(Guid id, DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId, string? notes, DateTime createdAt, Guid createdBy, DateTime? updatedAt, Guid? updatedBy, IEnumerable<Guid>? invitedUserIds = null)
     {
         Id = id;
         OccurredAt = occurredAt;
@@ -79,5 +85,6 @@ public class ScheduleEventDTO
         CreatedBy = createdBy;
         UpdatedAt = updatedAt;
         UpdatedBy = updatedBy;
+        InvitedUserIds = invitedUserIds;
     }
 }

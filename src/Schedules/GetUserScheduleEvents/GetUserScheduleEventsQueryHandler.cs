@@ -5,14 +5,18 @@ using Sphera.API.Shared.Interfaces;
 
 namespace Sphera.API.Schedules.GetUserScheduleEvents;
 
-public class GetUserScheduleEventsQueryHandler(SpheraDbContext dbContext, ILogger<GetUserScheduleEventsQueryHandler> logger)
+public class GetUserScheduleEventsQueryHandler(
+    SpheraDbContext dbContext,
+    ILogger<GetUserScheduleEventsQueryHandler> logger)
     : IHandler<GetUserScheduleEventsQuery, IEnumerable<ScheduleEventDTO>>
 {
-    public async Task<IResultDTO<IEnumerable<ScheduleEventDTO>>> HandleAsync(GetUserScheduleEventsQuery request, HttpContext context, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<ScheduleEventDTO>>> HandleAsync(GetUserScheduleEventsQuery request,
+        HttpContext context, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Recuperando eventos de agenda para UserId={UserId} StartAt={StartAt} EndAt={EndAt}", request.GetUserId(), request.StartAt, request.EndAt);
+        logger.LogInformation("Recuperando eventos de agenda para UserId={UserId} StartAt={StartAt} EndAt={EndAt}",
+            request.GetUserId(), request.StartAt, request.EndAt);
 
-        IQueryable<ScheduleEvent> query = dbContext.ScheduleEvents.AsNoTracking();
+        IQueryable<ScheduleEvent> query = dbContext.ScheduleEvents.AsNoTracking().Include(s => s.InvitedUsers);
 
         query = query.Where(s => s.UserId == request.GetUserId());
 
@@ -22,7 +26,8 @@ public class GetUserScheduleEventsQueryHandler(SpheraDbContext dbContext, ILogge
         if (request.EndAt.HasValue)
             query = query.Where(s => s.OccurredAt <= request.EndAt.Value);
 
-        var list = await query.OrderBy(s => s.OccurredAt)
+        var list = await query
+            .OrderBy(s => s.OccurredAt)
             .Select(s => s.ToDTO())
             .ToListAsync(cancellationToken);
 
