@@ -18,7 +18,8 @@ public class GetUserScheduleEventsQueryHandler(
 
         IQueryable<ScheduleEvent> query = dbContext.ScheduleEvents.AsNoTracking().Include(s => s.InvitedUsers);
 
-        query = query.Where(s => s.UserId == request.GetUserId());
+        var userId = request.GetUserId();
+        query = query.Where(s => s.UserId == userId || s.InvitedUsers.Any(i => i.InvitedUserId == userId));
 
         if (request.StartAt.HasValue)
             query = query.Where(s => s.OccurredAt >= request.StartAt.Value);
