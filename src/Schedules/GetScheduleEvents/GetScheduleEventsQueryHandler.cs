@@ -8,11 +8,13 @@ namespace Sphera.API.Schedules.GetScheduleEvents;
 public class GetScheduleEventsQueryHandler(SpheraDbContext dbContext, ILogger<GetScheduleEventsQueryHandler> logger)
     : IHandler<GetScheduleEventsQuery, IEnumerable<ScheduleEventDTO>>
 {
-    public async Task<IResultDTO<IEnumerable<ScheduleEventDTO>>> HandleAsync(GetScheduleEventsQuery request, HttpContext context, CancellationToken cancellationToken)
+    public async Task<IResultDTO<IEnumerable<ScheduleEventDTO>>> HandleAsync(GetScheduleEventsQuery request,
+        HttpContext context, CancellationToken cancellationToken)
     {
-        logger.LogInformation("Recuperando eventos de agenda para StartAt={StartAt} EndAt={EndAt}", request.StartAt, request.EndAt);
+        logger.LogInformation("Recuperando eventos de agenda para StartAt={StartAt} EndAt={EndAt}", request.StartAt,
+            request.EndAt);
 
-        IQueryable<ScheduleEvent> query = dbContext.ScheduleEvents.AsNoTracking();
+        IQueryable<ScheduleEvent> query = dbContext.ScheduleEvents.AsNoTracking().Include(s => s.InvitedUsers);
 
         if (request.StartAt.HasValue)
             query = query.Where(s => s.OccurredAt >= request.StartAt.Value);
@@ -22,11 +24,12 @@ public class GetScheduleEventsQueryHandler(SpheraDbContext dbContext, ILogger<Ge
 
         if (request.EventType.HasValue)
             query = query.Where(s => s.EventType == request.EventType.Value);
-        
+
         if (request.CreatedBy.HasValue)
             query = query.Where(s => s.CreatedBy == request.CreatedBy.Value);
 
-        var list = await query.OrderBy(s => s.OccurredAt)
+        var list = await query
+            .OrderBy(s => s.OccurredAt)
             .Select(s => s.ToDTO())
             .ToListAsync(cancellationToken);
 

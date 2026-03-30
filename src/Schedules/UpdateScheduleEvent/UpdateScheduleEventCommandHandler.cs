@@ -25,6 +25,33 @@ public class UpdateScheduleEventCommandHandler(SpheraDbContext dbContext, ILogge
                 await dbContext.Database.BeginTransactionAsync(cancellationToken);
 
                 entity.Update(request.OccurredAt, request.EventType, request.UserId, request.ClientId, request.Notes, actor);
+                
+                if (request.InvitedUserIds is not null)
+                {
+                    var newIds = request.InvitedUserIds.Where(id => id != Guid.Empty).Distinct().ToList();
+                    
+                    var currentInvites = dbContext.ScheduleEventInvites.Where(i => i.ScheduleEventId == entity.Id).ToList();
+                    var currentIds = currentInvites.Select(i => i.InvitedUserId).ToList();
+                    
+                    #region Remove
+
+                    var toRemove = currentInvites.Where(i => !newIds.Contains(i.InvitedUserId)).ToList();
+                    if (toRemove.Any())
+                        dbContext.ScheduleEventInvites.RemoveRange(toRemove);
+
+                    #endregion
+
+                    #region Add
+
+                    var toAddIds = newIds.Except(currentIds).ToList();
+                    if (toAddIds.Any())
+                    {
+                        var adds = toAddIds.Select(id => new ScheduleEventInvite(entity.Id, id));
+                        dbContext.ScheduleEventInvites.AddRange(adds);
+                    }
+
+                    #endregion
+                }
 
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);

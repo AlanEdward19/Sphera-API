@@ -42,6 +42,11 @@ public class UpdateScheduleEventCommand
     public string? Notes { get; set; }
 
     /// <summary>
+    /// Lista opcional de IDs de usuários convidados. Pode ser nulo (não alterar) ou vazia (remover todos).
+    /// </summary>
+    public IEnumerable<Guid>? InvitedUserIds { get; set; }
+
+    /// <summary>
     /// Gets the unique identifier associated with this instance.
     /// </summary>
     /// <returns>A <see cref="System.Guid"/> that uniquely identifies this instance.</returns>

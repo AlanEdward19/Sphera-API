@@ -44,6 +44,17 @@ public class CreateScheduleEventCommandHandler(
                 var entity = new ScheduleEvent(request.OccurredAt, request.EventType, request.UserId, request.ClientId, actor, request.Notes);
 
                 await dbContext.ScheduleEvents.AddAsync(entity, cancellationToken);
+                
+                if (request.InvitedUserIds != null && request.InvitedUserIds.Any())
+                {
+                    var invites = request.InvitedUserIds
+                        .Where(id => id != Guid.Empty)
+                        .Distinct()
+                        .Select(id => new ScheduleEventInvite(entity.Id, id));
+
+                    await dbContext.ScheduleEventInvites.AddRangeAsync(invites, cancellationToken);
+                }
+
                 await dbContext.SaveChangesAsync(cancellationToken);
                 await dbContext.Database.CommitTransactionAsync(cancellationToken);
 

@@ -84,6 +84,13 @@ public class ScheduleEvent
     public virtual Client? Client { get; private set; }
 
     /// <summary>
+    /// Collection of invited users for this schedule event (only valid when EventType is Individual).
+    /// This collection is optional and will be empty for existing events unless invites are added.
+    /// </summary>
+    public virtual ICollection<ScheduleEventInvite> InvitedUsers { get; private set; } =
+        new List<ScheduleEventInvite>();
+
+    /// <summary>
     /// Initializes a new instance of the ScheduleEvent class.
     /// </summary>
     /// <remarks>This constructor is private and is intended for internal use only. Instances of ScheduleEvent
@@ -103,7 +110,8 @@ public class ScheduleEvent
     /// <param name="createdBy">The unique identifier of the user who created the event.</param>
     /// <param name="notes">Optional notes or comments related to the event. If null or whitespace, the value is ignored.</param>
     /// <remarks>Both <paramref name="userId"/> and <paramref name="clientId"/> are optional.</remarks>
-    public ScheduleEvent(DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId, Guid createdBy, string? notes = null)
+    public ScheduleEvent(DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId,
+        Guid createdBy, string? notes = null)
     {
         Id = Guid.NewGuid();
         OccurredAt = occurredAt;
@@ -124,7 +132,8 @@ public class ScheduleEvent
     /// <param name="clientId">The unique identifier of the client associated with the event. Cannot be null or empty.</param>
     /// <param name="notes">Optional notes or comments related to the event. If null or whitespace, notes will be cleared.</param>
     /// <param name="actor">The unique identifier of the user performing the update.</param>
-    public void Update(DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId, string? notes, Guid actor)
+    public void Update(DateTime occurredAt, EScheduleEventType eventType, Guid? userId, Guid? clientId, string? notes,
+        Guid actor)
     {
         OccurredAt = occurredAt;
         EventType = eventType;
@@ -147,7 +156,8 @@ public class ScheduleEvent
             CreatedAt,
             CreatedBy,
             UpdatedAt,
-            UpdatedBy
+            UpdatedBy,
+            InvitedUsers?.Select(i => i.InvitedUserId).ToList()
         );
     }
 }
