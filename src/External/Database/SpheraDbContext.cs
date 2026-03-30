@@ -31,6 +31,7 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
     public DbSet<Role> Roles { get; set; }
     public DbSet<User> Users { get; set; }
     public DbSet<ScheduleEvent> ScheduleEvents { get; set; }
+    public DbSet<ScheduleEventInvite> ScheduleEventInvites { get; set; }
     public DbSet<ClientServicePrice> ClientServicePrices { get; set; }
     public DbSet<BillingEntry> BillingEntries { get; set; }
     public DbSet<Invoice> Invoices { get; set; }
@@ -53,6 +54,7 @@ public class SpheraDbContext(DbContextOptions<SpheraDbContext> options, IHttpCon
         modelBuilder.ApplyConfiguration(new RoleMap());
         modelBuilder.ApplyConfiguration(new UserMap());
         modelBuilder.ApplyConfiguration(new ScheduleEventMap());
+        modelBuilder.ApplyConfiguration(new ScheduleEventInviteMap());
         modelBuilder.ApplyConfiguration(new ClientServicePriceMap());
         modelBuilder.ApplyConfiguration(new BillingEntryMap());
         modelBuilder.ApplyConfiguration(new InvoiceMap());
